@@ -20,7 +20,6 @@
     <Compile Include="ExecuteAttribute.cs" />
     <Compile Include="ExecuteBeforeAttribute.cs" />
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="ICommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

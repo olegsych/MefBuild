@@ -14,7 +14,7 @@ namespace MefBuild
         /// Initializes a new instance of the <see cref="ExecuteAttribute"/> class.
         /// </summary>
         protected ExecuteAttribute(string contractNamePrefix, Type targetCommandType) 
-            : base(GetContractName(contractNamePrefix, targetCommandType), typeof(ICommand))
+            : base(GetContractName(contractNamePrefix, targetCommandType), typeof(Command))
         {
             this.targetCommandType = targetCommandType;
         }

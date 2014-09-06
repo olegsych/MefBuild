@@ -13,12 +13,6 @@ namespace MefBuild
         }
 
         [Fact]
-        public void ClassImplementsICommandInterfaceToSupportPolymorphicExecution()
-        {
-            Assert.True(typeof(ICommand).IsAssignableFrom(typeof(Command)));
-        }
-
-        [Fact]
         public void ClassIsAbstractAndNotMeantToBeUsedDirectly()
         {
             Assert.True(typeof(Command).IsAbstract);
@@ -46,7 +40,7 @@ namespace MefBuild
         [Fact]
         public void ConstructorInitializesDependsOnPropertyWithGivenCollectionOfCommands()
         {
-            var commands = new ICommand[] { new Mock<ICommand>().Object, new Mock<ICommand>().Object };
+            var commands = new Command[] { new Mock<Command>().Object, new Mock<Command>().Object };
             var composite = new TestableCommand(commands);
             Assert.Equal(commands, composite.DependsOn);
         }
@@ -60,7 +54,7 @@ namespace MefBuild
 
         private class TestableCommand : Command
         {
-            public TestableCommand(params ICommand[] dependsOn) : base(dependsOn)
+            public TestableCommand(params Command[] dependsOn) : base(dependsOn)
             {
             }
 

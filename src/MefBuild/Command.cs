@@ -7,16 +7,16 @@ namespace MefBuild
     /// <summary>
     /// Serves as a base class for composable commands.
     /// </summary>
-    public abstract class Command : ICommand
+    public abstract class Command
     {
-        private readonly IEnumerable<ICommand> dependsOn;
+        private readonly IEnumerable<Command> dependsOn;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Command"/> class without dependencies. 
         /// </summary>
         protected Command()
         {
-            this.dependsOn = Enumerable.Empty<ICommand>();
+            this.dependsOn = Enumerable.Empty<Command>();
         }
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace MefBuild
         /// <param name="dependsOn">A read-only collection of <see cref="Command"/> objects this instance will execute.</param>
         /// <exception cref="ArgumentNullException">The <paramref name="dependsOn"/> argument is null.</exception>
         /// <exception cref="ArgumentException">The <paramref name="dependsOn"/> array is empty contains null elements.</exception>
-        protected Command(params ICommand[] dependsOn)
+        protected Command(params Command[] dependsOn)
         {
             if (dependsOn == null)
             {
@@ -33,7 +33,7 @@ namespace MefBuild
             }
 
             int commandCount = 0;
-            foreach (ICommand command in dependsOn)
+            foreach (Command command in dependsOn)
             {
                 commandCount++;
                 if (command == null)
@@ -51,13 +51,13 @@ namespace MefBuild
         }
 
         /// <summary>
-        /// Gets a collection of <see cref="ICommand"/> objects this command depends on.
+        /// Gets a collection of <see cref="Command"/> objects this command depends on.
         /// </summary>
         /// <remarks>
         /// This property mimics the DependsOnTargets attribute of MSBuild targets.
         /// <a href="http://msdn.microsoft.com/en-us/library/t50z2hka.aspx"/>.
         /// </remarks>
-        public IEnumerable<ICommand> DependsOn 
+        public IEnumerable<Command> DependsOn 
         {
             get { return this.dependsOn; }
         }

@@ -30,7 +30,7 @@ namespace MefBuild
         public void ConstructorSetsContractTypeToICommand()
         {
             var attribute = new TestableExecuteAttribute(string.Empty, typeof(Mock<Command>));
-            Assert.Equal(typeof(ICommand), attribute.ContractType);
+            Assert.Equal(typeof(Command), attribute.ContractType);
         }
 
         [Fact]
