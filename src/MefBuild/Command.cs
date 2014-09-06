@@ -12,7 +12,15 @@ namespace MefBuild
         private readonly IEnumerable<ICommand> dependsOn;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Command"/> class.
+        /// Initializes a new instance of the <see cref="Command"/> class without dependencies. 
+        /// </summary>
+        protected Command()
+        {
+            this.dependsOn = Enumerable.Empty<ICommand>();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Command"/> class with the specified dependencies.
         /// </summary>
         /// <param name="dependsOn">A read-only collection of <see cref="Command"/> objects this instance will execute.</param>
         /// <exception cref="ArgumentNullException">The <paramref name="dependsOn"/> argument is null.</exception>
@@ -40,14 +48,6 @@ namespace MefBuild
             }
 
             this.dependsOn = dependsOn;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Command"/> class without dependencies. 
-        /// </summary>
-        protected Command()
-        {
-            this.dependsOn = Enumerable.Empty<ICommand>();
         }
 
         /// <summary>
