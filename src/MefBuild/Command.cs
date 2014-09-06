@@ -55,7 +55,7 @@ namespace MefBuild
         /// </summary>
         /// <remarks>
         /// This property mimics the DependsOnTargets attribute of MSBuild targets.
-        /// http://msdn.microsoft.com/en-us/library/t50z2hka.aspx.
+        /// <a href="http://msdn.microsoft.com/en-us/library/t50z2hka.aspx"/>.
         /// </remarks>
         public IEnumerable<ICommand> DependsOn 
         {

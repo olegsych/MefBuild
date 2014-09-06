@@ -37,6 +37,9 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
+    <!-- Disable FxCop and StyleCop to reduce build time -->
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <StyleCopEnabled>false</StyleCopEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -44,6 +47,8 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RunCodeAnalysis Condition=" '$(PublicRelease)' != 'true' ">true</RunCodeAnalysis>
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+    <StyleCopEnabled>true</StyleCopEnabled>
+    <StyleCopTreatErrorsAsWarnings>false</StyleCopTreatErrorsAsWarnings>
     <DocumentationFile Condition="'$(IsTestProject)' != 'true'">$(OutputPath)$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
   

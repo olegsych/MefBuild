@@ -7,7 +7,7 @@
     <authors>Oleg Sych</authors>
     <summary>A simple build framework based on MEF.</summary>
     <description>
-      This package provides a simple build framework based on Microsoft Extensibility Framework (MEF).
+      MEF Build is a lightweight build framework based on the Microsoft Extensibility Framework.
       
       Supported Platforms:
       - .NET Framework 4.5
@@ -19,7 +19,6 @@
     <licenseUrl>https://github.com/olegsych/MefBuild/blob/master/license.txt</licenseUrl>
     <projectUrl>https://github.com/olegsych/MefBuild</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
     <copyright>Copyright (c) 2014</copyright>
     <tags>MEF Composition Build</tags>
   </metadata>
