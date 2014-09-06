@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <licenseUrl>https://github.com/olegsych/MefBuild/blob/master/license.txt</licenseUrl>
+    <projectUrl>http://olegsych.github.io/MefBuild</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
+    <copyright>Copyright (c) 2014</copyright>
+    <tags>MEF Composition Build</tags>
+  </metadata>
+</package>
