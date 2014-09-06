@@ -2,13 +2,23 @@
 <package >
   <metadata>
     <id>$id$</id>
-    <version>$version$</version>
-    <title>$title$</title>
-    <authors>$author$</authors>
+    <version>0.1.0</version>
+    <title>MEF Build</title>
+    <authors>Oleg Sych</authors>
+    <summary>A simple build framework based on MEF.</summary>
+    <description>
+      This package provides a simple build framework based on Microsoft Extensibility Framework (MEF).
+      
+      Supported Platforms:
+      - .NET Framework 4.5
+      - Windows 8
+      - Windows Phone 8.1
+      - Windows Phone Silverlight 8
+      - Portable Class Libraries
+    </description>
     <licenseUrl>https://github.com/olegsych/MefBuild/blob/master/license.txt</licenseUrl>
-    <projectUrl>http://olegsych.github.io/MefBuild</projectUrl>
+    <projectUrl>https://github.com/olegsych/MefBuild</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>$description$</description>
     <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
     <copyright>Copyright (c) 2014</copyright>
     <tags>MEF Composition Build</tags>
