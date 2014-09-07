@@ -27,7 +27,7 @@ namespace MefBuild
             get { return this.targetCommandType; }
         }
 
-        private static string GetContractName(string contractNamePrefix, Type targetCommandType)
+        internal static string GetContractName(string contractNamePrefix, Type targetCommandType)
         {
             if (contractNamePrefix == null)
             {

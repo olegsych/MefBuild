@@ -20,5 +20,10 @@ namespace MefBuild
         {
             this.OnExecute(this);
         }
+
+        public override string ToString()
+        {
+            return this.GetHashCode().ToString("x");
+        }
     }
 }

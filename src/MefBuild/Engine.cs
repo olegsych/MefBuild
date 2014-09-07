@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Composition;
+using System.Composition.Hosting.Core;
+using System.Linq;
 using System.Reflection;
 
 namespace MefBuild
@@ -47,21 +49,57 @@ namespace MefBuild
 
             var command = (Command)this.context.GetExport(commandType);
             var executed = new HashSet<Command>();
-            Execute(command, executed);
+            this.ExecuteCommand(command, executed);
         }
 
-        private static void Execute(Command command, ICollection<Command> executed)
+        private void ExecuteCommand(Command command, ICollection<Command> executed)
         {
             if (!executed.Contains(command))
             {
-                foreach (Command dependency in command.DependsOn)
-                {
-                    Execute(dependency, executed);
-                }
+                executed.Add(command);
+
+                this.ExecuteCommands(command.DependsOn, executed);
+
+                this.ExecuteCommands(this.GetBeforeCommands(command), executed);
 
                 command.Execute();
-                executed.Add(command);
+
+                this.ExecuteCommands(this.GetAfterCommands(command), executed);
             }
+        }
+
+        private void ExecuteCommands(IEnumerable<Command> commands, ICollection<Command> executed)
+        {
+            foreach (Command command in commands)
+            {
+                this.ExecuteCommand(command, executed);
+            }
+        }
+
+        private IEnumerable<Command> GetBeforeCommands(Command command)
+        {
+            return this.GetCommands(ExecuteBeforeAttribute.ContractNamePrefix, command);
+        }
+
+        private IEnumerable<Command> GetAfterCommands(Command command)
+        {
+            return this.GetCommands(ExecuteAfterAttribute.ContractNamePrefix, command);
+        }
+
+        private IEnumerable<Command> GetCommands(string contractNamePrefix, Command command)
+        {
+            Type contractType = typeof(Command[]);
+            string contractName = ExecuteAttribute.GetContractName(contractNamePrefix, command.GetType());
+            var constraints = new Dictionary<string, object> { { "IsImportMany", true } };
+            var contract = new CompositionContract(contractType, contractName, constraints);
+
+            object export;
+            if (this.context.TryGetExport(contract, out export))
+            {
+                return (IEnumerable<Command>)export;
+            }
+
+            return Enumerable.Empty<Command>();
         }
     }
 }

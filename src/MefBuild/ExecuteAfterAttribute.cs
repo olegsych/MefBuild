@@ -8,11 +8,12 @@ namespace MefBuild
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public sealed class ExecuteAfterAttribute : ExecuteAttribute
     {
+        internal const string ContractNamePrefix = "After.";
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ExecuteAfterAttribute"/> class with the given <see cref="Type"/> of target command.
         /// </summary>
-        public ExecuteAfterAttribute(Type targetCommandType)
-            : base("After.", targetCommandType)
+        public ExecuteAfterAttribute(Type targetCommandType) : base(ContractNamePrefix, targetCommandType)
         {
         }
     }

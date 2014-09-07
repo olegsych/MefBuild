@@ -8,10 +8,12 @@ namespace MefBuild
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public sealed class ExecuteBeforeAttribute : ExecuteAttribute
     {
+        internal const string ContractNamePrefix = "Before.";
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ExecuteBeforeAttribute"/> class with the given <see cref="Type"/> of target command.
         /// </summary>
-        public ExecuteBeforeAttribute(Type targetCommandType) : base("Before.", targetCommandType)
+        public ExecuteBeforeAttribute(Type targetCommandType) : base(ContractNamePrefix, targetCommandType)
         {
         }
     }
