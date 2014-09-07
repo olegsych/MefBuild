@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Composition;
 using System.Linq;
-using Moq;
 using Xunit;
 
 namespace MefBuild
@@ -29,7 +28,7 @@ namespace MefBuild
         [Fact]
         public void ConstructorSetsContractTypeToICommand()
         {
-            var attribute = new TestableExecuteAttribute(string.Empty, typeof(Mock<Command>));
+            var attribute = new TestableExecuteAttribute(string.Empty, typeof(StubCommand));
             Assert.Equal(typeof(Command), attribute.ContractType);
         }
 

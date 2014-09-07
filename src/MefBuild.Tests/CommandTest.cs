@@ -1,5 +1,4 @@
 ﻿using System;
-using Moq;
 using Xunit;
 
 namespace MefBuild
@@ -22,45 +21,34 @@ namespace MefBuild
         public void ConstructorThrowsArgumentNullExceptionWhenCollectionIsNullToPreventUsageErrors()
         {
             Command[] commands = null;
-            Assert.Throws<ArgumentNullException>(() => new TestableCommand(commands));
+            Assert.Throws<ArgumentNullException>(() => new StubCommand(commands));
         }
 
         [Fact]
         public void ConstructorThrowsArgumentExceptionWhenCollectionIsEmptyToPreventUsageErrors()
         {
-            Assert.Throws<ArgumentException>(() => new TestableCommand(new Command[0]));
+            Assert.Throws<ArgumentException>(() => new StubCommand(new Command[0]));
         }
 
         [Fact]
         public void ConstructorThrowsArgumentExceptionWhenAnyCollectionElementIsNullToPreventUsageErrors()
         {
-            Assert.Throws<ArgumentException>(() => new TestableCommand(new Command[1]));
+            Assert.Throws<ArgumentException>(() => new StubCommand(new Command[1]));
         }
 
         [Fact]
         public void ConstructorInitializesDependsOnPropertyWithGivenCollectionOfCommands()
         {
-            var commands = new Command[] { new Mock<Command>().Object, new Mock<Command>().Object };
-            var composite = new TestableCommand(commands);
+            var commands = new Command[] { new StubCommand(), new StubCommand() };
+            var composite = new StubCommand(commands);
             Assert.Equal(commands, composite.DependsOn);
         }
 
         [Fact]
         public void ParameterlessConstructorInitializesDependsOnPropertyWithEmptyCollectionToPreventNullReferenceExceptions()
         {
-            var composite = new TestableCommand();
+            var composite = new StubCommand();
             Assert.Empty(composite.DependsOn);
-        }
-
-        private class TestableCommand : Command
-        {
-            public TestableCommand(params Command[] dependsOn) : base(dependsOn)
-            {
-            }
-
-            public TestableCommand() : base()
-            {
-            }
         }
     }
 }

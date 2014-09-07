@@ -5,7 +5,7 @@ using System.Reflection;
 namespace MefBuild
 {
     /// <summary>
-    /// Represents the MEF Build engine.
+    /// Encapsulates <see cref="Command"/> execution logic of the MEF Build framework.
     /// </summary>
     public class Engine
     {

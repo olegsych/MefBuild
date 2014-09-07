@@ -2,7 +2,6 @@
 using System.Composition;
 using System.Composition.Hosting;
 using System.Composition.Hosting.Core;
-using Moq;
 using Xunit;
 
 namespace MefBuild
@@ -26,7 +25,7 @@ namespace MefBuild
         [Fact]
         public void ExecuteThrowsArgumentNullExceptionToPreventUsageErrors()
         {
-            var engine = new Engine(new Mock<CompositionContext>().Object);
+            var engine = new Engine(new StubCompositionContext());
             Type commandType = null;
             var e = Assert.Throws<ArgumentNullException>(() => engine.Execute(commandType));
             Assert.Equal("commandType", e.ParamName);
@@ -35,7 +34,7 @@ namespace MefBuild
         [Fact]
         public void ExecuteThrowsArgumentExceptionWhenGivenTypeIsNotCommandToPreventUsageErrors()
         {
-            var engine = new Engine(new Mock<CompositionContext>().Object);
+            var engine = new Engine(new StubCompositionContext());
             Type commandType = typeof(object);
             var e = Assert.Throws<ArgumentException>(() => engine.Execute(commandType));
             Assert.Equal("commandType", e.ParamName);
@@ -43,22 +42,42 @@ namespace MefBuild
         }
 
         [Fact]
-        public void ExecuteCreatesCommandOfGivenTypeUsingCompositionContextAndExecutesIt()
+        public void ExecuteGetsCommandOfGivenTypeFromCompositionContext()
         {
-            var command = new Mock<Command>(); 
-            object commandObject = command.Object;
+            CompositionContract contractRequested = null;
 
-            var compositionContext = new Mock<CompositionContext>();
-            compositionContext
-                .Setup(m => m.TryGetExport(It.Is<CompositionContract>(c => c.ContractType == commandObject.GetType()), out commandObject))
-                .Returns(true);
+            var compositionContext = new StubCompositionContext();
+            compositionContext.OnTryGetExport = (CompositionContract contract, out object export) =>
+            {
+                contractRequested = contract;
+                export = new StubCommand();
+                return true;
+            };
 
-            var engine = new Engine(compositionContext.Object);
+            var engine = new Engine(compositionContext);
+            engine.Execute(typeof(StubCommand));
 
-            engine.Execute(commandObject.GetType());
+            Assert.Equal(typeof(StubCommand), contractRequested.ContractType);
+        }
 
-            compositionContext.Verify(m => m.TryGetExport(It.IsAny<CompositionContract>(), out commandObject));
-            command.Verify(m => m.Execute());
+        [Fact]
+        public void ExecuteExecutesCommandObtainedFromCompositionContext()
+        {
+            bool commandExecuted = false;
+            object command = new StubCommand { OnExecute = () => commandExecuted = true };
+
+            var compositionContext = new StubCompositionContext();
+            compositionContext.OnTryGetExport = (CompositionContract contract, out object export) =>
+            {
+                export = command;
+                return true;
+            };
+
+            var engine = new Engine(compositionContext);
+
+            engine.Execute(command.GetType());
+
+            Assert.True(commandExecuted);
         }
     }
 }

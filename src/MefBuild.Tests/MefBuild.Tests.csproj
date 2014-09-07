@@ -12,9 +12,6 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
   <ItemGroup>
-    <Reference Include="Moq">
-      <HintPath>..\packages\Moq.4.2.1408.0717\lib\net40\Moq.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Composition.AttributedModel">
       <HintPath>..\packages\Microsoft.Composition.1.0.27\lib\portable-net45+win8+wp8+wpa81\System.Composition.AttributedModel.dll</HintPath>
@@ -53,6 +50,8 @@
     <Compile Include="ExecuteBeforeAttributeTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CommandTest.cs" />
+    <Compile Include="StubCommand.cs" />
+    <Compile Include="StubCompositionContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MefBuild\MefBuild.csproj">
