@@ -78,19 +78,22 @@ namespace MefBuild
 
         private IEnumerable<Command> GetBeforeCommands(Command command)
         {
-            return this.GetCommands(ExecuteBeforeAttribute.ContractNamePrefix, command);
+            return this.GetCommands(ExecuteBeforeAttribute.ContractName, command);
         }
 
         private IEnumerable<Command> GetAfterCommands(Command command)
         {
-            return this.GetCommands(ExecuteAfterAttribute.ContractNamePrefix, command);
+            return this.GetCommands(ExecuteAfterAttribute.ContractName, command);
         }
 
-        private IEnumerable<Command> GetCommands(string contractNamePrefix, Command command)
+        private IEnumerable<Command> GetCommands(string contractName, Command command)
         {
             Type contractType = typeof(Command[]);
-            string contractName = ExecuteAttribute.GetContractName(contractNamePrefix, command.GetType());
-            var constraints = new Dictionary<string, object> { { "IsImportMany", true } };
+            var constraints = new Dictionary<string, object> 
+            { 
+                { "IsImportMany", true },
+                { "TargetCommandType", command.GetType() },
+            };
             var contract = new CompositionContract(contractType, contractName, constraints);
 
             object export;

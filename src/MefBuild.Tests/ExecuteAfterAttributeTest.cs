@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Composition;
+using System.Composition.Hosting;
+using System.Composition.Hosting.Core;
 using System.Linq;
 using Xunit;
 
@@ -13,13 +17,38 @@ namespace MefBuild
         }
 
         [Fact]
-        public void ClassInheritsFromExecuteAttributeToReuseValidationLogic()
+        public void ClassInheritsFromExportAttributeToMakeClassesItAppliesToDiscoverableByMef()
         {
-            Assert.True(typeof(ExecuteAttribute).IsAssignableFrom(typeof(ExecuteAfterAttribute)));
+            Assert.True(typeof(ExportAttribute).IsAssignableFrom(typeof(ExecuteAfterAttribute)));
         }
 
         [Fact]
-        public void AttributeCanBeAppliedToClassesMultipleTimes()
+        public void ConstructorInitializesAttributePropertiesWithValuesExpectedByEngine()
+        {
+            var targetCommandType = typeof(StubCommand);
+            var attribute = new ExecuteAfterAttribute(targetCommandType);
+            Assert.Equal("ExecuteAfter", attribute.ContractName);
+            Assert.Equal(typeof(Command), attribute.ContractType);
+            Assert.Same(targetCommandType, attribute.TargetCommandType);
+        }
+
+        [Fact]
+        public void ConstructorThrowsArgumentNullExceptionToPreventUsageErrors()
+        {
+            var e = Assert.Throws<ArgumentNullException>(() => new ExecuteAfterAttribute(null));
+            Assert.Equal("targetCommandType", e.ParamName);
+        }
+
+        [Fact]
+        public void ConstructorThrowsArgumentExceptionWhenGivenUnexpectedTypeToPreventUsageErrors()
+        {
+            var e = Assert.Throws<ArgumentException>(() => new ExecuteAfterAttribute(typeof(object)));
+            Assert.Equal("targetCommandType", e.ParamName);
+            Assert.Contains(typeof(Command).FullName, e.Message);
+        }
+
+        [Fact]
+        public void AttributeCanBeAppliedToClassesMultipleTimesBecauseCommandMayNeedToBeInjectedInMultiplePlaces()
         {
             var attributeUsage = typeof(ExecuteAfterAttribute).GetCustomAttributes(false).OfType<AttributeUsageAttribute>().Single();
             Assert.Equal(AttributeTargets.Class, attributeUsage.ValidOn);
@@ -27,10 +56,40 @@ namespace MefBuild
         }
 
         [Fact]
-        public void ConstructorSetsContractNameToBeforeFollowedByFullNameOfGivenType()
+        public void AttributeMakesClassesDiscoverableThroughCompositionContext()
         {
-            var attribute = new ExecuteAfterAttribute(typeof(Command));
-            Assert.Equal("After." + typeof(Command).FullName, attribute.ContractName);
+            var configuration = new ContainerConfiguration()
+                .WithPart<TestCommand1>()
+                .WithPart<TestCommand2>();
+            CompositionHost container = configuration.CreateContainer();
+
+            Type contractType = typeof(Command[]);
+            string contractName = "ExecuteAfter";
+            var constraints = new Dictionary<string, object>
+            {
+                { "IsImportMany", true },
+                { "TargetCommandType", typeof(StubCommand) },
+            };
+            var contract = new CompositionContract(contractType, contractName, constraints);
+
+            object export;
+            Assert.True(container.TryGetExport(contract, out export));
+
+            var exports = (IEnumerable<Command>)export;
+
+            Assert.Equal(2, exports.Count());
+            Assert.Equal(typeof(TestCommand1), exports.First().GetType());
+            Assert.Equal(typeof(TestCommand2), exports.Last().GetType());
+        }
+
+        [ExecuteAfter(typeof(StubCommand))]
+        private class TestCommand1 : Command
+        {
+        }
+
+        [ExecuteAfter(typeof(StubCommand))]
+        private class TestCommand2 : Command
+        {
         }
     }
 }

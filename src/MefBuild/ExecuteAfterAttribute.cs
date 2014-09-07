@@ -1,20 +1,44 @@
 ﻿using System;
+using System.Composition;
+using System.Reflection;
 
 namespace MefBuild
 {
     /// <summary>
     /// Specifies that a command will be automatically executed after a command with the given type.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public sealed class ExecuteAfterAttribute : ExecuteAttribute
+    [MetadataAttribute, AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+    public sealed class ExecuteAfterAttribute : ExportAttribute
     {
-        internal const string ContractNamePrefix = "After.";
+        internal new const string ContractName = "ExecuteAfter";
+        private readonly Type targetCommandType;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExecuteAfterAttribute"/> class with the given <see cref="Type"/> of target command.
         /// </summary>
-        public ExecuteAfterAttribute(Type targetCommandType) : base(ContractNamePrefix, targetCommandType)
+        public ExecuteAfterAttribute(Type targetCommandType) : base(ContractName, typeof(Command))
         {
+            const string ParameterName = "targetCommandType";
+
+            if (targetCommandType == null)
+            {
+                throw new ArgumentNullException(ParameterName);
+            }
+
+            if (!typeof(Command).GetTypeInfo().IsAssignableFrom(targetCommandType.GetTypeInfo()))
+            {
+                throw new ArgumentException("Type derived from the MefBuild.Command class is expected.", ParameterName);
+            }
+
+            this.targetCommandType = targetCommandType;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="Type"/> of target <see cref="Command"/>.
+        /// </summary>
+        public Type TargetCommandType
+        {
+            get { return this.targetCommandType; }
         }
     }
 }

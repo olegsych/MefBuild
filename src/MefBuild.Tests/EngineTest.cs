@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Composition;
-using System.Composition.Hosting;
 using System.Composition.Hosting.Core;
 using Xunit;
 
@@ -97,8 +96,9 @@ namespace MefBuild
 
             CompositionContract requestedContract = requestedContracts[0];
             Assert.Equal(typeof(Command[]), requestedContract.ContractType);
-            Assert.Equal("Before." + typeof(StubCommand).FullName, requestedContract.ContractName);
+            Assert.Equal("ExecuteBefore", requestedContract.ContractName);
             Assert.Contains(new KeyValuePair<string, object>("IsImportMany", true), requestedContract.MetadataConstraints);
+            Assert.Contains(new KeyValuePair<string, object>("TargetCommandType", typeof(StubCommand)), requestedContract.MetadataConstraints);
         }
 
         [Fact]
@@ -116,7 +116,7 @@ namespace MefBuild
                     export = targetCommand;
                     return true;
                 }
-                else if (contract.ContractName.StartsWith("Before"))
+                else if (contract.ContractName == "ExecuteBefore")
                 {
                     export = new Command[] { beforeCommand };
                     return true;
@@ -149,7 +149,7 @@ namespace MefBuild
                     export = targetCommand;
                     return true;
                 }
-                else if (contract.ContractName.StartsWith("Before"))
+                else if (contract.ContractName == "ExecuteBefore")
                 {
                     export = new Command[] { beforeCommand };
                     return true;
@@ -193,8 +193,9 @@ namespace MefBuild
 
             CompositionContract requestedContract = requestedContracts[1];
             Assert.Equal(typeof(Command[]), requestedContract.ContractType);
-            Assert.Equal("After." + typeof(StubCommand).FullName, requestedContract.ContractName);
+            Assert.Equal("ExecuteAfter", requestedContract.ContractName);
             Assert.Contains(new KeyValuePair<string, object>("IsImportMany", true), requestedContract.MetadataConstraints);
+            Assert.Contains(new KeyValuePair<string, object>("TargetCommandType", typeof(StubCommand)), requestedContract.MetadataConstraints);
         }
 
         [Fact]
@@ -212,7 +213,7 @@ namespace MefBuild
                     export = targetCommand;
                     return true;
                 }
-                else if (contract.ContractName.StartsWith("After"))
+                else if (contract.ContractName == "ExecuteAfter")
                 {
                     export = new Command[] { afterCommand };
                     return true;
@@ -245,7 +246,7 @@ namespace MefBuild
                     export = targetCommand;
                     return true;
                 }
-                else if (contract.ContractName.StartsWith("After"))
+                else if (contract.ContractName == "ExecuteAfter")
                 {
                     export = new Command[] { afterCommand };
                     return true;
