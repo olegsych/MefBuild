@@ -1,21 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Composition;
-using System.Composition.Hosting.Core;
+using System.Composition.Hosting;
 using Xunit;
 
 namespace MefBuild
 {
-    public class EngineTest
+    public static class EngineTest
     {
         [Fact]
-        public void ClassIsPublicAndCanBeUsedDirectly()
+        public static void ClassIsPublicAndCanBeUsedDirectly()
         {
             Assert.True(typeof(Engine).IsPublic);
         }
 
         [Fact]
-        public void ConstructorThrowsArgumentNullExceptionToPreventUsageErrors()
+        public static void ConstructorThrowsArgumentNullExceptionToPreventUsageErrors()
         {
             CompositionContext context = null;
             var e = Assert.Throws<ArgumentNullException>(() => new Engine(context));
@@ -23,245 +22,128 @@ namespace MefBuild
         }
 
         [Fact]
-        public void ExecuteThrowsArgumentNullExceptionToPreventUsageErrors()
+        public static void ExecuteThrowsArgumentNullExceptionToPreventUsageErrors()
         {
-            var engine = new Engine(new StubCompositionContext());
+            var engine = new Engine(new ContainerConfiguration().CreateContainer());
             Type commandType = null;
             var e = Assert.Throws<ArgumentNullException>(() => engine.Execute(commandType));
             Assert.Equal("commandType", e.ParamName);
         }
 
         [Fact]
-        public void ExecuteThrowsArgumentExceptionWhenGivenTypeIsNotCommandToPreventUsageErrors()
+        public static void ExecuteThrowsArgumentExceptionWhenGivenTypeIsNotCommandToPreventUsageErrors()
         {
-            var engine = new Engine(new StubCompositionContext());
+            var engine = new Engine(new ContainerConfiguration().CreateContainer());
             Type commandType = typeof(object);
             var e = Assert.Throws<ArgumentException>(() => engine.Execute(commandType));
             Assert.Equal("commandType", e.ParamName);
             Assert.Contains("Command", e.Message);
         }
 
-        [Fact]
-        public void ExecuteExecutesAndItsDependenciesOnceRegardlessOfHowManyTimesDependencyAppearsInTree()
+        public static class ExecutesEachDependsOnCommandOnce
         {
-            var executed = new List<Command>();
-
-            var adam = new StubCommand { OnExecute = @this => executed.Add(@this) };
-            var eve = new StubCommand(adam) { OnExecute = @this => executed.Add(@this) };
-            var cain = new StubCommand(adam, eve) { OnExecute = @this => executed.Add(@this) };
-            var context = new StubCompositionContext();
-            context.OnTryGetExport = (CompositionContract contract, out object export) =>
+            [Fact]
+            public static void ExecuteExecutesAndItsDependenciesOnceRegardlessOfHowManyTimesDependencyAppearsInTree()
             {
-                if (contract.ContractType == typeof(StubCommand))
-                {
-                    export = cain;
-                    return true;
-                }
-                else
-                {
-                    export = null;
-                    return false;
-                }
-            };
+                CompositionContext container = new ContainerConfiguration()
+                    .WithParts(typeof(Adam), typeof(Eve), typeof(Cain), typeof(ExecutionTracker))
+                    .CreateContainer();
 
-            var engine = new Engine(context);
-            engine.Execute(typeof(StubCommand));
+                new Engine(container).Execute(typeof(Cain));
 
-            Assert.Equal(new[] { adam, eve, cain }, executed);
+                container.GetExport<ExecutionTracker>().Verify(typeof(Adam), typeof(Eve), typeof(Cain));
+            }
+
+            [Shared, Export]
+            public class Adam : StubCommand
+            {
+            }
+
+            [Shared, Export]
+            public class Eve : StubCommand
+            {
+                [ImportingConstructor]
+                public Eve(Adam adam) : base(adam)
+                {
+                }
+            }
+
+            [Shared, Export]
+            public class Cain : StubCommand
+            {
+                [ImportingConstructor]
+                public Cain(Adam adam, Eve eve) : base(adam, eve)
+                {
+                }
+            }
         }
 
-        [Fact]
-        public void ExecuteGetsCommandsThatExecuteBeforeGivenTypeFromCompositionContext()
+        public static class ExecutesEachBeforeCommandsOnce
         {
-            var requestedContracts = new List<CompositionContract>();
-
-            var context = new StubCompositionContext();
-            context.OnTryGetExport = (CompositionContract contract, out object export) =>
+            [Fact]
+            public static void ExecuteDoesNotExecuteBeforeCommandIfItHasAlreadyBeenExecuted()
             {
-                if (contract.ContractType == typeof(StubCommand))
+                CompositionContext container = new ContainerConfiguration()
+                    .WithParts(typeof(Dependency), typeof(Target), typeof(Before), typeof(ExecutionTracker))
+                    .CreateContainer();
+
+                new Engine(container).Execute(typeof(Target));
+
+                container.GetExport<ExecutionTracker>().Verify(typeof(Before), typeof(Dependency), typeof(Target));
+            }
+
+            [Shared, Export]
+            public class Dependency : StubCommand
+            {
+            }
+
+            [Export, Shared]
+            public class Target : StubCommand
+            {
+                [ImportingConstructor]
+                public Target(Dependency dependency) : base(dependency)
                 {
-                    export = new StubCommand();
-                    return true;
                 }
-                else
-                {
-                    requestedContracts.Add(contract);
-                    export = null;
-                    return false;
-                }    
-            };
+            }
 
-            var engine = new Engine(context);
-            engine.Execute(typeof(StubCommand));
-
-            CompositionContract requestedContract = requestedContracts[0];
-            Assert.Equal(typeof(Command[]), requestedContract.ContractType);
-            Assert.Equal("ExecuteBefore", requestedContract.ContractName);
-            Assert.Contains(new KeyValuePair<string, object>("IsImportMany", true), requestedContract.MetadataConstraints);
-            Assert.Contains(new KeyValuePair<string, object>("TargetCommandType", typeof(StubCommand)), requestedContract.MetadataConstraints);
+            [Export, Shared, ExecuteBefore(typeof(Dependency)), ExecuteBefore(typeof(Target))]
+            public class Before : StubCommand
+            {
+            }
         }
 
-        [Fact]
-        public void ExecuteExecutesBeforeCommandsBeforeCommandItself()
+        public static class ExecutesEachAfterCommandsOnce
         {
-            var executed = new List<Command>();
-
-            var beforeCommand = new StubCommand { OnExecute = @this => executed.Add(@this) };
-            var targetCommand = new StubCommand { OnExecute = @this => executed.Add(@this) };
-            var context = new StubCompositionContext();
-            context.OnTryGetExport = (CompositionContract contract, out object export) =>
+            [Fact]
+            public static void ExecuteDoesNotExecuteAfterCommandIfItHasAlreadyBeenExecuted()
             {
-                if (contract.ContractType == typeof(StubCommand))
-                {
-                    export = targetCommand;
-                    return true;
-                }
-                else if (contract.ContractName == "ExecuteBefore")
-                {
-                    export = new Command[] { beforeCommand };
-                    return true;
-                }
-                else
-                {
-                    export = null;
-                    return false;
-                }
-            };
+                CompositionContext container = new ContainerConfiguration()
+                    .WithParts(typeof(Dependent), typeof(Target), typeof(After), typeof(ExecutionTracker))
+                    .CreateContainer();
 
-            var engine = new Engine(context);
-            engine.Execute(typeof(StubCommand));
+                new Engine(container).Execute(typeof(Target));
 
-            Assert.Equal(new[] { beforeCommand, targetCommand }, executed);
-        }
+                container.GetExport<ExecutionTracker>().Verify(typeof(Dependent), typeof(After), typeof(Target));
+            }
 
-        [Fact]
-        public void ExecuteDoesNotExecuteBeforeCommandIfItHasAlreadyBeenExecuted()
-        {
-            var executed = new List<Command>();
-
-            var beforeCommand = new StubCommand { OnExecute = @this => executed.Add(@this) };
-            var targetCommand = new StubCommand(beforeCommand) { OnExecute = @this => executed.Add(@this) };
-            var context = new StubCompositionContext();
-            context.OnTryGetExport = (CompositionContract contract, out object export) =>
+            [Shared, Export]
+            public class Dependent : StubCommand
             {
-                if (contract.ContractType == typeof(StubCommand))
-                {
-                    export = targetCommand;
-                    return true;
-                }
-                else if (contract.ContractName == "ExecuteBefore")
-                {
-                    export = new Command[] { beforeCommand };
-                    return true;
-                }
-                else
-                {
-                    export = null;
-                    return false;
-                }
-            };
+            }
 
-            var engine = new Engine(context);
-            engine.Execute(typeof(StubCommand));
-
-            Assert.Equal(new[] { beforeCommand, targetCommand }, executed);
-        }
-
-        [Fact]
-        public void ExecuteGetsCommandsThatExecuteAfterGivenTypeFromCompositionContext()
-        {
-            var requestedContracts = new List<CompositionContract>();
-
-            var context = new StubCompositionContext();
-            context.OnTryGetExport = (CompositionContract contract, out object export) =>
+            [Shared, Export]
+            public class Target : StubCommand
             {
-                if (contract.ContractType == typeof(StubCommand))
+                [ImportingConstructor]
+                public Target(Dependent dependent) : base(dependent)
                 {
-                    export = new StubCommand();
-                    return true;
                 }
-                else
-                {
-                    requestedContracts.Add(contract);
-                    export = null;
-                    return false;
-                }
-            };
+            }
 
-            var engine = new Engine(context);
-            engine.Execute(typeof(StubCommand));
-
-            CompositionContract requestedContract = requestedContracts[1];
-            Assert.Equal(typeof(Command[]), requestedContract.ContractType);
-            Assert.Equal("ExecuteAfter", requestedContract.ContractName);
-            Assert.Contains(new KeyValuePair<string, object>("IsImportMany", true), requestedContract.MetadataConstraints);
-            Assert.Contains(new KeyValuePair<string, object>("TargetCommandType", typeof(StubCommand)), requestedContract.MetadataConstraints);
-        }
-
-        [Fact]
-        public void ExecuteExecutesAfterCommandsAfterCommandItself()
-        {
-            var executed = new List<Command>();
-
-            var afterCommand = new StubCommand { OnExecute = @this => executed.Add(@this) };
-            var targetCommand = new StubCommand { OnExecute = @this => executed.Add(@this) };
-            var context = new StubCompositionContext();
-            context.OnTryGetExport = (CompositionContract contract, out object export) =>
-            {
-                if (contract.ContractType == typeof(StubCommand))
-                {
-                    export = targetCommand;
-                    return true;
-                }
-                else if (contract.ContractName == "ExecuteAfter")
-                {
-                    export = new Command[] { afterCommand };
-                    return true;
-                }
-                else
-                {
-                    export = null;
-                    return false;
-                }
-            };
-
-            var engine = new Engine(context);
-            engine.Execute(typeof(StubCommand));
-
-            Assert.Equal(new[] { targetCommand, afterCommand }, executed);
-        }
-
-        [Fact]
-        public void ExecuteDoesNotExecuteAfterCommandIfItHasAlreadyBeenExecuted()
-        {
-            var executed = new List<Command>();
-
-            var afterCommand = new StubCommand { OnExecute = @this => executed.Add(@this) };
-            var targetCommand = new StubCommand(afterCommand) { OnExecute = @this => executed.Add(@this) };
-            var context = new StubCompositionContext();
-            context.OnTryGetExport = (CompositionContract contract, out object export) =>
-            {
-                if (contract.ContractType == typeof(StubCommand))
-                {
-                    export = targetCommand;
-                    return true;
-                }
-                else if (contract.ContractName == "ExecuteAfter")
-                {
-                    export = new Command[] { afterCommand };
-                    return true;
-                }
-                else
-                {
-                    export = null;
-                    return false;
-                }
-            };
-
-            var engine = new Engine(context);
-            engine.Execute(typeof(StubCommand));
-
-            Assert.Equal(new[] { afterCommand, targetCommand }, executed);
+            [Shared, Export, ExecuteAfter(typeof(Target)), ExecuteAfter(typeof(Dependent))]
+            public class After : StubCommand
+            { 
+            }
         }
     }
 }

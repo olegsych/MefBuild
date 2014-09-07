@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Composition;
 
 namespace MefBuild
 {
@@ -14,6 +15,7 @@ namespace MefBuild
             this.OnExecute = @this => base.Execute();
         }
 
+        [Import("OnExecute")]
         public Action<Command> OnExecute { get; set; }
 
         public override void Execute()
