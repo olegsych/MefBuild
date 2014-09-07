@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Composition;
+using System.Composition.Hosting;
+using System.Composition.Hosting.Core;
 using System.Linq;
 using Xunit;
 
@@ -67,6 +70,32 @@ namespace MefBuild
             Assert.Null(typeof(ExecuteAttribute).GetProperty("TargetCommandType").SetMethod);
         }
 
+        [Fact]
+        public void AttributeMakesClassesItIsAppliedToDiscoverableThroughCompositionContext()
+        {
+            var configuration = new ContainerConfiguration()
+                .WithPart<TestCommand1>()
+                .WithPart<TestCommand2>();
+            CompositionHost container = configuration.CreateContainer();
+
+            IEnumerable<Command> exports = container.GetExports<Command>("Prefix" + typeof(StubCommand).FullName);
+
+            Assert.Equal(2, exports.Count());
+            Assert.Equal(typeof(TestCommand1), exports.First().GetType());
+            Assert.Equal(typeof(TestCommand2), exports.Last().GetType());
+        }
+
+        [TestableExecute("Prefix", typeof(StubCommand))]
+        private class TestCommand1 : Command
+        {
+        }
+
+        [TestableExecute("Prefix", typeof(StubCommand))]
+        private class TestCommand2 : Command
+        {
+        }
+
+        [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
         private class TestableExecuteAttribute : ExecuteAttribute
         {
             public TestableExecuteAttribute(string contractPrefix, Type targetCommand) : base(contractPrefix, targetCommand)
