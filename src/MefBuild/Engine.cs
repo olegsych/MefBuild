@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Composition;
 using System.Reflection;
 
@@ -45,13 +46,22 @@ namespace MefBuild
             }
 
             var command = (Command)this.context.GetExport(commandType);
-
-            Execute(command);
+            var executed = new HashSet<Command>();
+            Execute(command, executed);
         }
 
-        private static void Execute(Command command)
+        private static void Execute(Command command, ICollection<Command> executed)
         {
-            command.Execute();
+            if (!executed.Contains(command))
+            {
+                foreach (Command dependency in command.DependsOn)
+                {
+                    Execute(dependency, executed);
+                }
+
+                command.Execute();
+                executed.Add(command);
+            }
         }
     }
 }

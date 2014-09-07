@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Composition;
 using System.Composition.Hosting;
 using System.Composition.Hosting.Core;
@@ -61,23 +62,24 @@ namespace MefBuild
         }
 
         [Fact]
-        public void ExecuteExecutesCommandObtainedFromCompositionContext()
+        public void ExecuteExecutesAndItsDependenciesOnceRegardlessOfHowManyTimesDependencyAppearsInTree()
         {
-            bool commandExecuted = false;
-            object command = new StubCommand { OnExecute = () => commandExecuted = true };
+            var executed = new List<Command>();
 
-            var compositionContext = new StubCompositionContext();
-            compositionContext.OnTryGetExport = (CompositionContract contract, out object export) =>
+            var adam = new StubCommand { OnExecute = @this => executed.Add(@this) };
+            var eve = new StubCommand(adam) { OnExecute = @this => executed.Add(@this) };
+            var cain = new StubCommand(adam, eve) { OnExecute = @this => executed.Add(@this) };
+            var context = new StubCompositionContext();
+            context.OnTryGetExport = (CompositionContract contract, out object export) =>
             {
-                export = command;
+                export = cain;
                 return true;
             };
 
-            var engine = new Engine(compositionContext);
+            var engine = new Engine(context);
+            engine.Execute(typeof(StubCommand));
 
-            engine.Execute(command.GetType());
-
-            Assert.True(commandExecuted);
+            Assert.Equal(new[] { adam, eve, cain }, executed);
         }
     }
 }

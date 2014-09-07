@@ -6,19 +6,19 @@ namespace MefBuild
     {
         public StubCommand() : base()
         {
-            this.OnExecute = base.Execute;
+            this.OnExecute = @this => base.Execute();
         }
 
         public StubCommand(params Command[] dependsOn) : base(dependsOn)
         {
-            this.OnExecute = base.Execute;
+            this.OnExecute = @this => base.Execute();
         }
 
-        public Action OnExecute { get; set; }
+        public Action<Command> OnExecute { get; set; }
 
         public override void Execute()
         {
-            this.OnExecute();
+            this.OnExecute(this);
         }
     }
 }

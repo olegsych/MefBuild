@@ -29,8 +29,8 @@ namespace MefBuild
         [Fact]
         public void ConstructorSetsContractNameToBeforeFollowedByFullNameOfGivenType()
         {
-            var attribute = new ExecuteBeforeAttribute(typeof(Command));
-            Assert.Equal("Before." + typeof(Command).FullName, attribute.ContractName);
+            var attribute = new ExecuteAfterAttribute(typeof(Command));
+            Assert.Equal("After." + typeof(Command).FullName, attribute.ContractName);
         }
     }
 }
