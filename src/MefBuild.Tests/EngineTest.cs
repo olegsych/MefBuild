@@ -40,109 +40,232 @@ namespace MefBuild
             Assert.Contains("Command", e.Message);
         }
 
-        public static class ExecutesEachDependsOnCommandOnce
+        public static class ExecuteOne
         {
             [Fact]
-            public static void ExecuteExecutesAndItsDependenciesOnceRegardlessOfHowManyTimesDependencyAppearsInTree()
+            public static void ExecutesCommandOfGivenType()
             {
                 CompositionContext container = new ContainerConfiguration()
-                    .WithParts(typeof(Adam), typeof(Eve), typeof(Cain), typeof(ExecutionTracker))
-                    .CreateContainer();
-
-                new Engine(container).Execute(typeof(Cain));
-
-                container.GetExport<ExecutionTracker>().Verify(typeof(Adam), typeof(Eve), typeof(Cain));
-            }
-
-            [Shared, Export]
-            public class Adam : StubCommand
-            {
-            }
-
-            [Shared, Export]
-            public class Eve : StubCommand
-            {
-                [ImportingConstructor]
-                public Eve(Adam adam) : base(adam)
-                {
-                }
-            }
-
-            [Shared, Export]
-            public class Cain : StubCommand
-            {
-                [ImportingConstructor]
-                public Cain(Adam adam, Eve eve) : base(adam, eve)
-                {
-                }
-            }
-        }
-
-        public static class ExecutesEachBeforeCommandsOnce
-        {
-            [Fact]
-            public static void ExecuteDoesNotExecuteBeforeCommandIfItHasAlreadyBeenExecuted()
-            {
-                CompositionContext container = new ContainerConfiguration()
-                    .WithParts(typeof(Dependency), typeof(Target), typeof(Before), typeof(ExecutionTracker))
+                    .WithParts(typeof(Target), typeof(ExecutionTracker))
                     .CreateContainer();
 
                 new Engine(container).Execute(typeof(Target));
 
-                container.GetExport<ExecutionTracker>().Verify(typeof(Before), typeof(Dependency), typeof(Target));
+                container.GetExport<ExecutionTracker>().Verify(typeof(Target));
             }
 
-            [Shared, Export]
-            public class Dependency : StubCommand
+            [Fact]
+            public static void ThrowsCompositionFailedExceptionIfCommandTypeIsNotExported()
             {
+                CompositionContext container = new ContainerConfiguration().CreateContainer();
+
+                var engine = new Engine(container);
+                Assert.Throws<CompositionFailedException>(() => engine.Execute(typeof(Target)));
             }
 
-            [Export, Shared]
+            [Export]
             public class Target : StubCommand
-            {
-                [ImportingConstructor]
-                public Target(Dependency dependency) : base(dependency)
-                {
-                }
-            }
-
-            [Export, Shared, ExecuteBefore(typeof(Dependency)), ExecuteBefore(typeof(Target))]
-            public class Before : StubCommand
             {
             }
         }
 
-        public static class ExecutesEachAfterCommandsOnce
+        public static class ExecutesDependcies
+        {
+            [Fact]
+            public static void ExecutesCommandTypesSpecifiedInDependsOnAttributeBeforeCommand()
+            {
+                CompositionContext container = new ContainerConfiguration()
+                    .WithParts(typeof(Child), typeof(Parent1), typeof(Parent2), typeof(ExecutionTracker))
+                    .CreateContainer();
+
+                new Engine(container).Execute(typeof(Child));
+
+                container.GetExport<ExecutionTracker>().Verify(typeof(Parent1), typeof(Parent2), typeof(Child));
+            }
+
+            [Export, DependsOn(typeof(Parent1), typeof(Parent2))]
+            public class Child : StubCommand
+            {
+            }
+
+            [Export]
+            public class Parent1 : StubCommand
+            {
+            }
+
+            [Export]
+            public class Parent2 : StubCommand
+            {
+            }
+        }
+
+        public static class ExecutesSharedDependenciesOnce
+        {
+            [Fact]
+            public static void ExecutesDependencyCommandMarkedWithSharedAttributeOnlyOnce()
+            {
+                CompositionContext container = new ContainerConfiguration()
+                    .WithParts(typeof(SharedDependency), typeof(Target), typeof(ExecutionTracker))
+                    .CreateContainer();
+
+                new Engine(container).Execute(typeof(Target));
+
+                container.GetExport<ExecutionTracker>().Verify(typeof(SharedDependency), typeof(Target));
+            }
+            
+            [Shared, Export]
+            public class SharedDependency : StubCommand
+            {
+            }
+
+            [Export, DependsOn(typeof(SharedDependency), typeof(SharedDependency))]
+            public class Target : StubCommand
+            {
+            }
+        }
+
+        public static class ExecutesNewInstancesOfNonSharedDependencies
+        {
+            [Fact]
+            public static void ExecutesDependencyCommandNotMarkedWithSharedAttributeAsManyTimesAsItAppearsInMetadata()
+            {
+                CompositionContext container = new ContainerConfiguration()
+                    .WithParts(typeof(Dependency), typeof(Target), typeof(ExecutionTracker))
+                    .CreateContainer();
+
+                new Engine(container).Execute(typeof(Target));
+
+                container.GetExport<ExecutionTracker>().Verify(typeof(Dependency), typeof(Dependency), typeof(Target));
+            }
+
+            [Export]
+            public class Dependency : StubCommand
+            {
+            }
+
+            [Export, DependsOn(typeof(Dependency), typeof(Dependency))]
+            public class Target : StubCommand
+            {
+            }
+        }
+
+        public static class ExecuteBeforeCommands
+        {
+            [Fact]
+            public static void ExecutesCommandsWithExecuteBeforeAttributeThatSpecifiesGivenCommandType()
+            {
+                CompositionContext container = new ContainerConfiguration()
+                    .WithParts(typeof(Before1), typeof(Before2), typeof(Target), typeof(ExecutionTracker))
+                    .CreateContainer();
+
+                new Engine(container).Execute(typeof(Target));
+
+                container.GetExport<ExecutionTracker>().Verify(typeof(Before1), typeof(Before2), typeof(Target));
+            }
+
+            [Export, ExecuteBefore(typeof(Target))]
+            public class Before1 : StubCommand
+            {
+            }
+
+            [Export, ExecuteBefore(typeof(Target))]
+            public class Before2 : StubCommand
+            {
+            }
+
+            [Export]
+            public class Target : StubCommand
+            {
+            }
+        }
+
+        public static class ExecutesAfterCommands
         {
             [Fact]
             public static void ExecuteDoesNotExecuteAfterCommandIfItHasAlreadyBeenExecuted()
             {
                 CompositionContext container = new ContainerConfiguration()
-                    .WithParts(typeof(Dependent), typeof(Target), typeof(After), typeof(ExecutionTracker))
+                    .WithParts(typeof(Target), typeof(After1), typeof(After2), typeof(ExecutionTracker))
                     .CreateContainer();
 
                 new Engine(container).Execute(typeof(Target));
 
-                container.GetExport<ExecutionTracker>().Verify(typeof(Dependent), typeof(After), typeof(Target));
+                container.GetExport<ExecutionTracker>().Verify(typeof(Target), typeof(After1), typeof(After2));
             }
 
-            [Shared, Export]
-            public class Dependent : StubCommand
-            {
-            }
-
-            [Shared, Export]
+            [Export]
             public class Target : StubCommand
             {
-                [ImportingConstructor]
-                public Target(Dependent dependent) : base(dependent)
-                {
-                }
             }
 
-            [Shared, Export, ExecuteAfter(typeof(Target)), ExecuteAfter(typeof(Dependent))]
-            public class After : StubCommand
+            [Export, ExecuteAfter(typeof(Target))]
+            public class After1 : StubCommand
+            {
+            }
+
+            [Export, ExecuteAfter(typeof(Target))]
+            public class After2 : StubCommand
             { 
+            }
+        }
+
+        public static class ExecutesDependenciesOfBeforeCommands
+        {
+            [Fact]
+            public static void ExecutesCommandsListedInDependsOnAttributeOfCommandWithExecuteBeforeAttribute()
+            {
+                CompositionContext container = new ContainerConfiguration()
+                    .WithParts(typeof(Target), typeof(Before), typeof(Dependency), typeof(ExecutionTracker))
+                    .CreateContainer();
+
+                new Engine(container).Execute(typeof(Target));
+
+                container.GetExport<ExecutionTracker>().Verify(typeof(Dependency), typeof(Before), typeof(Target));
+            }
+
+            [Export]
+            public class Target : StubCommand
+            {
+            }
+
+            [Export, DependsOn(typeof(Dependency)), ExecuteBefore(typeof(Target))]
+            public class Before : StubCommand
+            {
+            }
+
+            [Export]
+            public class Dependency : StubCommand
+            {
+            }
+        }
+
+        public static class ExecutesDependenciesOfAfterCommands
+        {
+            [Fact]
+            public static void ExecutesCommandsListedInDependsOnAttributeOfCommandWithExecuteBeforeAttribute()
+            {
+                CompositionContext container = new ContainerConfiguration()
+                    .WithParts(typeof(Target), typeof(After), typeof(Dependency), typeof(ExecutionTracker))
+                    .CreateContainer();
+
+                new Engine(container).Execute(typeof(Target));
+
+                container.GetExport<ExecutionTracker>().Verify(typeof(Target), typeof(Dependency), typeof(After));
+            }
+
+            [Export]
+            public class Target : StubCommand
+            {
+            }
+
+            [Export, DependsOn(typeof(Dependency)), ExecuteAfter(typeof(Target))]
+            public class After : StubCommand
+            {
+            }
+
+            [Export]
+            public class Dependency : StubCommand
+            {
             }
         }
     }
