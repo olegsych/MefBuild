@@ -40,7 +40,7 @@ namespace MefBuild
         {
             Type[] commandTypes = null;
             var e = Assert.Throws<ArgumentNullException>(() => new DependsOnAttribute(commandTypes));
-            Assert.Equal("commandTypes", e.ParamName);
+            Assert.Equal("dependencyCommandTypes", e.ParamName);
         }
 
         [Fact]
@@ -48,7 +48,7 @@ namespace MefBuild
         {
             var commandTypes = new Type[0];
             var e = Assert.Throws<ArgumentException>(() => new DependsOnAttribute(commandTypes));
-            Assert.Equal("commandTypes", e.ParamName);
+            Assert.Equal("dependencyCommandTypes", e.ParamName);
             Assert.False(e.Message.StartsWith(Environment.NewLine));
         }
 
@@ -57,7 +57,7 @@ namespace MefBuild
         {
             var commandTypes = new Type[] { null };
             var e = Assert.Throws<ArgumentException>(() => new DependsOnAttribute(commandTypes));
-            Assert.Equal("commandTypes", e.ParamName);
+            Assert.Equal("dependencyCommandTypes", e.ParamName);
             Assert.False(e.Message.StartsWith(Environment.NewLine));
         }
 
@@ -66,7 +66,7 @@ namespace MefBuild
         {
             var commandTypes = new Type[] { typeof(object) };
             var e = Assert.Throws<ArgumentException>(() => new DependsOnAttribute(commandTypes));
-            Assert.Equal("commandTypes", e.ParamName);
+            Assert.Equal("dependencyCommandTypes", e.ParamName);
             Assert.False(e.Message.StartsWith(Environment.NewLine));
         }
 
@@ -74,13 +74,13 @@ namespace MefBuild
         public void CommandTypesPropertyIsInitializedByConstructor()
         {
             var attribute = new DependsOnAttribute(typeof(StubCommand));
-            Assert.Equal(new[] { typeof(StubCommand) }, attribute.CommandTypes);
+            Assert.Equal(new[] { typeof(StubCommand) }, attribute.DependencyCommandTypes);
         }
 
         [Fact]
         public void CommandTypesPropertyIsReadOnlyBecauseAttributeInstanceIsImmutable()
         {
-            Assert.Null(typeof(DependsOnAttribute).GetProperty("CommandTypes").SetMethod);
+            Assert.Null(typeof(DependsOnAttribute).GetProperty("DependencyCommandTypes").SetMethod);
         }
 
         [Fact]
@@ -92,7 +92,7 @@ namespace MefBuild
 
             var export = container.GetExport<Lazy<TestCommand, DependsOnMetadata>>();
 
-            Assert.Equal(new[] { typeof(StubCommand) }, export.Metadata.CommandTypes);
+            Assert.Equal(new[] { typeof(StubCommand) }, export.Metadata.DependencyCommandTypes);
         }
 
         [Export, DependsOn(typeof(StubCommand))]
@@ -106,7 +106,7 @@ namespace MefBuild
 
         private class DependsOnMetadata
         {
-            public IEnumerable<Type> CommandTypes { get; set; }
+            public IEnumerable<Type> DependencyCommandTypes { get; set; }
         }
     }
 }

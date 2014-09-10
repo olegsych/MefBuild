@@ -85,9 +85,9 @@ namespace MefBuild
 
             alreadyExecuted.Add(command.Value);
 
-            if (command.Metadata != null && command.Metadata.CommandTypes != null)
+            if (command.Metadata != null && command.Metadata.DependencyCommandTypes != null)
             {
-                foreach (Type dependency in command.Metadata.CommandTypes)
+                foreach (Type dependency in command.Metadata.DependencyCommandTypes)
                 {
                     this.ExecuteCommandType(dependency, alreadyExecuted);
                 }
@@ -141,7 +141,7 @@ namespace MefBuild
         private class Metadata
         {
             [DefaultValue(null)]
-            public IEnumerable<Type> CommandTypes { get; set; }
+            public IEnumerable<Type> DependencyCommandTypes { get; set; }
         }
     }
 }

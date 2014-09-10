@@ -11,38 +11,38 @@ namespace MefBuild
     [MetadataAttribute, AttributeUsage(AttributeTargets.Class)]
     public sealed class DependsOnAttribute : Attribute
     {
-        private readonly Type[] commandTypes;
+        private readonly Type[] dependencyCommandTypes;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DependsOnAttribute"/> class with the given command types.
         /// </summary>
-        /// <param name="commandTypes">
+        /// <param name="dependencyCommandTypes">
         /// An array of <see cref="Type"/> objects representing classes that derive from <see cref="ICommand"/>.
         /// </param>
         /// <exception cref="ArgumentNullException">
-        /// The <paramref name="commandTypes"/> is null.
+        /// The <paramref name="dependencyCommandTypes"/> is null.
         /// </exception>
         /// <exception cref="ArgumentException">
-        /// The <paramref name="commandTypes"/> array is empty -or 
-        /// the <paramref name="commandTypes"/> array contains null elements -or- 
-        /// the <paramref name="commandTypes"/> array contains <see cref="Type"/> objects of classes that don't derive from <see cref="ICommand"/>.
+        /// The <paramref name="dependencyCommandTypes"/> array is empty -or 
+        /// the <paramref name="dependencyCommandTypes"/> array contains null elements -or- 
+        /// the <paramref name="dependencyCommandTypes"/> array contains <see cref="Type"/> objects of classes that don't derive from <see cref="ICommand"/>.
         /// </exception>
-        public DependsOnAttribute(params Type[] commandTypes)
+        public DependsOnAttribute(params Type[] dependencyCommandTypes)
         {
-            const string ParameterName = "commandTypes";
+            const string ParameterName = "dependencyCommandTypes";
             const string ExceptionMessage = "One or more types derived from ICommand are expected.";
 
-            if (commandTypes == null)
+            if (dependencyCommandTypes == null)
             {
                 throw new ArgumentNullException(ParameterName);
             }
 
-            if (commandTypes.Length == 0)
+            if (dependencyCommandTypes.Length == 0)
             {
                 throw new ArgumentException(ExceptionMessage, ParameterName);
             }
 
-            foreach (Type type in commandTypes)
+            foreach (Type type in dependencyCommandTypes)
             {
                 if (type == null || !typeof(ICommand).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
                 {
@@ -50,15 +50,15 @@ namespace MefBuild
                 }
             }
 
-            this.commandTypes = commandTypes;
+            this.dependencyCommandTypes = dependencyCommandTypes;
         }
 
         /// <summary>
         /// Gets a collection of <see cref="ICommand"/> types that must be executed before the command marked with the <see cref="DependsOnAttribute"/>.
         /// </summary>
-        public IEnumerable<Type> CommandTypes 
+        public IEnumerable<Type> DependencyCommandTypes 
         {
-            get { return this.commandTypes; }
+            get { return this.dependencyCommandTypes; }
         }
     }
 }
