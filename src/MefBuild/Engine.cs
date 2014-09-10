@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Composition;
 using System.Composition.Hosting.Core;
 using System.Linq;
@@ -16,8 +17,6 @@ namespace MefBuild
             .GetRuntimeMethods().Single(m => m.Name == "ExecuteCommandType" && m.IsGenericMethodDefinition);
 
         private readonly CompositionContext context;
-
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Engine"/> class with the given <see cref="CompositionContext"/>.
@@ -71,12 +70,12 @@ namespace MefBuild
 
         private void ExecuteCommandType<T>(ICollection<Command> alreadyExecuted) where T : Command
         {
-            var generic = this.context.GetExport<Lazy<T, Dictionary<string, object>>>();
-            var command = new Lazy<Command, Dictionary<string, object>>(() => generic.Value, generic.Metadata);
+            var generic = this.context.GetExport<Lazy<T, Metadata>>();
+            var command = new Lazy<Command, Metadata>(() => generic.Value, generic.Metadata);
             this.ExecuteCommand(command, alreadyExecuted);
         }
 
-        private void ExecuteCommand(Lazy<Command, Dictionary<string, object>> command, ICollection<Command> alreadyExecuted)
+        private void ExecuteCommand(Lazy<Command, Metadata> command, ICollection<Command> alreadyExecuted)
         {
             if (alreadyExecuted.Contains(command.Value))
             {
@@ -85,10 +84,9 @@ namespace MefBuild
 
             alreadyExecuted.Add(command.Value);
 
-            object dependsOnCommandTypes;
-            if (command.Metadata.TryGetValue("CommandTypes", out dependsOnCommandTypes))
+            if (command.Metadata != null && command.Metadata.CommandTypes != null)
             {
-                foreach (Type dependency in (IEnumerable<Type>)dependsOnCommandTypes)
+                foreach (Type dependency in command.Metadata.CommandTypes)
                 {
                     this.ExecuteCommandType(dependency, alreadyExecuted);
                 }
@@ -101,27 +99,27 @@ namespace MefBuild
             this.ExecuteCommands(this.GetAfterCommands(command.Value), alreadyExecuted);
         }
 
-        private void ExecuteCommands(IEnumerable<Lazy<Command, Dictionary<string, object>>> commands, ICollection<Command> alreadyExecuted)
+        private void ExecuteCommands(IEnumerable<Lazy<Command, Metadata>> commands, ICollection<Command> alreadyExecuted)
         {
-            foreach (Lazy<Command, Dictionary<string, object>> command in commands)
+            foreach (Lazy<Command, Metadata> command in commands)
             {
                 this.ExecuteCommand(command, alreadyExecuted);
             }
         }
 
-        private IEnumerable<Lazy<Command, Dictionary<string, object>>> GetBeforeCommands(Command command)
+        private IEnumerable<Lazy<Command, Metadata>> GetBeforeCommands(Command command)
         {
             return this.GetCommands(ExecuteBeforeAttribute.ContractName, command);
         }
 
-        private IEnumerable<Lazy<Command, Dictionary<string, object>>> GetAfterCommands(Command command)
+        private IEnumerable<Lazy<Command, Metadata>> GetAfterCommands(Command command)
         {
             return this.GetCommands(ExecuteAfterAttribute.ContractName, command);
         }
 
-        private IEnumerable<Lazy<Command, Dictionary<string, object>>> GetCommands(string contractName, Command targetCommand)
+        private IEnumerable<Lazy<Command, Metadata>> GetCommands(string contractName, Command targetCommand)
         {
-            Type contractType = typeof(Lazy<Command, Dictionary<string, object>>[]);
+            Type contractType = typeof(Lazy<Command, Metadata>[]);
             var constraints = new Dictionary<string, object> 
             { 
                 { "IsImportMany", true },
@@ -132,10 +130,16 @@ namespace MefBuild
             object export;
             if (this.context.TryGetExport(contract, out export))
             {
-                return (IEnumerable<Lazy<Command, Dictionary<string, object>>>)export;
+                return (IEnumerable<Lazy<Command, Metadata>>)export;
             }
 
-            return Enumerable.Empty<Lazy<Command, Dictionary<string, object>>>();
-        }        
+            return Enumerable.Empty<Lazy<Command, Metadata>>();
+        }
+        
+        private class Metadata
+        {
+            [DefaultValue(null)]
+            public IEnumerable<Type> CommandTypes { get; set; }
+        }
     }
 }
