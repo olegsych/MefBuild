@@ -14,8 +14,8 @@ namespace MefBuild
     /// </summary>
     public class Engine
     {
-        private static readonly MethodInfo ExecuteCommandTypeMethod = typeof(Engine)
-            .GetRuntimeMethods().Single(m => m.Name == "ExecuteCommandType" && m.IsGenericMethodDefinition);
+        private static readonly MethodInfo ExecuteCommandDefinition = typeof(Engine)
+            .GetRuntimeMethods().Single(m => m.Name == "ExecuteCommand" && m.IsGenericMethodDefinition);
 
         private readonly CompositionContext context;
 
@@ -39,7 +39,7 @@ namespace MefBuild
         [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "This method is a stronly typed equivalent of Execute(Type).")]
         public void Execute<T>() where T : ICommand
         {
-            this.ExecuteCommandType<T>(new HashSet<ICommand>());
+            this.ExecuteCommand<T>(new HashSet<ICommand>());
         }
 
         /// <summary>
@@ -62,15 +62,15 @@ namespace MefBuild
                 throw new ArgumentException("The type must derive from the Command class.", ParameterName);
             }
 
-            this.ExecuteCommandType(commandType, new HashSet<ICommand>());
+            this.ExecuteCommand(commandType, new HashSet<ICommand>());
         }
 
-        private void ExecuteCommandType(Type commandType, ICollection<ICommand> alreadyExecuted)
+        private void ExecuteCommand(Type commandType, ICollection<ICommand> alreadyExecuted)
         {
-            MethodInfo genericExecuteCommandType = ExecuteCommandTypeMethod.MakeGenericMethod(commandType);
+            MethodInfo executeCommandType = ExecuteCommandDefinition.MakeGenericMethod(commandType);
             try
             {
-                genericExecuteCommandType.Invoke(this, new object[] { alreadyExecuted });
+                executeCommandType.Invoke(this, new object[] { alreadyExecuted });
             }
             catch (TargetInvocationException e)
             {
@@ -78,62 +78,66 @@ namespace MefBuild
             }
         }
 
-        private void ExecuteCommandType<T>(ICollection<ICommand> alreadyExecuted) where T : ICommand
+        private void ExecuteCommand<T>(ICollection<ICommand> alreadyExecuted) where T : ICommand
         {
-            var generic = this.context.GetExport<Lazy<T, Metadata>>();
-            var command = new Lazy<ICommand, Metadata>(() => generic.Value, generic.Metadata);
-            this.ExecuteCommand(command, alreadyExecuted);
+            var genericExport = this.context.GetExport<Lazy<T, Metadata>>();
+            var abstractExport = new Lazy<ICommand, Metadata>(() => genericExport.Value, genericExport.Metadata);
+            this.ExecuteCommand(abstractExport, alreadyExecuted);
         }
 
-        private void ExecuteCommand(Lazy<ICommand, Metadata> command, ICollection<ICommand> alreadyExecuted)
+        private void ExecuteCommand(Lazy<ICommand, Metadata> commandExport, ICollection<ICommand> alreadyExecuted)
         {
-            if (alreadyExecuted.Contains(command.Value))
+            ICommand command = commandExport.Value;
+            if (!alreadyExecuted.Contains(command))
             {
-                return;
-            }
-
-            alreadyExecuted.Add(command.Value);
-
-            if (command.Metadata != null && command.Metadata.DependencyCommandTypes != null)
-            {
-                foreach (Type dependency in command.Metadata.DependencyCommandTypes)
-                {
-                    this.ExecuteCommandType(dependency, alreadyExecuted);
-                }
-            }
-
-            this.ExecuteCommands(this.GetBeforeCommands(command.Value), alreadyExecuted);
-
-            command.Value.Execute();
-
-            this.ExecuteCommands(this.GetAfterCommands(command.Value), alreadyExecuted);
-        }
-
-        private void ExecuteCommands(IEnumerable<Lazy<ICommand, Metadata>> commands, ICollection<ICommand> alreadyExecuted)
-        {
-            foreach (Lazy<ICommand, Metadata> command in commands)
-            {
-                this.ExecuteCommand(command, alreadyExecuted);
+                alreadyExecuted.Add(command);
+                this.ExecuteCommands(this.GetDependsOnCommands(commandExport), alreadyExecuted);
+                this.ExecuteCommands(this.GetBeforeCommands(command.GetType()), alreadyExecuted);
+                command.Execute();
+                this.ExecuteCommands(this.GetAfterCommands(command.GetType()), alreadyExecuted);
             }
         }
 
-        private IEnumerable<Lazy<ICommand, Metadata>> GetBeforeCommands(ICommand command)
+        private void ExecuteCommands(IEnumerable<Type> commandTypes, ICollection<ICommand> alreadyExecuted)
         {
-            return this.GetCommands(ExecuteBeforeAttribute.ContractName, command);
+            foreach (Type commandType in commandTypes)
+            {
+                this.ExecuteCommand(commandType, alreadyExecuted);
+            }
         }
 
-        private IEnumerable<Lazy<ICommand, Metadata>> GetAfterCommands(ICommand command)
+        private void ExecuteCommands(IEnumerable<Lazy<ICommand, Metadata>> commandExports, ICollection<ICommand> alreadyExecuted)
         {
-            return this.GetCommands(ExecuteAfterAttribute.ContractName, command);
+            foreach (Lazy<ICommand, Metadata> commandExport in commandExports)
+            {
+                this.ExecuteCommand(commandExport, alreadyExecuted);
+            }
         }
 
-        private IEnumerable<Lazy<ICommand, Metadata>> GetCommands(string contractName, ICommand targetCommand)
+        private IEnumerable<Type> GetDependsOnCommands(Lazy<ICommand, Metadata> commandExport)
+        {
+            return (commandExport.Metadata != null && commandExport.Metadata.DependencyCommandTypes != null)
+                ? commandExport.Metadata.DependencyCommandTypes
+                : Enumerable.Empty<Type>();
+        }
+
+        private IEnumerable<Lazy<ICommand, Metadata>> GetBeforeCommands(Type commandType)
+        {
+            return this.GetCommandExports(commandType, ExecuteBeforeAttribute.ContractName);
+        }
+
+        private IEnumerable<Lazy<ICommand, Metadata>> GetAfterCommands(Type commandType)
+        {
+            return this.GetCommandExports(commandType, ExecuteAfterAttribute.ContractName);
+        }
+
+        private IEnumerable<Lazy<ICommand, Metadata>> GetCommandExports(Type targetCommandType, string contractName)
         {
             Type contractType = typeof(Lazy<ICommand, Metadata>[]);
             var constraints = new Dictionary<string, object> 
             { 
                 { "IsImportMany", true },
-                { "TargetCommandType", targetCommand.GetType() },
+                { "TargetCommandType", targetCommandType },
             };
             var contract = new CompositionContract(contractType, contractName, constraints);
 
