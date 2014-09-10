@@ -101,8 +101,12 @@ namespace MefBuild
         }
 
         [Export, DependsOn(typeof(StubCommand))]
-        public class TestCommand : Command
+        public class TestCommand : ICommand
         {
+            public void Execute()
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

@@ -3,22 +3,17 @@ using System.Composition;
 
 namespace MefBuild
 {
-    public class StubCommand : Command
+    public class StubCommand : ICommand
     {
-        public StubCommand() : base()
+        public StubCommand()
         {
-            this.OnExecute = @this => base.Execute();
-        }
-
-        public StubCommand(params Command[] dependsOn) : base(dependsOn)
-        {
-            this.OnExecute = @this => base.Execute();
+            this.OnExecute = @this => { };
         }
 
         [Import("OnExecute")]
-        public Action<Command> OnExecute { get; set; }
+        public Action<ICommand> OnExecute { get; set; }
 
-        public override void Execute()
+        public void Execute()
         {
             this.OnExecute(this);
         }

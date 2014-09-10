@@ -16,7 +16,7 @@ namespace MefBuild
         /// <summary>
         /// Initializes a new instance of the <see cref="ExecuteAfterAttribute"/> class with the given <see cref="Type"/> of target command.
         /// </summary>
-        public ExecuteAfterAttribute(Type targetCommandType) : base(ContractName, typeof(Command))
+        public ExecuteAfterAttribute(Type targetCommandType) : base(ContractName, typeof(ICommand))
         {
             const string ParameterName = "targetCommandType";
 
@@ -25,16 +25,16 @@ namespace MefBuild
                 throw new ArgumentNullException(ParameterName);
             }
 
-            if (!typeof(Command).GetTypeInfo().IsAssignableFrom(targetCommandType.GetTypeInfo()))
+            if (!typeof(ICommand).GetTypeInfo().IsAssignableFrom(targetCommandType.GetTypeInfo()))
             {
-                throw new ArgumentException("Type derived from the MefBuild.Command class is expected.", ParameterName);
+                throw new ArgumentException("Type derived from the MefBuild.ICommand class is expected.", ParameterName);
             }
 
             this.targetCommandType = targetCommandType;
         }
 
         /// <summary>
-        /// Gets the <see cref="Type"/> of target <see cref="Command"/>.
+        /// Gets the <see cref="Type"/> of target <see cref="ICommand"/>.
         /// </summary>
         public Type TargetCommandType
         {

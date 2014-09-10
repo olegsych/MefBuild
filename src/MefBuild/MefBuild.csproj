@@ -15,7 +15,7 @@
     <BuildPackage>true</BuildPackage>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Command.cs" />
+    <Compile Include="ICommand.cs" />
     <Compile Include="DependsOnAttribute.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="ExecuteAfterAttribute.cs" />

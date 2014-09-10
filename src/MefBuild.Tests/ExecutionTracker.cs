@@ -9,7 +9,7 @@ namespace MefBuild
     [Export, Shared]
     public class ExecutionTracker
     {
-        private readonly List<Command> executedCommands = new List<Command>();
+        private readonly List<ICommand> executedCommands = new List<ICommand>();
 
         public ExecutionTracker()
         {
@@ -17,7 +17,7 @@ namespace MefBuild
         }
 
         [Export("OnExecute")] 
-        public Action<Command> OnExecute { get; set; }
+        public Action<ICommand> OnExecute { get; set; }
 
         public void Verify(params Type[] expectedCommandTypes)
         {
