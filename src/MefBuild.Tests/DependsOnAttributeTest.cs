@@ -95,11 +95,6 @@ namespace MefBuild
             Assert.Equal(new[] { typeof(StubCommand) }, export.Metadata.CommandTypes);
         }
 
-        private class DependsOnMetadata
-        {
-            public IEnumerable<Type> CommandTypes { get; set; }
-        }
-
         [Export, DependsOn(typeof(StubCommand))]
         public class TestCommand : ICommand
         {
@@ -107,6 +102,11 @@ namespace MefBuild
             {
                 throw new NotImplementedException();
             }
+        }
+
+        private class DependsOnMetadata
+        {
+            public IEnumerable<Type> CommandTypes { get; set; }
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Composition;
 using System.Composition.Hosting.Core;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 
@@ -135,7 +136,8 @@ namespace MefBuild
 
             return Enumerable.Empty<Lazy<ICommand, Metadata>>();
         }
-        
+
+        [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses", Justification = "This class is instantiated by MEF.")]
         private class Metadata
         {
             [DefaultValue(null)]
