@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Composition;
 using System.Composition.Hosting;
+using System.Linq;
+using System.Reflection;
 using Xunit;
 
 namespace MefBuild
@@ -40,16 +42,35 @@ namespace MefBuild
             Assert.Contains("Command", e.Message);
         }
 
+        [Fact]
+        public static void ExecuteConstraintsGenericTypeToICommandToPreventUsageErrors()
+        {
+            MethodInfo executeOfT = typeof(Engine).GetMethods().Single(m => m.Name == "Execute" && m.IsGenericMethodDefinition);
+            Assert.True(typeof(ICommand).IsAssignableFrom(executeOfT.GetGenericArguments()[0]));
+        }
+
         public static class ExecuteOne
         {
             [Fact]
-            public static void ExecutesCommandOfGivenType()
+            public static void ExecutesCommandSpecifiedAsType()
             {
                 CompositionContext container = new ContainerConfiguration()
                     .WithParts(typeof(Target), typeof(ExecutionTracker))
                     .CreateContainer();
 
                 new Engine(container).Execute(typeof(Target));
+
+                container.GetExport<ExecutionTracker>().Verify(typeof(Target));
+            }
+
+            [Fact]
+            public static void ExecutesCommandSpecifiedAsGeneric()
+            {
+                CompositionContext container = new ContainerConfiguration()
+                    .WithParts(typeof(Target), typeof(ExecutionTracker))
+                    .CreateContainer();
+
+                new Engine(container).Execute<Target>();
 
                 container.GetExport<ExecutionTracker>().Verify(typeof(Target));
             }

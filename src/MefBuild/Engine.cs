@@ -33,9 +33,19 @@ namespace MefBuild
         }
 
         /// <summary>
-        /// Executes the <see cref="ICommand"/> of specified <see cref="Type"/>.
+        /// Executes an <see cref="ICommand"/> of type <typeparamref name="T"/>.
         /// </summary>
-        /// <param name="commandType">A <see cref="Type"/> derived from the <see cref="ICommand"/> class.</param>
+        /// <typeparam name="T">A type that implements the <see cref="ICommand"/> interface.</typeparam>
+        [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "This method is a stronly typed equivalent of Execute(Type).")]
+        public void Execute<T>() where T : ICommand
+        {
+            this.ExecuteCommandType<T>(new HashSet<ICommand>());
+        }
+
+        /// <summary>
+        /// Executes an <see cref="ICommand"/> of specified <see cref="Type"/>.
+        /// </summary>
+        /// <param name="commandType">A <see cref="Type"/> that implements the <see cref="ICommand"/> interface.</param>
         /// <exception cref="ArgumentNullException">The <paramref name="commandType"/> is null.</exception>
         /// <exception cref="ArgumentException">The <paramref name="commandType"/> does not derive from the <see cref="ICommand"/> class.</exception>
         public void Execute(Type commandType)
@@ -52,8 +62,7 @@ namespace MefBuild
                 throw new ArgumentException("The type must derive from the Command class.", ParameterName);
             }
 
-            var alreadyExecuted = new HashSet<ICommand>();
-            this.ExecuteCommandType(commandType, alreadyExecuted);
+            this.ExecuteCommandType(commandType, new HashSet<ICommand>());
         }
 
         private void ExecuteCommandType(Type commandType, ICollection<ICommand> alreadyExecuted)
