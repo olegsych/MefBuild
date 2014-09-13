@@ -19,7 +19,7 @@
     <licenseUrl>https://github.com/olegsych/MefBuild/blob/master/license.txt</licenseUrl>
     <projectUrl>https://github.com/olegsych/MefBuild</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <copyright>Copyright (c) 2014</copyright>
+    <copyright>Copyright (c) 2014 Oleg Sych</copyright>
     <tags>MEF Composition Build</tags>
   </metadata>
 </package>
