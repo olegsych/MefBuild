@@ -4,14 +4,14 @@ MefBuild
 MefBuild is a lightweight library powered by the [Microsoft Extensibility Framework](http://mef.codeplex.com/)
 for implementing powerful and extensible build systems in .NET code. MefBuild mimics MSBuild.
 
-* [Getting Started](#GettingStarted)
-* [Defining Build Process](#BuildProcess)
-* [Passing Build Artifacts Between Commands](#BuildArtifacts)
-* [Extending Build Process](#Extensibility)
-* [Command Execution Order](#ExecutionOrder)
+* [Getting Started](#getting-started)
+* [Defining Build Process](#defining-build-process)
+* [Passing Build Artifacts Between Commands](#passing-build-artifacts-between-commands)
+* [Extending Build Process](#extending-build-process)
+* [Command Execution Order](#command-execution-order)
 
-Getting Started <a id="GettingStarted"/>
--------------------------------------------
+Getting Started
+---------------
 
 Install the [MefBuild NuGet package](https://www.nuget.org/packages/MefBuild) in your project, define 
 a class that inherits from `Command` and mark it with MEF's `Export` attribute.
@@ -57,8 +57,8 @@ Behold!
 Hello, World!
 ```
 
-Defining Build Process <a id="BuildProcess"/>
-------------------------------------------------
+Defining Build Process
+----------------------
 
 `Command` is an abstract base class for implementing the concrete types that represent individual 
 steps in your build process. Commands are similar to MSBuild tasks in this regard. For an old-fashioned 
@@ -107,8 +107,8 @@ With these definitions, executing the Build command produces the following outpu
     Linking...
     Build finished.
 
-Passing Build Artifacts Between Commands <a id="BuildArtifacts"/>
---------------------------------------------------------------------
+Passing Build Artifacts Between Commands
+----------------------------------------
 
 Unlike in MSBuild, where build artifacts (properties and items) are passed between tasks by writing 
 XML script, in MefBuild, values and objects are passed between commands via MEF `CompositionContext`.
@@ -161,8 +161,8 @@ produces the following output.
     Linking mefbuild.obj ...
     Build finished.
 
-Extending Build Process <a id="Extensibility"/>
---------------------------------------------------
+Extending Build Process
+-----------------------
 
 MefBuild's `Engine` automatically executes commands marked with the `ExecuteBefore` and `ExecuteAfter` 
 attributes. Here is a command you could define to implement pre-processing of C/C++ source files. Because 
@@ -223,8 +223,8 @@ Here is the output produced by the build system with extensions.
     Packaging...
     Build finished.
 
-Command Execution Order <a id="ExecutionOrder"/>
----------------------------------------------------
+Command Execution Order
+-----------------------
 
 When executing a `Command` of given type, MefBuild `Engine`, will execute its dependencies and 
 extensions in the following order.
