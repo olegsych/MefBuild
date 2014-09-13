@@ -47,7 +47,9 @@ class Program
 
 * Behold!
 
-    Hello, World!
+```
+Hello, World!
+```
 
 Defining Build Process
 ----------------------
