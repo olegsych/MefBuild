@@ -10,7 +10,7 @@ for implementing powerful and extensible build systems in .NET code. MefBuild mi
 * [Extending Build Process](#Extensibility)
 * [Command Execution Order](#ExecutionOrder)
 
-Getting Started <a href="#GettingStarted"/>
+Getting Started <a id="GettingStarted"/>
 -------------------------------------------
 
 Install the [MefBuild NuGet package](https://www.nuget.org/packages/MefBuild) in your project, define 
@@ -57,7 +57,7 @@ Behold!
 Hello, World!
 ```
 
-Defining Build Process <a href="#BuildProcess"/>
+Defining Build Process <a id="BuildProcess"/>
 ------------------------------------------------
 
 `Command` is an abstract base class for implementing the concrete types that represent individual 
@@ -107,7 +107,7 @@ With these definitions, executing the Build command produces the following outpu
     Linking...
     Build finished.
 
-Passing Build Artifacts Between Commands <a href="#BuildArtifacts"/>
+Passing Build Artifacts Between Commands <a id="BuildArtifacts"/>
 --------------------------------------------------------------------
 
 Unlike in MSBuild, where build artifacts (properties and items) are passed between tasks by writing 
@@ -161,7 +161,7 @@ produces the following output.
     Linking mefbuild.obj ...
     Build finished.
 
-Extending Build Process <a href="#Extensibility"/>
+Extending Build Process <a id="Extensibility"/>
 --------------------------------------------------
 
 MefBuild's `Engine` automatically executes commands marked with the `ExecuteBefore` and `ExecuteAfter` 
@@ -223,7 +223,7 @@ Here is the output produced by the build system with extensions.
     Packaging...
     Build finished.
 
-Command Execution Order <a href="#ExecutionOrder"/>
+Command Execution Order <a id="ExecutionOrder"/>
 ---------------------------------------------------
 
 When executing a `Command` of given type, MefBuild `Engine`, will execute its dependencies and 
