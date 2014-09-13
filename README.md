@@ -87,3 +87,9 @@ public class Build : Command
     }
 }
 ```
+
+With these definitions, executing the *Build* command produces the following output.
+
+> Compiling...
+> Linking...
+> Done.
