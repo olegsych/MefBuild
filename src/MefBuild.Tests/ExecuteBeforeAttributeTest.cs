@@ -28,7 +28,7 @@ namespace MefBuild
             var targetCommandType = typeof(StubCommand);
             var attribute = new ExecuteBeforeAttribute(typeof(StubCommand));
             Assert.Equal("ExecuteBefore", attribute.ContractName);
-            Assert.Equal(typeof(ICommand), attribute.ContractType);
+            Assert.Equal(typeof(Command), attribute.ContractType);
             Assert.Same(targetCommandType, attribute.TargetCommandType);
         }
 
@@ -44,7 +44,7 @@ namespace MefBuild
         {
             var e = Assert.Throws<ArgumentException>(() => new ExecuteBeforeAttribute(typeof(object)));
             Assert.Equal("targetCommandType", e.ParamName);
-            Assert.Contains(typeof(ICommand).FullName, e.Message);
+            Assert.Contains(typeof(Command).FullName, e.Message);
         }
 
         [Fact]
@@ -63,7 +63,7 @@ namespace MefBuild
                 .WithPart<TestCommand2>();
             CompositionHost container = configuration.CreateContainer();
 
-            Type contractType = typeof(ICommand[]);
+            Type contractType = typeof(Command[]);
             string contractName = "ExecuteBefore";
             var constraints = new Dictionary<string, object>
             {
@@ -75,7 +75,7 @@ namespace MefBuild
             object export;
             Assert.True(container.TryGetExport(contract, out export));
 
-            var exports = (IEnumerable<ICommand>)export;
+            var exports = (IEnumerable<Command>)export;
 
             Assert.Equal(2, exports.Count());
             Assert.Equal(typeof(TestCommand1), exports.First().GetType());
@@ -83,21 +83,13 @@ namespace MefBuild
         }
 
         [ExecuteBefore(typeof(StubCommand))]
-        private class TestCommand1 : ICommand
+        private class TestCommand1 : Command
         {
-            public void Execute()
-            {
-                throw new NotImplementedException();
-            }
         }
 
         [ExecuteBefore(typeof(StubCommand))]
-        private class TestCommand2 : ICommand
+        private class TestCommand2 : Command
         {
-            public void Execute()
-            {
-                throw new NotImplementedException();
-            }
         }
     }
 }

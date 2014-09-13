@@ -46,7 +46,7 @@ namespace MefBuild
         public static void ExecuteConstraintsGenericTypeToICommandToPreventUsageErrors()
         {
             MethodInfo executeOfT = typeof(Engine).GetMethods().Single(m => m.Name == "Execute" && m.IsGenericMethodDefinition);
-            Assert.True(typeof(ICommand).IsAssignableFrom(executeOfT.GetGenericArguments()[0]));
+            Assert.True(typeof(Command).IsAssignableFrom(executeOfT.GetGenericArguments()[0]));
         }
 
         public static class ExecutesOne

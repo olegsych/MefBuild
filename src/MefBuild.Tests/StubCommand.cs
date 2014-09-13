@@ -3,7 +3,7 @@ using System.Composition;
 
 namespace MefBuild
 {
-    public class StubCommand : ICommand
+    public class StubCommand : Command
     {
         public StubCommand()
         {
@@ -11,9 +11,9 @@ namespace MefBuild
         }
 
         [Import("OnExecute", AllowDefault = true)]
-        public Action<ICommand> OnExecute { get; set; }
+        public Action<Command> OnExecute { get; set; }
 
-        public virtual void Execute()
+        public override void Execute()
         {
             this.OnExecute(this);
         }

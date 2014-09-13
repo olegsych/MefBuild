@@ -10,7 +10,7 @@ using System.Reflection;
 namespace MefBuild
 {
     /// <summary>
-    /// Encapsulates <see cref="ICommand"/> execution logic of the MEF Build framework.
+    /// Encapsulates <see cref="Command"/> execution logic of the MEF Build framework.
     /// </summary>
     public class Engine
     {
@@ -33,21 +33,21 @@ namespace MefBuild
         }
 
         /// <summary>
-        /// Executes an <see cref="ICommand"/> of type <typeparamref name="T"/>.
+        /// Executes an <see cref="Command"/> of type <typeparamref name="T"/>.
         /// </summary>
-        /// <typeparam name="T">A type that implements the <see cref="ICommand"/> interface.</typeparam>
+        /// <typeparam name="T">A type that implements the <see cref="Command"/> interface.</typeparam>
         [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "This method is a stronly typed equivalent of Execute(Type).")]
-        public void Execute<T>() where T : ICommand
+        public void Execute<T>() where T : Command
         {
-            this.ExecuteCommand<T>(new HashSet<ICommand>());
+            this.ExecuteCommand<T>(new HashSet<Command>());
         }
 
         /// <summary>
-        /// Executes an <see cref="ICommand"/> of specified <see cref="Type"/>.
+        /// Executes an <see cref="Command"/> of specified <see cref="Type"/>.
         /// </summary>
-        /// <param name="commandType">A <see cref="Type"/> that implements the <see cref="ICommand"/> interface.</param>
+        /// <param name="commandType">A <see cref="Type"/> that implements the <see cref="Command"/> interface.</param>
         /// <exception cref="ArgumentNullException">The <paramref name="commandType"/> is null.</exception>
-        /// <exception cref="ArgumentException">The <paramref name="commandType"/> does not derive from the <see cref="ICommand"/> class.</exception>
+        /// <exception cref="ArgumentException">The <paramref name="commandType"/> does not derive from the <see cref="Command"/> class.</exception>
         public void Execute(Type commandType)
         {
             const string ParameterName = "commandType";
@@ -57,15 +57,15 @@ namespace MefBuild
                 throw new ArgumentNullException(ParameterName);
             }
 
-            if (!typeof(ICommand).GetTypeInfo().IsAssignableFrom(commandType.GetTypeInfo()))
+            if (!typeof(Command).GetTypeInfo().IsAssignableFrom(commandType.GetTypeInfo()))
             {
                 throw new ArgumentException("The type must derive from the Command class.", ParameterName);
             }
 
-            this.ExecuteCommand(commandType, new HashSet<ICommand>());
+            this.ExecuteCommand(commandType, new HashSet<Command>());
         }
 
-        private void ExecuteCommand(Type commandType, ICollection<ICommand> alreadyExecuted)
+        private void ExecuteCommand(Type commandType, ICollection<Command> alreadyExecuted)
         {
             MethodInfo executeCommandType = ExecuteCommandDefinition.MakeGenericMethod(commandType);
             try
@@ -78,16 +78,16 @@ namespace MefBuild
             }
         }
 
-        private void ExecuteCommand<T>(ICollection<ICommand> alreadyExecuted) where T : ICommand
+        private void ExecuteCommand<T>(ICollection<Command> alreadyExecuted) where T : Command
         {
             var genericExport = this.context.GetExport<Lazy<T, Metadata>>();
-            var abstractExport = new Lazy<ICommand, Metadata>(() => genericExport.Value, genericExport.Metadata);
+            var abstractExport = new Lazy<Command, Metadata>(() => genericExport.Value, genericExport.Metadata);
             this.ExecuteCommand(abstractExport, alreadyExecuted);
         }
 
-        private void ExecuteCommand(Lazy<ICommand, Metadata> commandExport, ICollection<ICommand> alreadyExecuted)
+        private void ExecuteCommand(Lazy<Command, Metadata> commandExport, ICollection<Command> alreadyExecuted)
         {
-            ICommand command = commandExport.Value;
+            Command command = commandExport.Value;
             if (!alreadyExecuted.Contains(command))
             {
                 alreadyExecuted.Add(command);
@@ -102,7 +102,7 @@ namespace MefBuild
             }
         }
 
-        private void ExecuteCommands(IEnumerable<Type> commandTypes, ICollection<ICommand> alreadyExecuted)
+        private void ExecuteCommands(IEnumerable<Type> commandTypes, ICollection<Command> alreadyExecuted)
         {
             foreach (Type commandType in commandTypes)
             {
@@ -110,34 +110,34 @@ namespace MefBuild
             }
         }
 
-        private void ExecuteCommands(IEnumerable<Lazy<ICommand, Metadata>> commandExports, ICollection<ICommand> alreadyExecuted)
+        private void ExecuteCommands(IEnumerable<Lazy<Command, Metadata>> commandExports, ICollection<Command> alreadyExecuted)
         {
-            foreach (Lazy<ICommand, Metadata> commandExport in commandExports)
+            foreach (Lazy<Command, Metadata> commandExport in commandExports)
             {
                 this.ExecuteCommand(commandExport, alreadyExecuted);
             }
         }
 
-        private static IEnumerable<Type> GetDependsOnCommands(Lazy<ICommand, Metadata> commandExport)
+        private static IEnumerable<Type> GetDependsOnCommands(Lazy<Command, Metadata> commandExport)
         {
             return (commandExport.Metadata != null && commandExport.Metadata.DependencyCommandTypes != null)
                 ? commandExport.Metadata.DependencyCommandTypes
                 : Enumerable.Empty<Type>();
         }
 
-        private IEnumerable<Lazy<ICommand, Metadata>> GetBeforeCommands(Type commandType)
+        private IEnumerable<Lazy<Command, Metadata>> GetBeforeCommands(Type commandType)
         {
             return this.GetCommandExports(commandType, ExecuteBeforeAttribute.ContractName);
         }
 
-        private IEnumerable<Lazy<ICommand, Metadata>> GetAfterCommands(Type commandType)
+        private IEnumerable<Lazy<Command, Metadata>> GetAfterCommands(Type commandType)
         {
             return this.GetCommandExports(commandType, ExecuteAfterAttribute.ContractName);
         }
 
-        private IEnumerable<Lazy<ICommand, Metadata>> GetCommandExports(Type targetCommandType, string contractName)
+        private IEnumerable<Lazy<Command, Metadata>> GetCommandExports(Type targetCommandType, string contractName)
         {
-            Type contractType = typeof(Lazy<ICommand, Metadata>[]);
+            Type contractType = typeof(Lazy<Command, Metadata>[]);
             var constraints = new Dictionary<string, object> 
             { 
                 { "IsImportMany", true },
@@ -148,10 +148,10 @@ namespace MefBuild
             object export;
             if (this.context.TryGetExport(contract, out export))
             {
-                return (IEnumerable<Lazy<ICommand, Metadata>>)export;
+                return (IEnumerable<Lazy<Command, Metadata>>)export;
             }
 
-            return Enumerable.Empty<Lazy<ICommand, Metadata>>();
+            return Enumerable.Empty<Lazy<Command, Metadata>>();
         }
 
         [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses", Justification = "This class is instantiated by MEF.")]

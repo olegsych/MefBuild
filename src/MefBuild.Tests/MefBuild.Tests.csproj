@@ -45,6 +45,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandTest.cs" />
     <Compile Include="DependsOnAttributeTest.cs" />
     <Compile Include="EngineTest.cs" />
     <Compile Include="ExecuteAfterAttributeTest.cs" />

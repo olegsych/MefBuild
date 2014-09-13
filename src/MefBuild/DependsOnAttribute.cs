@@ -6,7 +6,7 @@ using System.Reflection;
 namespace MefBuild
 {
     /// <summary>
-    /// Specifies <see cref="ICommand"/> types that should be executed before the command the attribute is applied to.
+    /// Specifies <see cref="Command"/> types that should be executed before the command the attribute is applied to.
     /// </summary>
     [MetadataAttribute, AttributeUsage(AttributeTargets.Class)]
     public sealed class DependsOnAttribute : Attribute
@@ -17,7 +17,7 @@ namespace MefBuild
         /// Initializes a new instance of the <see cref="DependsOnAttribute"/> class with the given command types.
         /// </summary>
         /// <param name="dependencyCommandTypes">
-        /// An array of <see cref="Type"/> objects representing classes that derive from <see cref="ICommand"/>.
+        /// An array of <see cref="Type"/> objects representing classes that derive from <see cref="Command"/>.
         /// </param>
         /// <exception cref="ArgumentNullException">
         /// The <paramref name="dependencyCommandTypes"/> is null.
@@ -25,7 +25,7 @@ namespace MefBuild
         /// <exception cref="ArgumentException">
         /// The <paramref name="dependencyCommandTypes"/> array is empty -or 
         /// the <paramref name="dependencyCommandTypes"/> array contains null elements -or- 
-        /// the <paramref name="dependencyCommandTypes"/> array contains <see cref="Type"/> objects of classes that don't derive from <see cref="ICommand"/>.
+        /// the <paramref name="dependencyCommandTypes"/> array contains <see cref="Type"/> objects of classes that don't derive from <see cref="Command"/>.
         /// </exception>
         public DependsOnAttribute(params Type[] dependencyCommandTypes)
         {
@@ -44,7 +44,7 @@ namespace MefBuild
 
             foreach (Type type in dependencyCommandTypes)
             {
-                if (type == null || !typeof(ICommand).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
+                if (type == null || !typeof(Command).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
                 {
                     throw new ArgumentException(ExceptionMessage, ParameterName);
                 }
@@ -54,7 +54,7 @@ namespace MefBuild
         }
 
         /// <summary>
-        /// Gets a collection of <see cref="ICommand"/> types that must be executed before the command marked with the <see cref="DependsOnAttribute"/>.
+        /// Gets a collection of <see cref="Command"/> types that must be executed before the command marked with the <see cref="DependsOnAttribute"/>.
         /// </summary>
         public IEnumerable<Type> DependencyCommandTypes 
         {
