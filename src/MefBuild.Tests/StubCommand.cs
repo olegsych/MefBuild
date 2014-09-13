@@ -10,10 +10,10 @@ namespace MefBuild
             this.OnExecute = @this => { };
         }
 
-        [Import("OnExecute")]
+        [Import("OnExecute", AllowDefault = true)]
         public Action<ICommand> OnExecute { get; set; }
 
-        public void Execute()
+        public virtual void Execute()
         {
             this.OnExecute(this);
         }

@@ -91,9 +91,13 @@ namespace MefBuild
             if (!alreadyExecuted.Contains(command))
             {
                 alreadyExecuted.Add(command);
-                this.ExecuteCommands(this.GetDependsOnCommands(commandExport), alreadyExecuted);
+
+                this.ExecuteCommands(GetDependsOnCommands(commandExport), alreadyExecuted);
                 this.ExecuteCommands(this.GetBeforeCommands(command.GetType()), alreadyExecuted);
+
+                this.context.SatisfyImports(command); // from the dependency and before commands
                 command.Execute();
+
                 this.ExecuteCommands(this.GetAfterCommands(command.GetType()), alreadyExecuted);
             }
         }
@@ -114,7 +118,7 @@ namespace MefBuild
             }
         }
 
-        private IEnumerable<Type> GetDependsOnCommands(Lazy<ICommand, Metadata> commandExport)
+        private static IEnumerable<Type> GetDependsOnCommands(Lazy<ICommand, Metadata> commandExport)
         {
             return (commandExport.Metadata != null && commandExport.Metadata.DependencyCommandTypes != null)
                 ? commandExport.Metadata.DependencyCommandTypes

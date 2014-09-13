@@ -49,7 +49,7 @@ namespace MefBuild
             Assert.True(typeof(ICommand).IsAssignableFrom(executeOfT.GetGenericArguments()[0]));
         }
 
-        public static class ExecuteOne
+        public static class ExecutesOne
         {
             [Fact]
             public static void ExecutesCommandSpecifiedAsType()
@@ -170,7 +170,7 @@ namespace MefBuild
             }
         }
 
-        public static class ExecuteBeforeCommands
+        public static class ExecutesBeforeCommands
         {
             [Fact]
             public static void ExecutesCommandsWithExecuteBeforeAttributeThatSpecifiesGivenCommandType()
@@ -287,6 +287,80 @@ namespace MefBuild
             [Export]
             public class Dependency : StubCommand
             {
+            }
+        }
+
+        public static class PassesExportsOfDependencyCommandToImportsOfLaterCommand
+        {
+            [Fact]
+            public static void ExecutePassesExportsOfDependencyCommandToImportsOfLaterCommand()
+            {
+                CompositionContext container = new ContainerConfiguration()
+                    .WithParts(typeof(Producer), typeof(Consumer))
+                    .CreateContainer();
+
+                new Engine(container).Execute<Consumer>();
+
+                var producer = container.GetExport<Producer>();
+                var consumer = container.GetExport<Consumer>();
+                Assert.Same(producer.Export, consumer.Import);
+            }
+
+            [Shared, Export]
+            public class Producer : StubCommand
+            {
+                [Export("DependsOnExport")]
+                public object Export { get; set; }
+
+                public override void Execute()
+                {
+                    base.Execute();
+                    this.Export = new object();
+                }
+            }
+
+            [Shared, Export, DependsOn(typeof(Producer))]
+            public class Consumer : StubCommand
+            {
+                [Import("DependsOnExport")]
+                public object Import { get; set; }
+            }
+        }
+
+        public static class PassesExportsOfBeforeCommandToImportsOfLaterCommand
+        {
+            [Fact]
+            public static void ExecutePassesExportsOfBeforeCommandToImportsOfLaterCommand()
+            {
+                CompositionContext container = new ContainerConfiguration()
+                    .WithParts(typeof(Producer), typeof(Consumer))
+                    .CreateContainer();
+
+                new Engine(container).Execute<Consumer>();
+
+                var producer = container.GetExport<Producer>();
+                var consumer = container.GetExport<Consumer>();
+                Assert.Same(producer.Export, consumer.Import);
+            }
+
+            [Shared, Export, ExecuteBefore(typeof(Consumer))]
+            public class Producer : StubCommand
+            {
+                [Export("BeforeExport")]
+                public object Export { get; set; }
+
+                public override void Execute()
+                {
+                    base.Execute();
+                    this.Export = new object();
+                }
+            }
+
+            [Shared, Export]
+            public class Consumer : StubCommand
+            {
+                [Import("BeforeExport")]
+                public object Import { get; set; }
             }
         }
     }
