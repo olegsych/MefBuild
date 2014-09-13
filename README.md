@@ -10,8 +10,8 @@ for implementing powerful and extensible build systems in .NET code. MefBuild mi
 * [Extending Build Process](#Extensibility)
 * [Command Execution Order](#ExecutionOrder)
 
-Getting Started {#GettingStarted}
----------------------------------
+Getting Started <a href="#GettingStarted"/>
+-------------------------------------------
 
 Install the [MefBuild NuGet package](https://www.nuget.org/packages/MefBuild) in your project, define 
 a class that inherits from `Command` and mark it with MEF's `Export` attribute.
@@ -57,8 +57,8 @@ Behold!
 Hello, World!
 ```
 
-Defining Build Process {#BuildProcess}
---------------------------------------
+Defining Build Process <a href="#BuildProcess"/>
+------------------------------------------------
 
 `Command` is an abstract base class for implementing the concrete types that represent individual 
 steps in your build process. Commands are similar to MSBuild tasks in this regard. For an old-fashioned 
@@ -107,8 +107,8 @@ With these definitions, executing the Build command produces the following outpu
     Linking...
     Build finished.
 
-Passing Build Artifacts Between Commands {#BuildArtifacts}
-----------------------------------------------------------
+Passing Build Artifacts Between Commands <a href="#BuildArtifacts"/>
+--------------------------------------------------------------------
 
 Unlike in MSBuild, where build artifacts (properties and items) are passed between tasks by writing 
 XML script, in MefBuild, values and objects are passed between commands via MEF `CompositionContext`.
@@ -161,8 +161,8 @@ produces the following output.
     Linking mefbuild.obj ...
     Build finished.
 
-Extending Build Process {#Extensibility}
-----------------------------------------
+Extending Build Process <a href="#Extensibility"/>
+--------------------------------------------------
 
 MefBuild's `Engine` automatically executes commands marked with the `ExecuteBefore` and `ExecuteAfter` 
 attributes. Here is a command you could define to implement pre-processing of C/C++ source files. Because 
@@ -223,8 +223,8 @@ Here is the output produced by the build system with extensions.
     Packaging...
     Build finished.
 
-Command Execution Order {#ExecutionOrder}
------------------------------------------
+Command Execution Order <a href="#ExecutionOrder"/>
+---------------------------------------------------
 
 When executing a `Command` of given type, MefBuild `Engine`, will execute its dependencies and 
 extensions in the following order.
