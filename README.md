@@ -89,21 +89,19 @@ public class Build : Command
 }
 ```
 
-With these definitions, executing the *Build* command produces the following output.
+With these definitions, executing the Build command produces the following output.
 
 > Compiling...  
 > Linking...  
 > Build finished.  
 
-Passing Build Artefacts Between Commands
+Passing Build Artifacts Between Commands
 ----------------------------------------
 
-Unlike in MSBuild, where build artefacts (properties and items) are passed between tasks by writing 
+Unlike in MSBuild, where build artifacts (properties and items) are passed between tasks by writing 
 XML script, in MefBuild, values and objects are passed between commands via MEF composition context.
 
 A command that produces a value or an object should define a property with the `Export` attribute. 
-**NOTE**: The command must be marked with the `Shared` attribute, because otherwise, MEF 2.0 default 
-policy will create a new part, `Compile` command in this example, for every import.
 
 ```C#
 [Shared, Export]
@@ -120,9 +118,12 @@ public class Compile : Command
 }
 ```
 
+**NOTE**: The exporting command must be marked with the `Shared` attribute, because otherwise, MEF 2.0 
+default policy will create a new part, `Compile` command in this example, for every import.
+
 A command consuming this value or object should define a matching property with the `Import` attribute. 
 When using general-purpose types, such as `string`, both `Import` and `Export` attributes should specify a 
-unique contract name. When the artefact type itself is unique, a contract name is not necessary.
+unique contract name. When the artifact type itself is unique, a contract name is not necessary.
 
 ```C#
 [Export]
