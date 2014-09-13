@@ -2,7 +2,7 @@ MefBuild
 ========
 
 MefBuild is a lightweight library powered by the [Microsoft Extensibility Framework](http://mef.codeplex.com/)
-for implementing complex, extensible build systems. MefBuild mimics MSBuild.
+for implementing powerful and extensible build systems in .NET code. MefBuild mimics MSBuild.
 
 Getting Started
 ---------------
@@ -44,6 +44,10 @@ class Program
     }
 }
 ``` 
+
+* Behold!
+
+    Hello, World!
 
 Defining Build Process
 ----------------------
@@ -99,7 +103,7 @@ Passing Build Artifacts Between Commands
 ----------------------------------------
 
 Unlike in MSBuild, where build artifacts (properties and items) are passed between tasks by writing 
-XML script, in MefBuild, values and objects are passed between commands via MEF composition context.
+XML script, in MefBuild, values and objects are passed between commands via MEF `CompositionContext`.
 
 A command that produces a value or an object should define a property with the `Export` attribute. 
 
@@ -118,8 +122,9 @@ public class Compile : Command
 }
 ```
 
-**NOTE**: The exporting command must be marked with the `Shared` attribute, because otherwise, MEF 2.0 
-will create a new part, the Compile command in this example, for every import.
+**NOTE**: The exporting command must be marked with the `Shared` attribute, because otherwise, due to 
+the default part creation policy in MEF 2.0, `CompositionContext` will create a new part, the Compile 
+command in this example, for every import.
 
 A command consuming this value or object should define a matching property with the `Import` attribute. 
 
@@ -182,7 +187,7 @@ public class Package : Command
 
 Notice that no changes are necessary in the core set of Compile, Link and Build commands to support the 
 Preprocess and Package extensions. However, the extensions must be discoverable by the `Engine` through 
-the MEF `CompositionContext`. A common way to achieve that is by creating the `CompositionContext` with
+the MEF `CompositionContext`. A common way to achieve that is by creating a `ContainerConfiguration` with
 a set of assemblies loaded dynamically from a well-known location, such as the application directory. 
 
 ```C#
@@ -190,8 +195,8 @@ class Program
 {
     static void Main(string[] args)
     {
-        string[] assemblyFiles = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
-        IEnumerable<Assembly> assemblies = assemblyFiles.Select(file => Assembly.LoadFrom(file));
+        string[] files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
+        IEnumerable<Assembly> assemblies = files.Select(file => Assembly.LoadFrom(file));
         CompositionContext context = new ContainerConfiguration()
             .WithAssemblies(assemblies)
             .CreateContainer();
@@ -209,3 +214,28 @@ Here is the output produced by the build system with extensions.
     Linking mefbuild.obj ...
     Packaging...
     Build finished.
+
+Command Execution Order
+-----------------------
+
+When executing a `Command` of given type, MefBuild `Engine`, will execute its dependencies and 
+extensions in the following order.
+
+1. Before a command is executed, the `Engine` executes its `DependsOn` commands.
+2. Before a command is executed, the `Engine` executes commands that specify it in their `ExecuteBefore` attribute.
+3. Before a command is executed, the `Engine` checks if it has already executed earlier. If the command has *not* 
+executed earlier, the `Engine` executes it. Otherwise, the `Engine` skips the command.
+4. After a command is executed, the `Engine` executes commands that specify it in their `ExecuteAfter` attribute.
+
+MefBuild command execution order mimics the [MSBuild target build order](http://msdn.microsoft.com/en-us/library/ee216359.aspx)
+with one significant difference. MefBuild `Engine` always imports the command from the MEF `CompositionContext`. 
+With the default part creation policy in MEF 2.0, `CompositionContext` returns a new instance of given 
+command type for every import. Therefore, if a given command type appears in multiple locations of the 
+execution order, the `Engine` will create multiple instances of this command types and execute respectively.
+
+To prevent execution of multiple instances of a given command type, mark your command classes with 
+MEF's `Shared` attribute. MSBuild explicitly guarantees that a target is never run more than once. 
+Because of additional flexibility MEF offers, you can choose either option for any of your MefBuild
+commands. However, as a best practice, consider **always** marking your commands with the `Shared`
+attribute. This not only makes your command execution easier to follow, but also ensures correct 
+passing of build artifacts between producing and consuming commands.
