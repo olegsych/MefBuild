@@ -3,12 +3,13 @@
   <metadata>
     <id>$id$</id>
     <version>0.1.0</version>
-    <title>MEF Build</title>
+    <title>MefBuild</title>
     <authors>Oleg Sych</authors>
-    <summary>A simple build framework based on MEF.</summary>
+    <summary>A simple build framework powered by MEF.</summary>
     <description>
-      MEF Build is a lightweight build framework based on the Microsoft Extensibility Framework.
-      
+      MefBuild is a lightweight library inspired by MSBuild and powered by MEF for implementing powerful 
+      and extensible build systems in .NET code.
+
       Supported Platforms:
       - .NET Framework 4.5
       - Windows 8

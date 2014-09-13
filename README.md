@@ -1,8 +1,9 @@
 MefBuild
 ========
 
-MefBuild is a lightweight library powered by the [Microsoft Extensibility Framework](http://mef.codeplex.com/)
-for implementing powerful and extensible build systems in .NET code. MefBuild mimics MSBuild.
+MefBuild is a lightweight library inspired by [MSBuild](http://msdn.microsoft.com/en-us/library/dd393574.aspx) 
+and powered by [MEF](http://mef.codeplex.com/) for implementing powerful and extensible build systems 
+in .NET code.
 
 * [Getting Started](#getting-started)
 * [Defining Build Process](#defining-build-process)
