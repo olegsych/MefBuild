@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as Greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>MefBuild</id>
+    <version>0.2.0</version>
+    <title>MefBuild</title>
+    <authors>Oleg Sych</authors>
+    <summary>MEF Build Engine</summary>
+    <description>MefBuild is a build system based on the Microsoft Extensibility framework.</description>
+    <licenseUrl>https://github.com/olegsych/MefBuild/blob/master/license.txt</licenseUrl>
+    <projectUrl>https://github.com/olegsych/MefBuild</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>Copyright (c) 2014 Oleg Sych</copyright>
+    <tags>MefBuild admin</tags>
+    <dependencies>
+      <dependency id="DotNet4.5" version="4.5" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\Release\*.exe" target="bin" />
+    <file src="bin\Release\*.dll" target="bin" />
+  </files>
+</package>
