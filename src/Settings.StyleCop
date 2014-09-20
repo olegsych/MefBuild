@@ -2,6 +2,7 @@
   <GlobalSettings>
     <CollectionProperty Name="RecognizedWords">
       <Value>composable</Value>
+      <Value>MEF</Value>
     </CollectionProperty>
   </GlobalSettings>
   <Analyzers>
