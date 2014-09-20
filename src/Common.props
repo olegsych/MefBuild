@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <PublicRelease Condition=" '$(PublicRelease)' == '' ">false</PublicRelease>
     <IsTestProject>$(MSBuildProjectName.EndsWith('.Tests'))</IsTestProject>
-    <RootNamespace>$(MSBuildProjectName)</RootNamespace>
-    <AssemblyName>$(MSBuildProjectName)</AssemblyName>
+    <RootNamespace>MefBuild</RootNamespace>
+    <AssemblyName>$(RootNamespace).$(MSBuildProjectName)</AssemblyName>
     <ErrorReport>prompt</ErrorReport>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
@@ -27,8 +27,7 @@
     <KeyContainerName Condition="'$(PublicRelease)'=='true'">MefBuildPrivateKey</KeyContainerName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(IsTestProject)' == 'true'">
-    <RootNamespace>$(RootNamespace.Remove($(RootNamespace.IndexOf('.Tests'))))</RootNamespace>
-    <CodeAnalysisRuleSet>ExtendedCorrectnessRules.ruleset</CodeAnalysisRuleSet>
+   <CodeAnalysisRuleSet>ExtendedCorrectnessRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   
   <!-- Debug & Release -->

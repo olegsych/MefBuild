@@ -10,9 +10,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		src\Settings.StyleCop = src\Settings.StyleCop
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MefBuild", "src\MefBuild\MefBuild.csproj", "{1AC0E271-37DF-4C17-A72B-35B6DA495689}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Framework", "src\Framework\Framework.csproj", "{1AC0E271-37DF-4C17-A72B-35B6DA495689}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MefBuild.Tests", "src\MefBuild.Tests\MefBuild.Tests.csproj", "{A9DAE103-0C63-4CCE-B6B8-8F96FFF4D172}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Framework.Tests", "src\Framework.Tests\Framework.Tests.csproj", "{A9DAE103-0C63-4CCE-B6B8-8F96FFF4D172}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{F5BA7735-322E-4E76-B7F1-C855ADD80775}"
 	ProjectSection(SolutionItems) = preProject
