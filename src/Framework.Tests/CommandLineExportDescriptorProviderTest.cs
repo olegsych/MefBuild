@@ -58,6 +58,19 @@ namespace MefBuild
                 Assert.Contains("-TestArgument:43", e.Message, StringComparison.OrdinalIgnoreCase);
             }
 
+            [Fact]
+            public static void IgnoresCaseWhenComparingArgumentAndContractName()
+            {
+                CompositionContext context = new ContainerConfiguration()
+                    .WithProvider(new CommandLineExportDescriptorProvider(new[] { "-testArgument:TestValue" }))
+                    .CreateContainer();
+
+                var target = new Target();
+                context.SatisfyImports(target);
+
+                Assert.Equal("TestValue", target.Property);
+            }
+
             public class Target
             {
                 [Import("TestArgument")]

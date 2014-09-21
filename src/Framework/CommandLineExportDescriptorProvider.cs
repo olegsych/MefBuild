@@ -34,7 +34,10 @@ namespace MefBuild
         {
             if (IsSingleImport(contract))
             {
-                foreach (CommandLineArgument argument in this.arguments.Where(arg => arg.Name == contract.ContractName))
+                IEnumerable<CommandLineArgument> matchingArguments = this.arguments
+                    .Where(arg => string.Equals(arg.Name, contract.ContractName, StringComparison.OrdinalIgnoreCase));
+
+                foreach (CommandLineArgument argument in matchingArguments)
                 {
                     object value = Convert.ChangeType(argument.Value, contract.ContractType);
                     yield return new ExportDescriptorPromise(
