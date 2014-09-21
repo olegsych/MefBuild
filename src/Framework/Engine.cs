@@ -127,12 +127,12 @@ namespace MefBuild
 
         private IEnumerable<Lazy<Command, Metadata>> GetBeforeCommands(Type commandType)
         {
-            return this.GetCommandExports(commandType, ExecuteBeforeAttribute.ContractName);
+            return this.GetCommandExports(commandType, ExecuteBeforeAttribute.PredefinedContractName);
         }
 
         private IEnumerable<Lazy<Command, Metadata>> GetAfterCommands(Type commandType)
         {
-            return this.GetCommandExports(commandType, ExecuteAfterAttribute.ContractName);
+            return this.GetCommandExports(commandType, ExecuteAfterAttribute.PredefinedContractName);
         }
 
         private IEnumerable<Lazy<Command, Metadata>> GetCommandExports(Type targetCommandType, string contractName)

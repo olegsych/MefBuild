@@ -11,13 +11,13 @@ namespace MefBuild
     [MetadataAttribute, AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public sealed class ExecuteAfterAttribute : ExportAttribute
     {
-        internal new const string ContractName = "ExecuteAfter";
+        internal const string PredefinedContractName = "ExecuteAfter";
         private readonly Type targetCommandType;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExecuteAfterAttribute"/> class with the given <see cref="Type"/> of target command.
         /// </summary>
-        public ExecuteAfterAttribute(Type targetCommandType) : base(ContractName, typeof(Command))
+        public ExecuteAfterAttribute(Type targetCommandType) : base(PredefinedContractName, typeof(Command))
         {
             const string ParameterName = "targetCommandType";
 

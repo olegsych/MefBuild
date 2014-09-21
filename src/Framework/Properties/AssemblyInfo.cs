@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // Major version of assembly should match the major version of the NuGet package.
@@ -9,3 +10,5 @@ using System.Runtime.InteropServices;
 
 [assembly: ComVisible(false)]
 [assembly: CLSCompliant(false)]
+
+[assembly: InternalsVisibleTo("MefBuild.Framework.Tests")]

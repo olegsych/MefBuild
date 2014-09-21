@@ -16,6 +16,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Command.cs" />
+    <Compile Include="CommandLineArgument.cs" />
+    <Compile Include="CommandLineExportDescriptorProvider.cs" />
     <Compile Include="DependsOnAttribute.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="ExecuteAfterAttribute.cs" />
