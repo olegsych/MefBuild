@@ -35,17 +35,6 @@ namespace MefBuild
             Assert.Same(instance1, instance2);
         }
 
-        private static Assembly Compile(string code)
-        {
-            var options = new CompilerParameters();
-            options.GenerateInMemory = true;
-
-            var codeProvider = new CSharpCodeProvider();
-            CompilerResults results = codeProvider.CompileAssemblyFromSource(options, code);
-
-            return results.CompiledAssembly;
-        }
-
         public class RequiredExports
         {
             [Export]
@@ -135,10 +124,12 @@ namespace MefBuild
         public static class Execute
         {
             [Fact]
-            public static void ProbesAssembliesToResolveFullTypeNames()
+            public static void TriesToGetTypeFromEachGivenAssembly()
             {
-                Assembly emptyAssembly = Compile(@"namespace EmptyNamespace {}");
-                Assembly testAssembly = Compile(@"
+                Assembly emptyAssembly = CSharpCompiler.CompileInMemory(@"
+                    namespace EmptyNamespace {
+                    }");
+                Assembly testAssembly = CSharpCompiler.CompileInMemory(@"
                     namespace TestNamespace {
                         public class TestClass {}
                     }");

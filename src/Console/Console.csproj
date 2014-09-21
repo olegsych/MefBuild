@@ -36,6 +36,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ContractNames.cs" />
+    <Compile Include="ExecuteCommands.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="LoadAssemblies.cs" />
     <Compile Include="Program.cs" />

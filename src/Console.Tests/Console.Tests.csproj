@@ -40,6 +40,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CSharpCompiler.cs" />
+    <Compile Include="ExecuteCommandsTest.cs" />
     <Compile Include="LoadAssembliesTest.cs" />
     <Compile Include="ProgramTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
