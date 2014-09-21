@@ -30,8 +30,6 @@ namespace MefBuild
 
         public override void Execute()
         {
-            base.Execute();
-
             foreach (string commandTypeName in this.CommandTypeNames)
             {
                 bool commandTypeFound = false;
