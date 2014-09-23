@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Composition;
+using System.Composition.Hosting;
 using System.Diagnostics.CodeAnalysis;
 
 namespace MefBuild
@@ -13,9 +15,15 @@ namespace MefBuild
         /// </summary>
         [SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "System.Console.WriteLine(System.String)", Justification = "Temporary")]
         [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "args", Justification = "Temporary")]
-        public static void Main(string[] args)
+        public static void Main(params string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            CompositionContext context = new ContainerConfiguration()
+                .WithAssembly(typeof(Program).Assembly)
+                .WithProvider(new CommandLineExportDescriptorProvider(args))
+                .CreateContainer();
+
+            var engine = new Engine(context);
+            engine.Execute<Execute>();
         }
     }
 }
