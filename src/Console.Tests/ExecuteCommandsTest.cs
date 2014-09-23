@@ -12,8 +12,6 @@ namespace MefBuild
 {
     public static class ExecuteCommandsTest
     {
-        private static readonly ICollection<Command> ExecutedCommands = new List<Command>();
-
         [Fact]
         public static void ClassIsInternalAndNotMeantToBeUsedDirectly()
         {
@@ -68,14 +66,14 @@ namespace MefBuild
         [Fact]
         public static void ExecutesCommandOfGivenTypeInCompositionContext()
         {
-            ExecutedCommands.Clear();
+            TestCommand.ExecutedCommands.Clear();
 
             var command = new ExecuteCommands();
             command.Assemblies = new[] { typeof(TestCommand).Assembly };
             command.CommandTypes = new[] { typeof(TestCommand) };
             command.Execute();
 
-            Assert.Equal(typeof(TestCommand), ExecutedCommands.Single().GetType());
+            Assert.Equal(typeof(TestCommand), TestCommand.ExecutedCommands.Single().GetType());
         }
 
         [Fact]
@@ -93,8 +91,8 @@ namespace MefBuild
                 using System.Composition;
                 using MefBuild;
 
-                [Export, Shared, ExecuteBefore(typeof(ExecuteCommandsTest.TestCommand))]
-                public class BeforeCommand : ExecuteCommandsTest.TestCommand
+                [Export, Shared, ExecuteBefore(typeof(TestCommand))]
+                public class BeforeCommand : TestCommand
                 {
                 }";
 
@@ -104,24 +102,15 @@ namespace MefBuild
             command.Assemblies = new[] { typeof(TestCommand).Assembly, extensionAssembly };
             command.CommandTypes = new[] { typeof(TestCommand) };
 
-            ExecutedCommands.Clear();
+            TestCommand.ExecutedCommands.Clear();
             command.Execute();
-            Assert.Equal(new[] { "BeforeCommand", "TestCommand" }, ExecutedCommands.Select(c => c.GetType().Name));
+            Assert.Equal(new[] { "BeforeCommand", "TestCommand" }, TestCommand.ExecutedCommands.Select(c => c.GetType().Name));
         }
 
         [Fact]
         public static void ExecuteOverridesInheritedMethodToBeInvokedPolymorphically()
         {
             Assert.Equal(typeof(Command).GetMethod("Execute"), typeof(ExecuteCommands).GetMethod("Execute").GetBaseDefinition());
-        }
-
-        [Export, Shared]
-        public class TestCommand : Command
-        {
-            public override void Execute()
-            {
-                ExecutedCommands.Add(this);
-            }
         }
 
         public class RequiredExports

@@ -1,4 +1,5 @@
-﻿using System.CodeDom.Compiler;
+﻿using System;
+using System.CodeDom.Compiler;
 using System.Linq;
 using System.Reflection;
 using Microsoft.CSharp;
@@ -18,7 +19,10 @@ namespace MefBuild
             var codeProvider = new CSharpCodeProvider();
             CompilerResults compilerResults = codeProvider.CompileAssemblyFromSource(compilerParameters, code);
 
-            Assert.Empty(compilerResults.Errors);
+            if (compilerResults.Errors.HasErrors)
+            {
+                throw new Exception(string.Join(Environment.NewLine, compilerResults.Errors.Cast<CompilerError>()));
+            }
 
             return compilerResults.CompiledAssembly;
         }
