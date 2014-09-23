@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Composition;
 using System.Composition.Hosting;
 using System.Composition.Hosting.Core;
+using System.Diagnostics.CodeAnalysis;
 using Xunit;
 
 namespace MefBuild
@@ -29,7 +30,7 @@ namespace MefBuild
             Assert.Equal("commandLineArguments", e.ParamName);
         }
 
-        public static class SatisfiesImportsWithNamedContract
+        public static class SatisfiesSingleImportWithNamedContract
         {
             [Fact]
             public static void GetExportDescriptorsSatisfiesStringImportWithNamedContract()
@@ -78,7 +79,7 @@ namespace MefBuild
             }
         }
 
-        public static class TypeConversion
+        public static class ConvertsValuesFromStringToExpectedType
         {
             [Fact]
             public static void GetExportDescriptorConvertsArgumentValuesToExpectedTypes()
@@ -100,7 +101,7 @@ namespace MefBuild
             }
         }
 
-        public static class ImportMany
+        public static class SatisfiesImportManyWithNamedContract
         {
             [Fact]
             public static void GetExportDescriptorSatisfiesImportManyWithNamedContract()
@@ -119,6 +120,65 @@ namespace MefBuild
             {
                 [ImportMany("TestArgument")]
                 public IEnumerable<int> Property { get; set; }
+            }
+        }
+
+        public static class IgnoresSingleCollectionImports
+        {
+            [Fact]
+            public static void GetExportDescriptorIgnoresIEnumerablePropertyWithSingleImportBecauseItIsNotSupported()
+            {
+                CompositionContext context = new ContainerConfiguration()
+                    .WithProvider(new CommandLineExportDescriptorProvider(new[] { "-TestArgument:42" }))
+                    .CreateContainer();
+
+                var target = new IEnumerableTarget();
+                var e = Assert.Throws<CompositionFailedException>(() => context.SatisfyImports(target));
+                Assert.Contains("Missing dependency 'Property'", e.Message);
+            }
+
+            [Fact]
+            public static void GetExportDescriptorIgnoresIListPropertyWithSingleImportBecauseItIsNotSupported()
+            {
+                CompositionContext context = new ContainerConfiguration()
+                    .WithProvider(new CommandLineExportDescriptorProvider(new[] { "-TestArgument:42" }))
+                    .CreateContainer();
+
+                var target = new IListTarget();
+                var e = Assert.Throws<CompositionFailedException>(() => context.SatisfyImports(target));
+                Assert.Contains("Missing dependency 'Property'", e.Message);
+            }
+
+            [Fact]
+            public static void GetExportDescriptorIgnoresArrayPropertyWithSingleImportBecauseItIsNotSupported()
+            {
+                CompositionContext context = new ContainerConfiguration()
+                    .WithProvider(new CommandLineExportDescriptorProvider(new[] { "-TestArgument:42" }))
+                    .CreateContainer();
+
+                var target = new ArrayTarget();
+                var e = Assert.Throws<CompositionFailedException>(() => context.SatisfyImports(target));
+                Assert.Contains("Missing dependency 'Property'", e.Message);
+            }
+
+            public class ArrayTarget
+            {
+                [Import("TestArgument")]
+                [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Need to test array imports")]
+                public string[] Property { get; set; }
+            }
+
+            public class IEnumerableTarget
+            {
+                [Import("TestArgument")]
+                public IEnumerable<string> Property { get; set; }
+            }
+
+            public class IListTarget
+            {
+                [Import("TestArgument")]
+                [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Need to test IList imports")]
+                public IList<string> Property { get; set; }
             }
         }
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Composition.Hosting.Core;
 using System.Linq;
+using System.Reflection;
 
 namespace MefBuild
 {
@@ -57,6 +58,21 @@ namespace MefBuild
             if (contract.TryUnwrapMetadataConstraint("IsImportMany", out isImportMany, out importManyContract))
             {
                 return !isImportMany;
+            }
+
+            // Single import of collection properties is currently not supported. I.e. [Import("Argument")] IEnumerable<string> Arguments
+            if (contract.ContractType.IsArray)
+            {
+                return false;
+            }
+
+            if (contract.ContractType.GetTypeInfo().IsGenericType)
+            {
+                if (typeof(IEnumerable<>).GetTypeInfo().IsAssignableFrom(contract.ContractType.GetGenericTypeDefinition().GetTypeInfo()) ||
+                    typeof(IList<>).GetTypeInfo().IsAssignableFrom(contract.ContractType.GetGenericTypeDefinition().GetTypeInfo()))
+                {
+                    return false;
+                }
             }
 
             return true;
