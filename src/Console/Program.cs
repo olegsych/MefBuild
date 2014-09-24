@@ -2,6 +2,7 @@
 using System.Composition;
 using System.Composition.Hosting;
 using System.Diagnostics.CodeAnalysis;
+using MefBuild.Hosting;
 
 namespace MefBuild
 {

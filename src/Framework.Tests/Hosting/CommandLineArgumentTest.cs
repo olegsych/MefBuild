@@ -1,7 +1,7 @@
 ﻿using System;
 using Xunit;
 
-namespace MefBuild
+namespace MefBuild.Hosting
 {
     public class CommandLineArgumentTest
     {

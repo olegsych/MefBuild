@@ -4,7 +4,7 @@ using System.Composition.Hosting.Core;
 using System.Linq;
 using System.Reflection;
 
-namespace MefBuild
+namespace MefBuild.Hosting
 {
     /// <summary>
     /// Satisfies composition export requests using command-line arguments.

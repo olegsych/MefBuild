@@ -45,8 +45,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandLineArgumentTest.cs" />
-    <Compile Include="CommandLineExportDescriptorProviderTest.cs" />
+    <Compile Include="Hosting\CommandLineArgumentTest.cs" />
+    <Compile Include="Hosting\CommandLineExportDescriptorProviderTest.cs" />
     <Compile Include="CommandTest.cs" />
     <Compile Include="DependsOnAttributeTest.cs" />
     <Compile Include="EngineTest.cs" />

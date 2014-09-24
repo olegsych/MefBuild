@@ -6,7 +6,7 @@ using System.Composition.Hosting.Core;
 using System.Diagnostics.CodeAnalysis;
 using Xunit;
 
-namespace MefBuild
+namespace MefBuild.Hosting
 {
     public static class CommandLineExportDescriptorProviderTest
     {

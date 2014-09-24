@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MefBuild
+namespace MefBuild.Hosting
 {
     internal class CommandLineArgument
     {
