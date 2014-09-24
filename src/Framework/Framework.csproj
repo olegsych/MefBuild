@@ -23,6 +23,8 @@
     <Compile Include="ExecuteAfterAttribute.cs" />
     <Compile Include="ExecuteBeforeAttribute.cs" />
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Hosting\DefaultLog.cs" />
+    <Compile Include="Hosting\ILog.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

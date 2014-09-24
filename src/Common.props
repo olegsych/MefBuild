@@ -27,7 +27,7 @@
     <KeyContainerName Condition="'$(PublicRelease)'=='true'">MefBuildPrivateKey</KeyContainerName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(IsTestProject)' == 'true'">
-   <CodeAnalysisRuleSet>ExtendedCorrectnessRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)\Test.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   
   <!-- Debug & Release -->
