@@ -6,33 +6,13 @@ using System.Diagnostics;
 namespace MefBuild.Hosting
 {
     /// <summary>
-    /// Similar to the default trace listener, this <see cref="ILog"/> implementation writes messages to the debugger output.
+    /// Similar to the default trace listener, this <see cref="Log"/> implementation writes messages to the debugger output.
     /// </summary>
-    internal class DefaultLog : ILog
+    internal class DefaultLog : Log
     {
-        public void WriteCritical(string message)
+        protected override void Write(MessageType messageType, string text)
         {
-            Debug.WriteLine(message);
-        }
-
-        public void WriteError(string message)
-        {
-            Debug.WriteLine(message);
-        }
-
-        public void WriteInformation(string message)
-        {
-            Debug.WriteLine(message);
-        }
-
-        public void WriteVerbose(string message)
-        {
-            Debug.WriteLine(message);
-        }
-
-        public void WriteWarning(string message)
-        {
-            Debug.WriteLine(message);
+            Debug.WriteLine(text);
         }
     }
 }

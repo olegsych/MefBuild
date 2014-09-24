@@ -16,66 +16,26 @@ namespace MefBuild.Hosting
         [Fact]
         public void ClassImplementsILogInterfaceForCompatibilityWithCommandImports()
         {
-            Assert.True(typeof(ILog).IsAssignableFrom(typeof(DefaultLog)));
+            Assert.True(typeof(Log).IsAssignableFrom(typeof(DefaultLog)));
         }
 
         [Fact]
-        public void CriticalWritesLineToDebugOutput()
-        {
-            var output = new StringBuilder();
-            using (new DebugTraceListener(output))
-            { 
-                var log = new DefaultLog();
-                log.WriteCritical("Test");
-                Assert.Equal("Test" + Environment.NewLine, output.ToString());
-            }
-        }
-
-        [Fact]
-        public void ErrorWritesLineToDebugOutput()
+        public void WriteWritesLineToDebugOutput()
         {
             var output = new StringBuilder();
             using (new DebugTraceListener(output))
             {
-                var log = new DefaultLog();
-                log.WriteError("Test");
+                var log = new TestableDefaultLog();
+                log.Write(default(MessageType), "Test");
                 Assert.Equal("Test" + Environment.NewLine, output.ToString());
             }
         }
 
-        [Fact]
-        public void WarningWritesLineToDebugOutput()
+        private class TestableDefaultLog : DefaultLog
         {
-            var output = new StringBuilder();
-            using (new DebugTraceListener(output))
+            public new void Write(MessageType messageType, string message)
             {
-                var log = new DefaultLog();
-                log.WriteWarning("Test");
-                Assert.Equal("Test" + Environment.NewLine, output.ToString());
-            }
-        }
-
-        [Fact]
-        public void InformationWritesLineToDebugOutput()
-        {
-            var output = new StringBuilder();
-            using (new DebugTraceListener(output))
-            {
-                var log = new DefaultLog();
-                log.WriteInformation("Test");
-                Assert.Equal("Test" + Environment.NewLine, output.ToString());
-            }
-        }
-
-        [Fact]
-        public void VerboseWritesLineToDebugOutput()
-        {
-            var output = new StringBuilder();
-            using (new DebugTraceListener(output))
-            {
-                var log = new DefaultLog();
-                log.WriteVerbose("Test");
-                Assert.Equal("Test" + Environment.NewLine, output.ToString());
+                base.Write(messageType, message);
             }
         }
 

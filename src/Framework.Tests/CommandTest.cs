@@ -56,27 +56,12 @@ namespace MefBuild
             Assert.Equal("value", e.ParamName);
         }
 
-        [Export(typeof(ILog)), Shared]
-        public class StubLog : ILog
+        [Export(typeof(Log)), Shared]
+        public class StubLog : Log
         {
-            public void WriteCritical(string message)
+            protected override void Write(MessageType messageType, string text)
             {
-            }
-
-            public void WriteError(string message)
-            {
-            }
-
-            public void WriteInformation(string message)
-            {
-            }
-
-            public void WriteVerbose(string message)
-            {
-            }
-
-            public void WriteWarning(string message)
-            {
+                throw new NotImplementedException();
             }
         }
     }

@@ -9,13 +9,13 @@ namespace MefBuild
     /// </summary>
     public abstract class Command
     {
-        private ILog log;
+        private Log log;
 
         /// <summary>
-        /// Gets or sets the <see cref="ILog"/> object this instance can use to log diagnostics information.
+        /// Gets or sets the <see cref="Log"/> object this instance can use to log diagnostics information.
         /// </summary>
         [Import(AllowDefault = true)]
-        public ILog Log 
+        public Log Log 
         {
             get 
             { 

@@ -54,6 +54,7 @@
     <Compile Include="ExecuteBeforeAttributeTest.cs" />
     <Compile Include="ExecutionTracker.cs" />
     <Compile Include="Hosting\DefaultLogTest.cs" />
+    <Compile Include="Hosting\LogTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StubCommand.cs" />
   </ItemGroup>
