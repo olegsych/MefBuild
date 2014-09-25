@@ -10,7 +10,7 @@ namespace MefBuild.Hosting
     /// </summary>
     internal class DefaultLog : Log
     {
-        protected override void Write(MessageType messageType, string text)
+        protected override void Write(EventType eventType, string text)
         {
             Debug.WriteLine(text);
         }

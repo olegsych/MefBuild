@@ -59,7 +59,7 @@ namespace MefBuild
         [Export(typeof(Log)), Shared]
         public class StubLog : Log
         {
-            protected override void Write(MessageType messageType, string text)
+            protected override void Write(EventType eventType, string text)
             {
                 throw new NotImplementedException();
             }

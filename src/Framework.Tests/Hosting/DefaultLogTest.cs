@@ -26,14 +26,14 @@ namespace MefBuild.Hosting
             using (new DebugTraceListener(output))
             {
                 var log = new TestableDefaultLog();
-                log.Write(default(MessageType), "Test");
+                log.Write(default(EventType), "Test");
                 Assert.Equal("Test" + Environment.NewLine, output.ToString());
             }
         }
 
         private class TestableDefaultLog : DefaultLog
         {
-            public new void Write(MessageType messageType, string message)
+            public new void Write(EventType messageType, string message)
             {
                 base.Write(messageType, message);
             }

@@ -3,31 +3,21 @@
     /// <summary>
     /// Defines type of log message.
     /// </summary>
-    public enum MessageType
+    public enum EventType
     {
         /// <summary>
-        /// Verbose message.
-        /// </summary>
-        Verbose,
-
-        /// <summary>
-        /// Information message.
+        /// By the way...
         /// </summary>
         Information,
 
         /// <summary>
-        /// Warning message.
+        /// Hmm... Something's fishy.
         /// </summary>
         Warning,
 
         /// <summary>
-        /// Error message.
+        /// Oops! You might want to fix this one.
         /// </summary>
         Error,
-
-        /// <summary>
-        /// Critical message.
-        /// </summary>
-        Critical
     }
 }
