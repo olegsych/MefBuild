@@ -59,7 +59,7 @@ namespace MefBuild.Hosting
 
             public string LoggedText { get; set; }
 
-            protected override void Write(EventType eventType, string text)
+            public override void Write(string text, EventType eventType, EventImportance importance)
             {
                 this.LoggedEvent = eventType;
                 this.LoggedText = text;

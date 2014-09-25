@@ -1,4 +1,6 @@
-﻿namespace MefBuild.Hosting
+﻿using MefBuild.Hosting;
+
+namespace MefBuild
 {
     /// <summary>
     /// Defines type of an event written to a <see cref="Log"/>.
@@ -6,7 +8,7 @@
     /// <remarks>
     /// Event types are defined in the order of increasing significance, with <see cref="Message"/> 
     /// defined as the default event type. <see cref="EventType"/> combined with <see cref="EventImportance"/>
-    /// determines the <see cref="LogVerbosity"/> required for the event to show up in the <see cref="Log"/>.
+    /// determines the <see cref="Verbosity"/> required for the event to show up in the <see cref="Log"/>.
     /// </remarks>
     public enum EventType
     {
@@ -23,7 +25,7 @@
         /// <summary>
         /// Informational message.
         /// </summary>
-        Message = 0, 
+        Message = 0, // default
 
         /// <summary>
         /// Indicates a problem that does not prevent completion of a logical operation.

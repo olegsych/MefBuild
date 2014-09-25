@@ -1,4 +1,6 @@
-﻿namespace MefBuild.Hosting
+﻿using MefBuild.Hosting;
+
+namespace MefBuild
 {
     /// <summary>
     /// Defines importance of a logged event.
@@ -10,7 +12,7 @@
         /// </summary>
         /// <remarks>
         /// Low-importance events are intended for developers building commands. They are logged when 
-        /// verbosity level is set to <see cref="LogVerbosity.Diagnostic"/>. Console logger displays 
+        /// verbosity level is set to <see cref="Verbosity.Diagnostic"/>. Console logger displays 
         /// low-importance events using darker colors than normal and high-importance events.
         /// </remarks>
         Low = -1,
@@ -21,9 +23,9 @@
         /// <remarks>
         /// Normal-importance events are intended for developers using pre-built commands. Depending on 
         /// significance of an <see cref="EventType"/>, it is typically logged when verbosity level is lower,
-        /// such as <see cref="LogVerbosity.Detailed"/> and <see cref="LogVerbosity.Normal"/>.
+        /// such as <see cref="Verbosity.Detailed"/> and <see cref="Verbosity.Normal"/>.
         /// </remarks>
-        Normal,
+        Normal = 0, // default
 
         /// <summary>
         /// Indicates a high-importance event.
@@ -31,9 +33,9 @@
         /// <remarks>
         /// High-importance events are intended for developers using pre-built commands. An event of lower
         /// significance, such as <see cref="EventType.Message"/>, with high importance will appear in the 
-        /// log at lower verbosity levels, such as <see cref="LogVerbosity.Normal"/>, that normally filter
+        /// log at lower verbosity levels, such as <see cref="Verbosity.Normal"/>, that normally filter
         /// them out.
         /// </remarks>
-        High,
+        High = 1,
     }
 }

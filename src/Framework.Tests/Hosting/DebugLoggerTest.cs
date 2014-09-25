@@ -5,18 +5,18 @@ using Xunit;
 
 namespace MefBuild.Hosting
 {
-    public class DefaultLogTest
+    public class DebugLoggerTest
     {
         [Fact]
-        public void ClassIsInternalBecauseItIsAutomaticallyCreatedByCommand()
+        public void ClassIsPublicBecauseItMayBeInstantiatedByUserCodeHostingMefBuild()
         {
-            Assert.False(typeof(DefaultLog).IsPublic);
+            Assert.True(typeof(DebugLogger).IsPublic);
         }
 
         [Fact]
-        public void ClassImplementsILogInterfaceForCompatibilityWithCommandImports()
+        public void ClassInheritsFromLoggerForCompatibilityWithLoggingInfrastructure()
         {
-            Assert.True(typeof(Log).IsAssignableFrom(typeof(DefaultLog)));
+            Assert.True(typeof(Logger).IsAssignableFrom(typeof(DebugLogger)));
         }
 
         [Fact]
@@ -25,17 +25,9 @@ namespace MefBuild.Hosting
             var output = new StringBuilder();
             using (new DebugTraceListener(output))
             {
-                var log = new TestableDefaultLog();
-                log.Write(default(EventType), "Test");
+                var log = new DebugLogger();
+                log.Write("Test", default(EventType), default(EventImportance));
                 Assert.Equal("Test" + Environment.NewLine, output.ToString());
-            }
-        }
-
-        private class TestableDefaultLog : DefaultLog
-        {
-            public new void Write(EventType messageType, string message)
-            {
-                base.Write(messageType, message);
             }
         }
 

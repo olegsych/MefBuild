@@ -21,7 +21,7 @@ namespace MefBuild
             { 
                 if (this.log == null)
                 {
-                    this.log = new DefaultLog();
+                    this.log = new DebugLogger();
                 }
 
                 return this.log; 

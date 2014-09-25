@@ -45,7 +45,7 @@ namespace MefBuild
         public void LogHasDefaultValueToEnableTestingCommandsWithoutComposition()
         {
             var command = new StubCommand();
-            Assert.IsType<DefaultLog>(command.Log);
+            Assert.IsType<DebugLogger>(command.Log);
         }
 
         [Fact]
@@ -59,7 +59,7 @@ namespace MefBuild
         [Export(typeof(Log)), Shared]
         public class StubLog : Log
         {
-            protected override void Write(EventType eventType, string text)
+            public override void Write(string message, EventType eventType, EventImportance importance)
             {
                 throw new NotImplementedException();
             }

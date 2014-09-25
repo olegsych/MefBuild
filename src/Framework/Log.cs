@@ -1,7 +1,7 @@
-﻿namespace MefBuild.Hosting
+﻿namespace MefBuild
 {
     /// <summary>
-    /// Represents an object that can trace diagnostics information.
+    /// Represents an object that can collect diagnostics events.
     /// </summary>
     public abstract class Log
     {
@@ -10,7 +10,7 @@
         /// </summary>
         public void Error(string message)
         {
-            this.Write(EventType.Error, message);
+            this.Write(message, EventType.Error, EventImportance.Normal);
         }
 
         /// <summary>
@@ -18,7 +18,7 @@
         /// </summary>
         public void Message(string text)
         {
-            this.Write(EventType.Message, text);
+            this.Write(text, EventType.Message, EventImportance.Normal);
         }
 
         /// <summary>
@@ -26,12 +26,12 @@
         /// </summary>
         public void Warning(string message)
         {
-            this.Write(EventType.Warning, message);
+            this.Write(message, EventType.Warning, EventImportance.Normal);
         }
 
         /// <summary>
         /// Writes message of specified type to the log.
         /// </summary>
-        protected abstract void Write(EventType eventType, string message);
+        public abstract void Write(string message, EventType eventType, EventImportance importance);
     }
 }
