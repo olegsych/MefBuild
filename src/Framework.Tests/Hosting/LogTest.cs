@@ -18,51 +18,51 @@ namespace MefBuild.Hosting
         }
 
         [Fact]
-        public void ErrorWritesErrorMessageToLog()
+        public void ErrorWritesErrorEventToLog()
         {
             var log = new TestableLog();
 
-            string expectedMessage = "Error Message";
-            log.Error(expectedMessage);
+            string expectedText = "Error Message";
+            log.Error(expectedText);
 
-            Assert.Equal(expectedMessage, log.LoggedMessage);
-            Assert.Equal(EventType.Error, log.LoggedMessageType);
+            Assert.Equal(expectedText, log.LoggedText);
+            Assert.Equal(EventType.Error, log.LoggedEvent);
         }
 
         [Fact]
-        public void WarningWritesWarningMessageToLog()
+        public void WarningWritesWarningEventToLog()
         {
             var log = new TestableLog();
 
-            string expectedMessage = "Warning Message";
-            log.Warning(expectedMessage);
+            string expectedText = "Warning Message";
+            log.Warning(expectedText);
 
-            Assert.Equal(expectedMessage, log.LoggedMessage);
-            Assert.Equal(EventType.Warning, log.LoggedMessageType);
+            Assert.Equal(expectedText, log.LoggedText);
+            Assert.Equal(EventType.Warning, log.LoggedEvent);
         }
 
         [Fact]
-        public void InformationWritesInformationMessageToLog()
+        public void MessageWritesMessageEventToLog()
         {
             var log = new TestableLog();
 
-            string expectedMessage = "Information Message";
-            log.Information(expectedMessage);
+            string expectedText = "Information Message";
+            log.Message(expectedText);
 
-            Assert.Equal(expectedMessage, log.LoggedMessage);
-            Assert.Equal(EventType.Information, log.LoggedMessageType);
+            Assert.Equal(expectedText, log.LoggedText);
+            Assert.Equal(EventType.Message, log.LoggedEvent);
         }
 
         private class TestableLog : Log
         {
-            public EventType LoggedMessageType { get; set; }
+            public EventType LoggedEvent { get; set; }
 
-            public string LoggedMessage { get; set; }
+            public string LoggedText { get; set; }
 
-            protected override void Write(EventType messageType, string message)
+            protected override void Write(EventType eventType, string text)
             {
-                this.LoggedMessageType = messageType;
-                this.LoggedMessage = message;
+                this.LoggedEvent = eventType;
+                this.LoggedText = text;
             }
         }
     }
