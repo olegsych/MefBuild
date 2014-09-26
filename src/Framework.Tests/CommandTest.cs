@@ -35,17 +35,18 @@ namespace MefBuild
         [Fact]
         public void LogIsAutomaticallyImportedDuringComposition()
         {
-            CompositionContext context = new ContainerConfiguration().WithPart<StubLog>().CreateContainer();
+            CompositionContext context = new ContainerConfiguration().WithPart<Log>().CreateContainer();
+            var log = context.GetExport<Log>();
             var command = new StubCommand();
             context.SatisfyImports(command);
-            Assert.IsType<StubLog>(command.Log);
+            Assert.Same(log, command.Log);
         }
 
         [Fact]
         public void LogHasDefaultValueToEnableTestingCommandsWithoutComposition()
         {
             var command = new StubCommand();
-            Assert.IsType<DebugLogger>(command.Log);
+            Assert.NotNull(command.Log);
         }
 
         [Fact]
@@ -54,15 +55,6 @@ namespace MefBuild
             var command = new StubCommand();
             var e = Assert.Throws<ArgumentNullException>(() => command.Log = null);
             Assert.Equal("value", e.ParamName);
-        }
-
-        [Export(typeof(Log)), Shared]
-        public class StubLog : Log
-        {
-            public override void Write(string message, EventType eventType, EventImportance importance)
-            {
-                throw new NotImplementedException();
-            }
         }
     }
 }

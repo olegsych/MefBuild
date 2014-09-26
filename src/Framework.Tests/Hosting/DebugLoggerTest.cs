@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Composition;
+using System.Composition.Hosting;
 using System.Diagnostics;
 using System.Text;
 using Xunit;
@@ -17,6 +19,14 @@ namespace MefBuild.Hosting
         public void ClassInheritsFromLoggerForCompatibilityWithLoggingInfrastructure()
         {
             Assert.True(typeof(Logger).IsAssignableFrom(typeof(DebugLogger)));
+        }
+
+        [Fact]
+        public void ClassIsExportedForComposition()
+        {
+            CompositionContext context = new ContainerConfiguration().WithPart<DebugLogger>().CreateContainer();
+            var logger = context.GetExport<Logger>();
+            Assert.IsType<DebugLogger>(logger);
         }
 
         [Fact]
