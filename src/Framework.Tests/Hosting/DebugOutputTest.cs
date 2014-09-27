@@ -30,13 +30,21 @@ namespace MefBuild.Hosting
         }
 
         [Fact]
+        public void WriteThrowsArgumentNullExceptionToPreventUsageErrors()
+        {
+            var output = new DebugOutput();
+            var e = Assert.Throws<ArgumentNullException>(() => output.Write(null));
+            Assert.Equal("record", e.ParamName);
+        }
+
+        [Fact]
         public void WriteWritesLineToDebugOutput()
         {
             var output = new StringBuilder();
             using (new DebugTraceListener(output))
             {
                 var log = new DebugOutput();
-                log.Write("Test", default(EventType), default(EventImportance));
+                log.Write(new Record("Test", default(EventType), default(EventImportance)));
                 Assert.Equal("Test" + Environment.NewLine, output.ToString());
             }
         }

@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using MefBuild.Hosting;
 using Xunit;
+using Record = MefBuild.Hosting.Record;
 
 namespace MefBuild
 {
@@ -25,6 +26,14 @@ namespace MefBuild
         }
 
         [Fact]
+        public void WriteThrowsArgumentNullExpceptionToPreventUsageErrors()
+        {
+            var output = new ConsoleOutput();
+            var e = Assert.Throws<ArgumentNullException>(() => output.Write(null));
+            Assert.Equal("record", e.ParamName);
+        }
+
+        [Fact]
         public void WritesTextToConsole()
         {
             var text = new StringBuilder();
@@ -33,7 +42,7 @@ namespace MefBuild
                 () =>
                 {
                     var output = new ConsoleOutput();
-                    output.Write("Test Message", EventType.Error, EventImportance.High);
+                    output.Write(new Record("Test Message", EventType.Error, EventImportance.High));
 
                     Assert.Equal("Test Message" + Environment.NewLine, text.ToString());
                 });
@@ -63,7 +72,7 @@ namespace MefBuild
                 () => 
                 {
                     var output = new ConsoleOutput();
-                    output.Write("Test Message", eventType, importance);
+                    output.Write(new Record("Test Message", eventType, importance));
                     Assert.Equal(expectedColor, actualColor);
                 });
         }
@@ -73,7 +82,7 @@ namespace MefBuild
         {
             Console.ForegroundColor = ConsoleColor.Black;
             var output = new ConsoleOutput();
-            output.Write("Test Message", EventType.Error, EventImportance.High);
+            output.Write(new Record("Test Message", EventType.Error, EventImportance.High));
             Assert.Equal(ConsoleColor.Black, Console.ForegroundColor);
         }
 

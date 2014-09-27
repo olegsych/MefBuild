@@ -59,7 +59,7 @@ namespace MefBuild
             {
                 if (IsEventAllowedByVerbosity(output.Verbosity, eventType, importance))
                 {
-                    output.Write(text, eventType, importance);
+                    output.Write(new Record(text, eventType, importance));
                 }
             }
         }

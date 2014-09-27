@@ -7,11 +7,16 @@ namespace MefBuild
     [Export(typeof(Output))]
     internal class ConsoleOutput : Output
     {
-        public override void Write(string text, EventType eventType, EventImportance importance)
+        public override void Write(Record record)
         {
+            if (record == null)
+            {
+                throw new ArgumentNullException("record");
+            }
+
             ConsoleColor oldColor = Console.ForegroundColor;
-            Console.ForegroundColor = GetForegroundColor(eventType, importance);
-            Console.WriteLine(text);
+            Console.ForegroundColor = GetForegroundColor(record.RecordType, record.Importance);
+            Console.WriteLine(record.Text);
             Console.ForegroundColor = oldColor;
         }
 

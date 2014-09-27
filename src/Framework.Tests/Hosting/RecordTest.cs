@@ -44,7 +44,7 @@ namespace MefBuild.Hosting
         public void PropertiesAreReadOnlyBecauseRecordInstanceIsImmutable()
         {
             Assert.Null(typeof(Record).GetProperty("Text").SetMethod);
-            Assert.Null(typeof(Record).GetProperty("Type").SetMethod);
+            Assert.Null(typeof(Record).GetProperty("RecordType").SetMethod);
             Assert.Null(typeof(Record).GetProperty("Importance").SetMethod);
         }
     }

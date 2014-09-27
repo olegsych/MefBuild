@@ -8,14 +8,14 @@ namespace MefBuild.Hosting
     {
         public StubOutput()
         {
-            this.OnWrite = (text, type, importance) => { };
+            this.OnWrite = record => { };
         }
 
-        public Action<string, EventType, EventImportance> OnWrite { get; set; }
+        public Action<Record> OnWrite { get; set; }
 
-        public override void Write(string message, EventType eventType, EventImportance importance)
+        public override void Write(Record record)
         {
-            this.OnWrite(message, eventType, importance);
+            this.OnWrite(record);
         }
     }
 }

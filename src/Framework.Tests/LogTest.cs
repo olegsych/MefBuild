@@ -5,6 +5,7 @@ using System.Composition.Hosting;
 using System.Linq;
 using MefBuild.Hosting;
 using Xunit;
+using Record = MefBuild.Hosting.Record;
 
 namespace MefBuild
 {
@@ -44,13 +45,13 @@ namespace MefBuild
                 .CreateContainer();
 
             var output = context.GetExport<StubOutput>();
-            bool eventWrittenToOutput = false;
-            output.OnWrite = (e, t, i) => eventWrittenToOutput = true;
+            bool recordWrittenToOutput = false;
+            output.OnWrite = record => recordWrittenToOutput = true;
 
             var log = context.GetExport<Log>();
             log.Write("Test Message", EventType.Error, EventImportance.High);
 
-            Assert.True(eventWrittenToOutput);
+            Assert.True(recordWrittenToOutput);
         }
 
         [Fact]
@@ -69,23 +70,16 @@ namespace MefBuild
         [Fact]
         public void WritePassesGivenMessageEventTypeAndImportanceToOutputWriteMethods()
         {
-            var outputMessage = string.Empty;
-            var outputEventType = EventType.Message;
-            var outputImportance = EventImportance.Low;
+            Record outputRecord = null;
             var output = new StubOutput();
-            output.OnWrite = (message, eventType, importance) =>
-            {
-                outputMessage = message;
-                outputEventType = eventType;
-                outputImportance = importance;
-            };
+            output.OnWrite = record => outputRecord = record;
 
             var log = new Log(output);
             log.Write("Test Message", EventType.Error, EventImportance.High);
 
-            Assert.Equal("Test Message", outputMessage);
-            Assert.Equal(EventType.Error, outputEventType);
-            Assert.Equal(EventImportance.High, outputImportance);
+            Assert.Equal("Test Message", outputRecord.Text);
+            Assert.Equal(EventType.Error, outputRecord.RecordType);
+            Assert.Equal(EventImportance.High, outputRecord.Importance);
         }
 
         [Fact]
@@ -155,7 +149,7 @@ namespace MefBuild
         {
             var events = new List<string>();
             var output = new StubOutput();
-            output.OnWrite = (message, type, importance) => events.Add(message);
+            output.OnWrite = record => events.Add(record.Text);
             output.Verbosity = verbosity;
             var log = new Log(output);
 

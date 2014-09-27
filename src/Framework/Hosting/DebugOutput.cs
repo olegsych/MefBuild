@@ -1,5 +1,6 @@
 ﻿#define DEBUG
 
+using System;
 using System.Composition;
 using System.Diagnostics;
 
@@ -12,11 +13,16 @@ namespace MefBuild.Hosting
     public class DebugOutput : Output
     {
         /// <summary>
-        /// Writes the specified <paramref name="text"/> to the <see cref="Debug"/> output.
+        /// Writes the specified <paramref name="record"/> to the <see cref="Debug"/> output.
         /// </summary>
-        public override void Write(string text, EventType eventType, EventImportance importance)
+        public override void Write(Record record)
         {
-            Debug.WriteLine(text);
+            if (record == null)
+            {
+                throw new ArgumentNullException("record");
+            }
+
+            Debug.WriteLine(record.Text);
         }
     }
 }
