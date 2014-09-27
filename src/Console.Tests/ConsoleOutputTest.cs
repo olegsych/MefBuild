@@ -8,34 +8,34 @@ using Xunit;
 
 namespace MefBuild
 {
-    public sealed class ConsoleLoggerTest
+    public sealed class ConsoleOutputTest
     {
         [Fact]
-        public void ClassInheritsFromLoggerForCompatibilityWithLog()
+        public void ClassInheritsFromOutputForCompatibilityWithLoggingInfrastructure()
         {
-            Assert.True(typeof(Logger).IsAssignableFrom(typeof(ConsoleLogger)));
+            Assert.True(typeof(Output).IsAssignableFrom(typeof(ConsoleOutput)));
         }
 
         [Fact]
         public void ClassIsExportedForComposition()
         {
-            CompositionContext context = new ContainerConfiguration().WithPart<ConsoleLogger>().CreateContainer();
-            var logger = context.GetExport<Logger>();
-            Assert.IsType<ConsoleLogger>(logger);
+            CompositionContext context = new ContainerConfiguration().WithPart<ConsoleOutput>().CreateContainer();
+            var output = context.GetExport<Output>();
+            Assert.IsType<ConsoleOutput>(output);
         }
 
         [Fact]
         public void WritesTextToConsoleOutput()
         {
-            var output = new StringBuilder();
+            var text = new StringBuilder();
             WithStubConsoleOut(
-                new StringWriter(output), 
+                new StringWriter(text), 
                 () =>
                 {
-                    var logger = new ConsoleLogger();
-                    logger.Write("Test Message", EventType.Error, EventImportance.High);
+                    var output = new ConsoleOutput();
+                    output.Write("Test Message", EventType.Error, EventImportance.High);
 
-                    Assert.Equal("Test Message" + Environment.NewLine, output.ToString());
+                    Assert.Equal("Test Message" + Environment.NewLine, text.ToString());
                 });
         }
 
@@ -62,8 +62,8 @@ namespace MefBuild
                 new StubTextWriter(() => actualColor = Console.ForegroundColor),
                 () => 
                 {
-                    var logger = new ConsoleLogger();
-                    logger.Write("Test Message", eventType, importance);
+                    var output = new ConsoleOutput();
+                    output.Write("Test Message", eventType, importance);
                     Assert.Equal(expectedColor, actualColor);
                 });
         }
@@ -72,8 +72,8 @@ namespace MefBuild
         public void RestoresPreviousConsoleColorAfterWriting()
         {
             Console.ForegroundColor = ConsoleColor.Black;
-            var logger = new ConsoleLogger();
-            logger.Write("Test Message", EventType.Error, EventImportance.High);
+            var output = new ConsoleOutput();
+            output.Write("Test Message", EventType.Error, EventImportance.High);
             Assert.Equal(ConsoleColor.Black, Console.ForegroundColor);
         }
 

@@ -3,10 +3,10 @@ using System.Composition;
 
 namespace MefBuild.Hosting
 {
-    [Export, Export(typeof(Logger)), Shared]
-    internal class StubLogger : Logger
+    [Export, Export(typeof(Output)), Shared]
+    internal class StubOutput : Output
     {
-        public StubLogger()
+        public StubOutput()
         {
             this.OnWrite = (text, type, importance) => { };
         }

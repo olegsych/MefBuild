@@ -1,7 +1,7 @@
 ﻿namespace MefBuild.Hosting
 {
     /// <summary>
-    /// Defines verbosity level of a <see cref="Logger"/>.
+    /// Defines verbosity level of a <see cref="Output"/>.
     /// </summary>
     public enum Verbosity
     {

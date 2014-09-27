@@ -35,7 +35,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConsoleLogger.cs" />
+    <Compile Include="ConsoleOutput.cs" />
     <Compile Include="ContractNames.cs" />
     <Compile Include="Execute.cs" />
     <Compile Include="ExecuteCommands.cs" />

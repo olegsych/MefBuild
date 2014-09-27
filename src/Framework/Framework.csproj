@@ -23,9 +23,9 @@
     <Compile Include="ExecuteAfterAttribute.cs" />
     <Compile Include="ExecuteBeforeAttribute.cs" />
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="Hosting\DebugLogger.cs" />
+    <Compile Include="Hosting\DebugOutput.cs" />
     <Compile Include="EventImportance.cs" />
-    <Compile Include="Hosting\Logger.cs" />
+    <Compile Include="Hosting\Output.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="EventType.cs" />
     <Compile Include="Hosting\Verbosity.cs" />

@@ -7,26 +7,26 @@ using Xunit;
 
 namespace MefBuild.Hosting
 {
-    public class DebugLoggerTest
+    public class DebugOutputTest
     {
         [Fact]
         public void ClassIsPublicBecauseItMayBeInstantiatedByUserCodeHostingMefBuild()
         {
-            Assert.True(typeof(DebugLogger).IsPublic);
+            Assert.True(typeof(DebugOutput).IsPublic);
         }
 
         [Fact]
-        public void ClassInheritsFromLoggerForCompatibilityWithLoggingInfrastructure()
+        public void ClassInheritsFromOutputForCompatibilityWithLoggingInfrastructure()
         {
-            Assert.True(typeof(Logger).IsAssignableFrom(typeof(DebugLogger)));
+            Assert.True(typeof(Output).IsAssignableFrom(typeof(DebugOutput)));
         }
 
         [Fact]
         public void ClassIsExportedForComposition()
         {
-            CompositionContext context = new ContainerConfiguration().WithPart<DebugLogger>().CreateContainer();
-            var logger = context.GetExport<Logger>();
-            Assert.IsType<DebugLogger>(logger);
+            CompositionContext context = new ContainerConfiguration().WithPart<DebugOutput>().CreateContainer();
+            var output = context.GetExport<Output>();
+            Assert.IsType<DebugOutput>(output);
         }
 
         [Fact]
@@ -35,7 +35,7 @@ namespace MefBuild.Hosting
             var output = new StringBuilder();
             using (new DebugTraceListener(output))
             {
-                var log = new DebugLogger();
+                var log = new DebugOutput();
                 log.Write("Test", default(EventType), default(EventImportance));
                 Assert.Equal("Test" + Environment.NewLine, output.ToString());
             }

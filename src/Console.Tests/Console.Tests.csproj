@@ -40,7 +40,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConsoleLoggerTest.cs" />
+    <Compile Include="ConsoleOutputTest.cs" />
     <Compile Include="CSharpCompiler.cs" />
     <Compile Include="ExecuteCommandsTest.cs" />
     <Compile Include="ExecuteTest.cs" />

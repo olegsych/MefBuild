@@ -11,8 +11,8 @@ namespace MefBuild
         /// Indicates a low-importance event.
         /// </summary>
         /// <remarks>
-        /// Low-importance events are intended for developers building commands. They are logged when 
-        /// verbosity level is set to <see cref="Verbosity.Diagnostic"/>. Console logger displays 
+        /// Low-importance events are intended for developers building new commands. They are logged when 
+        /// verbosity level is set to <see cref="Verbosity.Diagnostic"/>. Console output displays 
         /// low-importance events using darker colors than normal and high-importance events.
         /// </remarks>
         Low = -1,

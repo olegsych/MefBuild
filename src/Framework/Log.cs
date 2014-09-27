@@ -11,30 +11,32 @@ namespace MefBuild
     [Export, Shared]
     public sealed class Log
     {
-        private readonly IReadOnlyCollection<Logger> loggers;
+        private readonly IReadOnlyCollection<Output> outputs;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Log"/> class with an array of 
-        /// <see cref="Logger"/> objects responsible for writing events to one or more 
+        /// <see cref="Output"/> objects responsible for writing events to one or more 
         /// outputs.
         /// </summary>
         [ImportingConstructor]
-        public Log([ImportMany] params Logger[] loggers)
+        public Log([ImportMany] params Output[] outputs)
         {
-            if (loggers == null)
+            const string ParamName = "outputs";
+
+            if (outputs == null)
             {
-                throw new ArgumentNullException("loggers");
+                throw new ArgumentNullException(ParamName);
             }
 
-            for (int i = 0; i < loggers.Length; i++)
+            for (int i = 0; i < outputs.Length; i++)
             {
-                if (loggers[i] == null)
+                if (outputs[i] == null)
                 {
-                    throw new ArgumentNullException("loggers[" + i + "]");
+                    throw new ArgumentNullException(ParamName + "[" + i + "]");
                 }
             }
 
-            this.loggers = loggers;
+            this.outputs = outputs;
         }
 
         /// <summary>
@@ -42,16 +44,16 @@ namespace MefBuild
         /// </summary>
         public void Write(string text, EventType eventType, EventImportance importance)
         {
-            foreach (Logger logger in this.loggers)            
+            foreach (Output output in this.outputs)            
             {
-                if (IsEventAllowedByLoggerVerbosity(logger.Verbosity, eventType, importance))
+                if (IsEventAllowedByVerbosity(output.Verbosity, eventType, importance))
                 {
-                    logger.Write(text, eventType, importance);
+                    output.Write(text, eventType, importance);
                 }
             }
         }
 
-        private static bool IsEventAllowedByLoggerVerbosity(Verbosity verbosity, EventType eventType, EventImportance importance)
+        private static bool IsEventAllowedByVerbosity(Verbosity verbosity, EventType eventType, EventImportance importance)
         {
             switch (verbosity)
             {

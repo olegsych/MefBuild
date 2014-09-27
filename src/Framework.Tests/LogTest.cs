@@ -17,7 +17,7 @@ namespace MefBuild
         }
 
         [Fact]
-        public void ClassIsSealedBecauseItDelegatesWritingToLoggers()
+        public void ClassIsSealedBecauseItDelegatesWritingToOutputs()
         {
             Assert.True(typeof(Log).IsSealed);
         }
@@ -26,63 +26,63 @@ namespace MefBuild
         public void ConstructorThrowsArgumentNullExceptionWhenArrayIsNullToPreventUsageErrors()
         {
             var e = Assert.Throws<ArgumentNullException>(() => new Log(null));
-            Assert.Equal("loggers", e.ParamName);
+            Assert.Equal("outputs", e.ParamName);
         }
 
         [Fact]
-        public void ConstructorThrowsArgumentNullExceptionWhenLoggerIsNullToPreventUsageErrors()
+        public void ConstructorThrowsArgumentNullExceptionWhenOutputIsNullToPreventUsageErrors()
         {
-            var e = Assert.Throws<ArgumentNullException>(() => new Log(new[] { new StubLogger(), null }));
-            Assert.Equal("loggers[1]", e.ParamName);
+            var e = Assert.Throws<ArgumentNullException>(() => new Log(new[] { new StubOutput(), null }));
+            Assert.Equal("outputs[1]", e.ParamName);
         }
 
         [Fact]
-        public void ConstructorImportsLoggersFromCompositionContext()
+        public void ConstructorImportsOutputsFromCompositionContext()
         {
             CompositionContext context = new ContainerConfiguration()
-                .WithParts(typeof(Log), typeof(StubLogger))
+                .WithParts(typeof(Log), typeof(StubOutput))
                 .CreateContainer();
 
-            var logger = context.GetExport<StubLogger>();
-            bool eventWrittenToLogger = false;
-            logger.OnWrite = (e, t, i) => eventWrittenToLogger = true;
+            var output = context.GetExport<StubOutput>();
+            bool eventWrittenToOutput = false;
+            output.OnWrite = (e, t, i) => eventWrittenToOutput = true;
 
             var log = context.GetExport<Log>();
             log.Write("Test Message", EventType.Error, EventImportance.High);
 
-            Assert.True(eventWrittenToLogger);
+            Assert.True(eventWrittenToOutput);
         }
 
         [Fact]
-        public void WritePassesGivenMessageEventTypeAndImportanceToLoggerWriteMethods()
+        public void WritePassesGivenMessageEventTypeAndImportanceToOutputWriteMethods()
         {
-            var loggerMessage = string.Empty;
-            var loggerEventType = EventType.Message;
-            var loggerImportance = EventImportance.Low;
-            var logger = new StubLogger();
-            logger.OnWrite = (message, eventType, importance) =>
+            var outputMessage = string.Empty;
+            var outputEventType = EventType.Message;
+            var outputImportance = EventImportance.Low;
+            var output = new StubOutput();
+            output.OnWrite = (message, eventType, importance) =>
             {
-                loggerMessage = message;
-                loggerEventType = eventType;
-                loggerImportance = importance;
+                outputMessage = message;
+                outputEventType = eventType;
+                outputImportance = importance;
             };
 
-            var log = new Log(logger);
+            var log = new Log(output);
             log.Write("Test Message", EventType.Error, EventImportance.High);
 
-            Assert.Equal("Test Message", loggerMessage);
-            Assert.Equal(EventType.Error, loggerEventType);
-            Assert.Equal(EventImportance.High, loggerImportance);
+            Assert.Equal("Test Message", outputMessage);
+            Assert.Equal(EventType.Error, outputEventType);
+            Assert.Equal(EventImportance.High, outputImportance);
         }
 
         [Fact]
-        public void WritesExpectedEventsToLoggersWithQuietVerbosity()
+        public void WritesExpectedEventsToOutputsWithQuietVerbosity()
         {
             VerifyExpectedEventsForVerbosityLevel(new[] { "ErrorHigh" }, Verbosity.Quiet);
         }
 
         [Fact]
-        public void WritesExpectedEventsToLoggersWithMinimalVerbosity()
+        public void WritesExpectedEventsToOutputsWithMinimalVerbosity()
         {
             var expectedEvents = new[]
             {
@@ -95,7 +95,7 @@ namespace MefBuild
         }
 
         [Fact]
-        public void WritesExpectedEventsToLoggersWithNormalVerbosity()
+        public void WritesExpectedEventsToOutputsWithNormalVerbosity()
         {
             var expectedEvents = new[]
             {
@@ -109,7 +109,7 @@ namespace MefBuild
         }
 
         [Fact]
-        public void WritesExpectedEventsToLoggersWithDetailedVerbosity()
+        public void WritesExpectedEventsToOutputsWithDetailedVerbosity()
         {
             var expectedEvents = new[]
             {
@@ -124,7 +124,7 @@ namespace MefBuild
         }
 
         [Fact]
-        public void WritesExpectedEventsToLoggersWithDiagnosticVerbosity()
+        public void WritesExpectedEventsToOutputsWithDiagnosticVerbosity()
         {
             var expectedEvents = new[] 
             {
@@ -141,10 +141,10 @@ namespace MefBuild
         private static void VerifyExpectedEventsForVerbosityLevel(string[] expectedEvents, Verbosity verbosity)
         {
             var events = new List<string>();
-            var logger = new StubLogger();
-            logger.OnWrite = (message, type, importance) => events.Add(message);
-            logger.Verbosity = verbosity;
-            var log = new Log(logger);
+            var output = new StubOutput();
+            output.OnWrite = (message, type, importance) => events.Add(message);
+            output.Verbosity = verbosity;
+            var log = new Log(output);
 
             WriteAllEventTypeAndImportanceCombinationsTo(log);
 

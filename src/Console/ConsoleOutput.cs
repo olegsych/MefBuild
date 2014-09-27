@@ -4,8 +4,8 @@ using MefBuild.Hosting;
 
 namespace MefBuild
 {
-    [Export(typeof(Logger))]
-    internal class ConsoleLogger : Logger
+    [Export(typeof(Output))]
+    internal class ConsoleOutput : Output
     {
         public override void Write(string text, EventType eventType, EventImportance importance)
         {
