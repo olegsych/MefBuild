@@ -54,6 +54,19 @@ namespace MefBuild
         }
 
         [Fact]
+        public void EmptyReturnsLogInstanceUsedByEngineAndCommandsWhenCompositionContextHasNoExport()
+        {
+            Log instance = Log.Empty;
+            Assert.NotNull(instance);
+        }
+
+        [Fact]
+        public void EmptyPropertyIsReadOnlyBecauseItIsSingleton()
+        {
+            Assert.Null(typeof(Log).GetProperty("Empty").SetMethod);
+        }
+
+        [Fact]
         public void WritePassesGivenMessageEventTypeAndImportanceToOutputWriteMethods()
         {
             var outputMessage = string.Empty;

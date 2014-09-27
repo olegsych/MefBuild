@@ -18,6 +18,7 @@ namespace MefBuild
             .GetRuntimeMethods().Single(m => m.Name == "ExecuteCommand" && m.IsGenericMethodDefinition);
 
         private readonly CompositionContext context;
+        private Log log;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Engine"/> class with the given <see cref="CompositionContext"/>.
@@ -30,13 +31,41 @@ namespace MefBuild
             }
 
             this.context = context;
+            this.context.SatisfyImports(this);            
+        }
+
+        /// <summary>
+        /// Gets or sets the <see cref="Log"/> object this instance uses to log diagnostics information.
+        /// </summary>
+        [Import(AllowDefault = true)]
+        public Log Log 
+        {
+            get 
+            {
+                if (this.log == null)
+                {
+                    this.log = Log.Empty;
+                }
+
+                return this.log; 
+            }
+            
+            set 
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+
+                this.log = value;
+            } 
         }
 
         /// <summary>
         /// Executes an <see cref="Command"/> of type <typeparamref name="T"/>.
         /// </summary>
         /// <typeparam name="T">A type that implements the <see cref="Command"/> interface.</typeparam>
-        [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "This method is a stronly typed equivalent of Execute(Type).")]
+        [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "This method is a strongly typed equivalent of Execute(Type).")]
         public void Execute<T>() where T : Command
         {
             this.ExecuteCommand<T>(new HashSet<Command>());

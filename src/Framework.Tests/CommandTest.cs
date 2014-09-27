@@ -46,7 +46,7 @@ namespace MefBuild
         public void LogHasDefaultValueToEnableTestingCommandsWithoutComposition()
         {
             var command = new StubCommand();
-            Assert.NotNull(command.Log);
+            Assert.Same(Log.Empty, command.Log);
         }
 
         [Fact]

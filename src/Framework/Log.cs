@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Composition;
+using System.Diagnostics.CodeAnalysis;
 using MefBuild.Hosting;
 
 namespace MefBuild
@@ -11,6 +12,8 @@ namespace MefBuild
     [Export, Shared]
     public sealed class Log
     {
+        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1311:StaticReadonlyFieldsMustBeginWithUpperCaseLetter", Justification = "Private fields should be camelCased")]
+        private static readonly Log empty = new Log();
         private readonly IReadOnlyCollection<Output> outputs;
 
         /// <summary>
@@ -40,7 +43,15 @@ namespace MefBuild
         }
 
         /// <summary>
-        /// Writes message of specified type to the log.
+        /// Gets an empty log without outputs.
+        /// </summary>
+        public static Log Empty 
+        {
+            get { return empty; }
+        }
+
+        /// <summary>
+        /// Writes event of specified type and importance to the log.
         /// </summary>
         public void Write(string text, EventType eventType, EventImportance importance)
         {

@@ -49,6 +49,33 @@ namespace MefBuild
             Assert.True(typeof(Command).IsAssignableFrom(executeOfT.GetGenericArguments()[0]));
         }
 
+        public static class LogProperty
+        {
+            [Fact]
+            public static void IsAutomaticallyImportedFromCompositionContext()
+            {
+                CompositionContext context = new ContainerConfiguration().WithPart<Log>().CreateContainer();
+                var log = context.GetExport<Log>();
+                var engine = new Engine(context);
+                Assert.Same(log, engine.Log);
+            }
+
+            [Fact]
+            public static void HasDefaultValueSoThatUsersDontHaveToExportLogInCompositionContext()
+            {
+                var engine = new Engine(new ContainerConfiguration().CreateContainer());
+                Assert.Same(Log.Empty, engine.Log);
+            }
+
+            [Fact]
+            public static void ThrowsArgumentNullExceptionToPreventUsageErrors()
+            {
+                var engine = new Engine(new ContainerConfiguration().CreateContainer());
+                var e = Assert.Throws<ArgumentNullException>(() => engine.Log = null);
+                Assert.Equal("value", e.ParamName);
+            }
+        }
+
         public static class ExecutesOne
         {
             [Fact]
