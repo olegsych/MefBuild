@@ -49,7 +49,7 @@ namespace MefBuild
             output.OnWrite = record => recordWrittenToOutput = true;
 
             var log = context.GetExport<Log>();
-            log.Write("Test Message", EventType.Error, EventImportance.High);
+            log.Write(new Record("Test Message", EventType.Error, EventImportance.High));
 
             Assert.True(recordWrittenToOutput);
         }
@@ -68,6 +68,14 @@ namespace MefBuild
         }
 
         [Fact]
+        public void WriteThrowsArgumentNullExceptionToPreventUsageErrors()
+        {
+            var log = new Log();
+            var e = Assert.Throws<ArgumentNullException>(() => log.Write(null));
+            Assert.Equal("record", e.ParamName);
+        }
+
+        [Fact]
         public void WritePassesGivenMessageEventTypeAndImportanceToOutputWriteMethods()
         {
             Record outputRecord = null;
@@ -75,11 +83,10 @@ namespace MefBuild
             output.OnWrite = record => outputRecord = record;
 
             var log = new Log(output);
-            log.Write("Test Message", EventType.Error, EventImportance.High);
+            var logRecord = new Record(string.Empty, EventType.Error, EventImportance.High);
+            log.Write(logRecord);
 
-            Assert.Equal("Test Message", outputRecord.Text);
-            Assert.Equal(EventType.Error, outputRecord.RecordType);
-            Assert.Equal(EventImportance.High, outputRecord.Importance);
+            Assert.Same(logRecord, outputRecord);
         }
 
         [Fact]
@@ -164,10 +171,11 @@ namespace MefBuild
             {
                 foreach (int importance in Enum.GetValues(typeof(EventImportance)).Cast<int>().OrderByDescending(value => value))
                 {
-                    log.Write(
+                    var record = new Record(
                         Enum.GetName(typeof(EventType), eventType) + Enum.GetName(typeof(EventImportance), importance),
                         (EventType)eventType, 
                         (EventImportance)importance);
+                    log.Write(record);
                 }
             }
         }

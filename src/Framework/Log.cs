@@ -53,13 +53,18 @@ namespace MefBuild
         /// <summary>
         /// Writes event of specified type and importance to the log.
         /// </summary>
-        public void Write(string text, EventType eventType, EventImportance importance)
+        public void Write(Record record)
         {
+            if (record == null)
+            {
+                throw new ArgumentNullException("record");
+            }
+
             foreach (Output output in this.outputs)            
             {
-                if (IsEventAllowedByVerbosity(output.Verbosity, eventType, importance))
+                if (IsEventAllowedByVerbosity(output.Verbosity, record.RecordType, record.Importance))
                 {
-                    output.Write(new Record(text, eventType, importance));
+                    output.Write(record);
                 }
             }
         }
