@@ -17,7 +17,7 @@ namespace MefBuild.Hosting
         /// </summary>
         public override void Write(Record record)
         {
-            if (record == null)
+            if (object.ReferenceEquals(record, null))
             {
                 throw new ArgumentNullException("record");
             }

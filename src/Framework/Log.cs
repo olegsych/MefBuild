@@ -55,7 +55,7 @@ namespace MefBuild
         /// </summary>
         public void Write(Record record)
         {
-            if (record == null)
+            if (object.ReferenceEquals(record, null))
             {
                 throw new ArgumentNullException("record");
             }
