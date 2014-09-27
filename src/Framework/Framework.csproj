@@ -25,6 +25,7 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Hosting\DebugOutput.cs" />
     <Compile Include="EventImportance.cs" />
+    <Compile Include="Hosting\Record.cs" />
     <Compile Include="Hosting\Output.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="EventType.cs" />
