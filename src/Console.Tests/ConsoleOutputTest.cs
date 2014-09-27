@@ -25,7 +25,7 @@ namespace MefBuild
         }
 
         [Fact]
-        public void WritesTextToConsoleOutput()
+        public void WritesTextToConsole()
         {
             var text = new StringBuilder();
             WithStubConsoleOut(
@@ -55,7 +55,7 @@ namespace MefBuild
         InlineData(EventType.Stop,    EventImportance.High,   ConsoleColor.Cyan),
         InlineData(EventType.Stop,    EventImportance.Normal, ConsoleColor.Cyan),
         InlineData(EventType.Stop,    EventImportance.Low,    ConsoleColor.DarkCyan)]
-        public void WritesEventsWithExpectedColors(EventType eventType, EventImportance importance, ConsoleColor expectedColor)
+        public void WritesTextToConsoleWithExpectedForegroundColor(EventType eventType, EventImportance importance, ConsoleColor expectedColor)
         {
             var actualColor = default(ConsoleColor);
             WithStubConsoleOut(
@@ -69,7 +69,7 @@ namespace MefBuild
         }
 
         [Fact]
-        public void RestoresPreviousConsoleColorAfterWriting()
+        public void RestoresPreviousForegroundColorAfterWriting()
         {
             Console.ForegroundColor = ConsoleColor.Black;
             var output = new ConsoleOutput();
