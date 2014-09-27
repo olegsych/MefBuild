@@ -1,6 +1,4 @@
-﻿using MefBuild.Hosting;
-
-namespace MefBuild
+﻿namespace MefBuild.Diagnostics
 {
     /// <summary>
     /// Defines importance of a logged event.

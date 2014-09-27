@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Composition;
-using MefBuild.Hosting;
+using MefBuild.Diagnostics;
 
 namespace MefBuild
 {

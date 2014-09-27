@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Composition;
 using System.Diagnostics.CodeAnalysis;
-using MefBuild.Hosting;
 
-namespace MefBuild
+namespace MefBuild.Diagnostics
 {
     /// <summary>
     /// Represents an object that can collect diagnostics events.

@@ -53,10 +53,10 @@
     <Compile Include="ExecuteAfterAttributeTest.cs" />
     <Compile Include="ExecuteBeforeAttributeTest.cs" />
     <Compile Include="ExecutionTracker.cs" />
-    <Compile Include="Hosting\DebugOutputTest.cs" />
-    <Compile Include="Hosting\RecordTest.cs" />
-    <Compile Include="Hosting\StubOutput.cs" />
-    <Compile Include="LogTest.cs" />
+    <Compile Include="Diagnostics\DebugOutputTest.cs" />
+    <Compile Include="Diagnostics\RecordTest.cs" />
+    <Compile Include="Diagnostics\StubOutput.cs" />
+    <Compile Include="Diagnostics\LogTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StubCommand.cs" />
   </ItemGroup>

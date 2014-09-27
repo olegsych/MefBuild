@@ -3,11 +3,9 @@ using System.Composition;
 using System.Composition.Hosting;
 using System.IO;
 using System.Text;
-using MefBuild.Hosting;
 using Xunit;
-using Record = MefBuild.Hosting.Record;
 
-namespace MefBuild
+namespace MefBuild.Diagnostics
 {
     public sealed class ConsoleOutputTest
     {

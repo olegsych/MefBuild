@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Text;
 using Xunit;
 
-namespace MefBuild.Hosting
+namespace MefBuild.Diagnostics
 {
     public class DebugOutputTest
     {

@@ -1,4 +1,4 @@
-﻿namespace MefBuild.Hosting
+﻿namespace MefBuild.Diagnostics
 {
     /// <summary>
     /// Represents an object that can write diagnostics events to a specific output.

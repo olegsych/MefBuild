@@ -6,6 +6,7 @@ using System.Composition.Hosting.Core;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using MefBuild.Diagnostics;
 
 namespace MefBuild
 {

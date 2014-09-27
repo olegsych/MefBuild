@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Composition;
 using System.Composition.Hosting;
 using System.Linq;
-using MefBuild.Hosting;
 using Xunit;
-using Record = MefBuild.Hosting.Record;
 
-namespace MefBuild
+namespace MefBuild.Diagnostics
 {
     public class LogTest
     {

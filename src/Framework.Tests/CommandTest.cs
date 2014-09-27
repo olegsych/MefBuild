@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Composition;
 using System.Composition.Hosting;
-using MefBuild.Hosting;
+using MefBuild.Diagnostics;
 using Xunit;
 
 namespace MefBuild

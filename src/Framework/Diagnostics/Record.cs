@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MefBuild.Hosting
+namespace MefBuild.Diagnostics
 {
     /// <summary>
     /// Encapsulates a <see cref="Log"/> record.

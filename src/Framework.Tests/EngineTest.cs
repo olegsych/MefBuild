@@ -3,6 +3,7 @@ using System.Composition;
 using System.Composition.Hosting;
 using System.Linq;
 using System.Reflection;
+using MefBuild.Diagnostics;
 using Xunit;
 
 namespace MefBuild

@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Composition;
-using MefBuild.Hosting;
 
-namespace MefBuild
+namespace MefBuild.Diagnostics
 {
     [Export(typeof(Output))]
     internal class ConsoleOutput : Output

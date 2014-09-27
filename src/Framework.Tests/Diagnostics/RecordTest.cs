@@ -1,7 +1,7 @@
 ﻿using System;
 using Xunit;
 
-namespace MefBuild.Hosting
+namespace MefBuild.Diagnostics
 {
     public class RecordTest
     {

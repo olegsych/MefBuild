@@ -1,6 +1,4 @@
-﻿using MefBuild.Hosting;
-
-namespace MefBuild
+﻿namespace MefBuild.Diagnostics
 {
     /// <summary>
     /// Defines type of an event written to a <see cref="Log"/>.

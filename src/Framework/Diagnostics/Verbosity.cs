@@ -1,4 +1,4 @@
-﻿namespace MefBuild.Hosting
+﻿namespace MefBuild.Diagnostics
 {
     /// <summary>
     /// Defines verbosity level of a <see cref="Output"/>.

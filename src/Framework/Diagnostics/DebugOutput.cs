@@ -4,7 +4,7 @@ using System;
 using System.Composition;
 using System.Diagnostics;
 
-namespace MefBuild.Hosting
+namespace MefBuild.Diagnostics
 {
     /// <summary>
     /// Similar to the default trace listener, this <see cref="Output"/> writes text to the <see cref="Debug"/> output.
