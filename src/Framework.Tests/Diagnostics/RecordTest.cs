@@ -26,23 +26,23 @@ namespace MefBuild.Diagnostics
         [Fact]
         public void ConstructorInitializesAllProperties()
         {
-            var record = new Record("Test Text", EventType.Error, EventImportance.High);
+            var record = new Record("Test Text", RecordType.Error, Importance.High);
             Assert.Equal("Test Text", record.Text);
-            Assert.Equal(EventType.Error, record.RecordType);
-            Assert.Equal(EventImportance.High, record.Importance);
+            Assert.Equal(RecordType.Error, record.RecordType);
+            Assert.Equal(Importance.High, record.Importance);
         }
 
         [Fact]
         public void ConstructorThrowsArgumentNullExceptionWhenTextIsNullToPreventUsageErrors()
         {
-            var e = Assert.Throws<ArgumentNullException>(() => new Record(null, default(EventType), default(EventImportance)));
+            var e = Assert.Throws<ArgumentNullException>(() => new Record(null, default(RecordType), default(Importance)));
             Assert.Equal("text", e.ParamName);
         }
 
         [Fact]
         public void ConstructorAllowsEmptyTextSoThatBlankRecordsCanBeUsedToMakeOutputMoreReadable()
         {
-            var record = new Record(string.Empty, default(EventType), default(EventImportance));
+            var record = new Record(string.Empty, default(RecordType), default(Importance));
             Assert.Equal(string.Empty, record.Text);
         }
 
@@ -57,7 +57,7 @@ namespace MefBuild.Diagnostics
         [Fact]
         public void EqualsOfRecordReturnsFalseWhenGivenInstanceIsNull()
         {
-            var source = new Record(string.Empty, default(EventType), default(EventImportance));
+            var source = new Record(string.Empty, default(RecordType), default(Importance));
             Assert.False(source.Equals(null));
         }
 
@@ -73,7 +73,7 @@ namespace MefBuild.Diagnostics
         [Fact]
         public void RecordsAreNotEqualWhenOneOfThemIsNull()
         {
-            Record realRecord = new Record(string.Empty, default(EventType), default(EventImportance));
+            Record realRecord = new Record(string.Empty, default(RecordType), default(Importance));
             Record nullRecord = null;
 
             Assert.False(object.Equals(realRecord, null));
@@ -88,8 +88,8 @@ namespace MefBuild.Diagnostics
         [Fact]
         public void RecordsAreEqualWhenAllPropertiesAreEqual()
         {
-            var source = new Record(string.Empty, default(EventType), default(EventImportance));
-            var target = new Record(string.Empty, default(EventType), default(EventImportance));
+            var source = new Record(string.Empty, default(RecordType), default(Importance));
+            var target = new Record(string.Empty, default(RecordType), default(Importance));
             Assert.True(object.Equals(source, target));
             Assert.True(source.Equals(target));
             Assert.True(source == target);
@@ -100,8 +100,8 @@ namespace MefBuild.Diagnostics
         [Fact]
         public void RecordsAreNotEqualWhenTextValuesAreDifferent()
         {
-            var source = new Record("Source Text", default(EventType), default(EventImportance));
-            var target = new Record("Target Text", default(EventType), default(EventImportance));
+            var source = new Record("Source Text", default(RecordType), default(Importance));
+            var target = new Record("Target Text", default(RecordType), default(Importance));
             Assert.False(object.Equals(source, target));
             Assert.False(source.Equals(target));
             Assert.False(source == target);
@@ -112,8 +112,8 @@ namespace MefBuild.Diagnostics
         [Fact]
         public void RecordsAreNotEqualWhenRecordTypesAreDifferent()
         {
-            var source = new Record(string.Empty, EventType.Error,   default(EventImportance));
-            var target = new Record(string.Empty, EventType.Warning, default(EventImportance));
+            var source = new Record(string.Empty, RecordType.Error,   default(Importance));
+            var target = new Record(string.Empty, RecordType.Warning, default(Importance));
             Assert.False(object.Equals(source, target));
             Assert.False(source.Equals(target));
             Assert.False(source == target);
@@ -124,8 +124,8 @@ namespace MefBuild.Diagnostics
         [Fact]
         public void RecordsAreNotEqualWhenImportanceValuesAreDifferent()
         {
-            var source = new Record(string.Empty, default(EventType), EventImportance.Low);
-            var target = new Record(string.Empty, default(EventType), EventImportance.High);
+            var source = new Record(string.Empty, default(RecordType), Importance.Low);
+            var target = new Record(string.Empty, default(RecordType), Importance.High);
             Assert.False(object.Equals(source, target));
             Assert.False(source.Equals(target));
             Assert.False(source == target);
@@ -136,7 +136,7 @@ namespace MefBuild.Diagnostics
         [Fact]
         public void ObjectsAreNotEqualWhenOtherObjectIsNotRecord()
         {
-            var source = new Record(string.Empty, default(EventType), default(EventImportance));
+            var source = new Record(string.Empty, default(RecordType), default(Importance));
             var target = new object();
             Assert.False(object.Equals(source, target));           
             Assert.False(source.Equals(target));

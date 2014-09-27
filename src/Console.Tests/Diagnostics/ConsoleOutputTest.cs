@@ -40,29 +40,29 @@ namespace MefBuild.Diagnostics
                 () =>
                 {
                     var output = new ConsoleOutput();
-                    output.Write(new Record("Test Message", EventType.Error, EventImportance.High));
+                    output.Write(new Record("Test Message", RecordType.Error, Importance.High));
 
                     Assert.Equal("Test Message" + Environment.NewLine, text.ToString());
                 });
         }
 
         [Theory,
-        InlineData(EventType.Error,   EventImportance.High,   ConsoleColor.Red),
-        InlineData(EventType.Error,   EventImportance.Normal, ConsoleColor.Red),
-        InlineData(EventType.Error,   EventImportance.Low,    ConsoleColor.DarkRed),
-        InlineData(EventType.Warning, EventImportance.High,   ConsoleColor.Yellow),
-        InlineData(EventType.Warning, EventImportance.Normal, ConsoleColor.Yellow),
-        InlineData(EventType.Warning, EventImportance.Low,    ConsoleColor.DarkYellow),
-        InlineData(EventType.Message, EventImportance.High,   ConsoleColor.White),
-        InlineData(EventType.Message, EventImportance.Normal, ConsoleColor.Gray),
-        InlineData(EventType.Message, EventImportance.Low,    ConsoleColor.DarkGray),
-        InlineData(EventType.Start,   EventImportance.High,   ConsoleColor.Cyan),
-        InlineData(EventType.Start,   EventImportance.Normal, ConsoleColor.Cyan),
-        InlineData(EventType.Start,   EventImportance.Low,    ConsoleColor.DarkCyan),
-        InlineData(EventType.Stop,    EventImportance.High,   ConsoleColor.Cyan),
-        InlineData(EventType.Stop,    EventImportance.Normal, ConsoleColor.Cyan),
-        InlineData(EventType.Stop,    EventImportance.Low,    ConsoleColor.DarkCyan)]
-        public void WritesTextToConsoleWithExpectedForegroundColor(EventType eventType, EventImportance importance, ConsoleColor expectedColor)
+        InlineData(RecordType.Error,   Importance.High,   ConsoleColor.Red),
+        InlineData(RecordType.Error,   Importance.Normal, ConsoleColor.Red),
+        InlineData(RecordType.Error,   Importance.Low,    ConsoleColor.DarkRed),
+        InlineData(RecordType.Warning, Importance.High,   ConsoleColor.Yellow),
+        InlineData(RecordType.Warning, Importance.Normal, ConsoleColor.Yellow),
+        InlineData(RecordType.Warning, Importance.Low,    ConsoleColor.DarkYellow),
+        InlineData(RecordType.Message, Importance.High,   ConsoleColor.White),
+        InlineData(RecordType.Message, Importance.Normal, ConsoleColor.Gray),
+        InlineData(RecordType.Message, Importance.Low,    ConsoleColor.DarkGray),
+        InlineData(RecordType.Start,   Importance.High,   ConsoleColor.Cyan),
+        InlineData(RecordType.Start,   Importance.Normal, ConsoleColor.Cyan),
+        InlineData(RecordType.Start,   Importance.Low,    ConsoleColor.DarkCyan),
+        InlineData(RecordType.Stop,    Importance.High,   ConsoleColor.Cyan),
+        InlineData(RecordType.Stop,    Importance.Normal, ConsoleColor.Cyan),
+        InlineData(RecordType.Stop,    Importance.Low,    ConsoleColor.DarkCyan)]
+        public void WritesTextToConsoleWithExpectedForegroundColor(RecordType eventType, Importance importance, ConsoleColor expectedColor)
         {
             var actualColor = default(ConsoleColor);
             WithStubConsoleOut(
@@ -80,7 +80,7 @@ namespace MefBuild.Diagnostics
         {
             Console.ForegroundColor = ConsoleColor.Black;
             var output = new ConsoleOutput();
-            output.Write(new Record("Test Message", EventType.Error, EventImportance.High));
+            output.Write(new Record("Test Message", RecordType.Error, Importance.High));
             Assert.Equal(ConsoleColor.Black, Console.ForegroundColor);
         }
 

@@ -1,14 +1,14 @@
 ﻿namespace MefBuild.Diagnostics
 {
     /// <summary>
-    /// Defines type of an event written to a <see cref="Log"/>.
+    /// Defines type of a <see cref="Record"/> written to a <see cref="Log"/>.
     /// </summary>
     /// <remarks>
-    /// Event types are defined in the order of increasing significance, with <see cref="Message"/> 
-    /// defined as the default event type. <see cref="EventType"/> combined with <see cref="EventImportance"/>
-    /// determines the <see cref="Verbosity"/> required for the event to show up in the <see cref="Log"/>.
+    /// Record types are defined in the order of increasing significance, with <see cref="Message"/> 
+    /// defined as the default record type. <see cref="RecordType"/> combined with <see cref="Importance"/>
+    /// determines the <see cref="Verbosity"/> required for the record to show up in the <see cref="Output"/>.
     /// </remarks>
-    public enum EventType
+    public enum RecordType
     {
         /// <summary>
         /// Indicates that a logical operation finished.

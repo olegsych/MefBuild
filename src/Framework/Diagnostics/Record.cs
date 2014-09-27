@@ -8,14 +8,14 @@ namespace MefBuild.Diagnostics
     public sealed class Record : IEquatable<Record>
     {
         private readonly string text;
-        private readonly EventType recordType;
-        private readonly EventImportance importance;
+        private readonly RecordType recordType;
+        private readonly Importance importance;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Record"/> class with the specified <paramref name="text"/>, 
         /// <paramref name="recordType"/> and <paramref name="importance"/>.
         /// </summary>
-        public Record(string text, EventType recordType, EventImportance importance)
+        public Record(string text, RecordType recordType, Importance importance)
         {
             if (text == null)
             {
@@ -38,7 +38,7 @@ namespace MefBuild.Diagnostics
         /// <summary>
         /// Gets the record type.
         /// </summary>
-        public EventType RecordType 
+        public RecordType RecordType 
         {
             get { return this.recordType; }
         }
@@ -46,7 +46,7 @@ namespace MefBuild.Diagnostics
         /// <summary>
         /// Gets the record importance.
         /// </summary>
-        public EventImportance Importance 
+        public Importance Importance 
         {
             get { return this.importance; }
         }

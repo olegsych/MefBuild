@@ -19,29 +19,29 @@ namespace MefBuild.Diagnostics
             Console.ForegroundColor = oldColor;
         }
 
-        private static ConsoleColor GetForegroundColor(EventType eventType, EventImportance importance)
+        private static ConsoleColor GetForegroundColor(RecordType eventType, Importance importance)
         {
             switch (eventType)
             {
-                case EventType.Error:   
-                    return importance >= EventImportance.Normal ? ConsoleColor.Red : ConsoleColor.DarkRed;
+                case RecordType.Error:   
+                    return importance >= Importance.Normal ? ConsoleColor.Red : ConsoleColor.DarkRed;
 
-                case EventType.Warning: 
-                    return importance >= EventImportance.Normal ? ConsoleColor.Yellow : ConsoleColor.DarkYellow;
+                case RecordType.Warning: 
+                    return importance >= Importance.Normal ? ConsoleColor.Yellow : ConsoleColor.DarkYellow;
 
-                case EventType.Message: 
+                case RecordType.Message: 
                     switch (importance)
                     {
-                        case EventImportance.High: return ConsoleColor.White;
-                        case EventImportance.Normal: return ConsoleColor.Gray;
-                        case EventImportance.Low: return ConsoleColor.DarkGray;
+                        case Importance.High: return ConsoleColor.White;
+                        case Importance.Normal: return ConsoleColor.Gray;
+                        case Importance.Low: return ConsoleColor.DarkGray;
                     }
 
                     break;
 
-                case EventType.Start:
-                case EventType.Stop:
-                    return importance >= EventImportance.Normal ? ConsoleColor.Cyan : ConsoleColor.DarkCyan;
+                case RecordType.Start:
+                case RecordType.Stop:
+                    return importance >= Importance.Normal ? ConsoleColor.Cyan : ConsoleColor.DarkCyan;
             }
 
             return default(ConsoleColor);

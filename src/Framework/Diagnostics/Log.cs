@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace MefBuild.Diagnostics
 {
     /// <summary>
-    /// Represents an object that can collect diagnostics events.
+    /// Represents an object that writes diagnostics records to one or more outputs.
     /// </summary>
     [Export, Shared]
     public sealed class Log
@@ -17,7 +17,7 @@ namespace MefBuild.Diagnostics
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Log"/> class with an array of 
-        /// <see cref="Output"/> objects responsible for writing events to one or more 
+        /// <see cref="Output"/> objects responsible for writing records to specific 
         /// outputs.
         /// </summary>
         [ImportingConstructor]
@@ -50,8 +50,9 @@ namespace MefBuild.Diagnostics
         }
 
         /// <summary>
-        /// Writes event of specified type and importance to the log.
+        /// Writes the specified <paramref name="record"/> to the <see cref="Output"/> objects associated with this log.
         /// </summary>
+        /// <exception cref="ArgumentNullException">The <paramref name="record"/> is null.</exception>
         public void Write(Record record)
         {
             if (object.ReferenceEquals(record, null))
@@ -61,27 +62,27 @@ namespace MefBuild.Diagnostics
 
             foreach (Output output in this.outputs)            
             {
-                if (IsEventAllowedByVerbosity(output.Verbosity, record.RecordType, record.Importance))
+                if (IsRecordAllowedByVerbosity(output.Verbosity, record.RecordType, record.Importance))
                 {
                     output.Write(record);
                 }
             }
         }
 
-        private static bool IsEventAllowedByVerbosity(Verbosity verbosity, EventType eventType, EventImportance importance)
+        private static bool IsRecordAllowedByVerbosity(Verbosity verbosity, RecordType recordType, Importance importance)
         {
             switch (verbosity)
             {
                 case Verbosity.Quiet:
-                    return eventType == EventType.Error && importance == EventImportance.High;
+                    return recordType == RecordType.Error && importance == Importance.High;
                 case Verbosity.Minimal:
-                    return (eventType == EventType.Error   && importance >= EventImportance.Normal)
-                        || (eventType >= EventType.Message && importance == EventImportance.High);
+                    return (recordType == RecordType.Error   && importance >= Importance.Normal)
+                        || (recordType >= RecordType.Message && importance == Importance.High);
                 case Verbosity.Normal:
-                    return (eventType >= EventType.Warning && importance >= EventImportance.Normal)
-                        || (eventType >= EventType.Start   && importance == EventImportance.High);
+                    return (recordType >= RecordType.Warning && importance >= Importance.Normal)
+                        || (recordType >= RecordType.Start   && importance == Importance.High);
                 case Verbosity.Detailed:
-                    return importance > EventImportance.Low;
+                    return importance > Importance.Low;
                 default:
                     return true;
             }

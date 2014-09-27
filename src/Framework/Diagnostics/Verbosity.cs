@@ -23,12 +23,12 @@
         Normal = 0, // default
 
         /// <summary>
-        /// Displays all event types with high and normal importance.
+        /// Displays all record types with high and normal importance.
         /// </summary>
         Detailed = 1,
 
         /// <summary>
-        /// Displays all event types of all importance levels.
+        /// Displays all record types of all importance levels.
         /// </summary>
         Diagnostic = 2,
     }

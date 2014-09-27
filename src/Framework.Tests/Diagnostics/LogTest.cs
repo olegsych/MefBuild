@@ -47,7 +47,7 @@ namespace MefBuild.Diagnostics
             output.OnWrite = record => recordWrittenToOutput = true;
 
             var log = context.GetExport<Log>();
-            log.Write(new Record("Test Message", EventType.Error, EventImportance.High));
+            log.Write(new Record("Test Message", RecordType.Error, Importance.High));
 
             Assert.True(recordWrittenToOutput);
         }
@@ -81,7 +81,7 @@ namespace MefBuild.Diagnostics
             output.OnWrite = record => outputRecord = record;
 
             var log = new Log(output);
-            var logRecord = new Record(string.Empty, EventType.Error, EventImportance.High);
+            var logRecord = new Record(string.Empty, RecordType.Error, Importance.High);
             log.Write(logRecord);
 
             Assert.Same(logRecord, outputRecord);
@@ -165,14 +165,14 @@ namespace MefBuild.Diagnostics
 
         private static void WriteAllEventTypeAndImportanceCombinationsTo(Log log)
         {
-            foreach (int eventType in Enum.GetValues(typeof(EventType)).Cast<int>().OrderByDescending(value => value))
+            foreach (int eventType in Enum.GetValues(typeof(RecordType)).Cast<int>().OrderByDescending(value => value))
             {
-                foreach (int importance in Enum.GetValues(typeof(EventImportance)).Cast<int>().OrderByDescending(value => value))
+                foreach (int importance in Enum.GetValues(typeof(Importance)).Cast<int>().OrderByDescending(value => value))
                 {
                     var record = new Record(
-                        Enum.GetName(typeof(EventType), eventType) + Enum.GetName(typeof(EventImportance), importance),
-                        (EventType)eventType, 
-                        (EventImportance)importance);
+                        Enum.GetName(typeof(RecordType), eventType) + Enum.GetName(typeof(Importance), importance),
+                        (RecordType)eventType, 
+                        (Importance)importance);
                     log.Write(record);
                 }
             }

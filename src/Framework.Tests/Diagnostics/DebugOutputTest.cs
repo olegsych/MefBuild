@@ -44,7 +44,7 @@ namespace MefBuild.Diagnostics
             using (new DebugTraceListener(output))
             {
                 var log = new DebugOutput();
-                log.Write(new Record("Test", default(EventType), default(EventImportance)));
+                log.Write(new Record("Test", default(RecordType), default(Importance)));
                 Assert.Equal("Test" + Environment.NewLine, output.ToString());
             }
         }

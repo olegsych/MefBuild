@@ -1,7 +1,7 @@
 ﻿namespace MefBuild.Diagnostics
 {
     /// <summary>
-    /// Represents an object that can write diagnostics events to a specific output.
+    /// Represents an object that can write diagnostics records to a specific output.
     /// </summary>
     public abstract class Output
     {

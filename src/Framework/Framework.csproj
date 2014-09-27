@@ -24,11 +24,11 @@
     <Compile Include="ExecuteBeforeAttribute.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Diagnostics\DebugOutput.cs" />
-    <Compile Include="Diagnostics\EventImportance.cs" />
+    <Compile Include="Diagnostics\Importance.cs" />
     <Compile Include="Diagnostics\Record.cs" />
     <Compile Include="Diagnostics\Output.cs" />
     <Compile Include="Diagnostics\Log.cs" />
-    <Compile Include="Diagnostics\EventType.cs" />
+    <Compile Include="Diagnostics\RecordType.cs" />
     <Compile Include="Diagnostics\Verbosity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
