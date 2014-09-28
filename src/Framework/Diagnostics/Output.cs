@@ -1,4 +1,6 @@
-﻿namespace MefBuild.Diagnostics
+﻿using System.Composition;
+
+namespace MefBuild.Diagnostics
 {
     /// <summary>
     /// Represents an object that can write diagnostics records to a specific output.
@@ -8,6 +10,7 @@
         /// <summary>
         /// Gets or sets the verbosity level, which determines type and importance of records that will be written to the output.
         /// </summary>
+        [Import("Verbosity", AllowDefault = true)]
         public Verbosity Verbosity { get; set; }
 
         /// <summary>

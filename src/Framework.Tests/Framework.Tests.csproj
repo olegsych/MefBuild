@@ -45,6 +45,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Diagnostics\OutputTest.cs" />
     <Compile Include="Hosting\CommandLineArgumentTest.cs" />
     <Compile Include="Hosting\CommandLineExportDescriptorProviderTest.cs" />
     <Compile Include="CommandTest.cs" />
