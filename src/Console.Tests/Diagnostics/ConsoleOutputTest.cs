@@ -35,15 +35,13 @@ namespace MefBuild.Diagnostics
         public void WritesTextToConsole()
         {
             var text = new StringBuilder();
-            WithStubConsoleOut(
-                new StringWriter(text), 
-                () =>
-                {
-                    var output = new ConsoleOutput();
-                    output.Write(new Record("Test Message", RecordType.Error, Importance.High));
+            using (new ConsoleOutputInterceptor(text))
+            {
+                var output = new ConsoleOutput();
+                output.Write(new Record("Test Message", RecordType.Error, Importance.High));
 
-                    Assert.Equal("Test Message" + Environment.NewLine, text.ToString());
-                });
+                Assert.Equal("Test Message" + Environment.NewLine, text.ToString());
+            }
         }
 
         [Theory,

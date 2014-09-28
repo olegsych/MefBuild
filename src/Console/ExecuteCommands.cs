@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Composition;
 using System.Composition.Hosting;
-using System.Linq;
 using System.Reflection;
+using MefBuild.Diagnostics;
 
 namespace MefBuild
 {
@@ -19,6 +19,8 @@ namespace MefBuild
         public override void Execute()
         {
             CompositionContext context = new ContainerConfiguration()
+                .WithAssembly(typeof(Engine).Assembly)
+                .WithPart<ConsoleOutput>()
                 .WithAssemblies(this.Assemblies)
                 .CreateContainer();
             

@@ -1,11 +1,10 @@
 ﻿using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Composition;
 using System.Composition.Hosting;
 using System.Linq;
 using System.Reflection;
-using Microsoft.CSharp;
+using System.Text;
 using Xunit;
 
 namespace MefBuild
@@ -74,6 +73,36 @@ namespace MefBuild
             command.Execute();
 
             Assert.Equal(typeof(TestCommand), TestCommand.ExecutedCommands.Single().GetType());
+        }
+
+        [Fact]
+        public static void DirectsEngineOutputToConsoleOutput()
+        {
+            var command = new ExecuteCommands();
+            command.Assemblies = new[] { typeof(TestCommand).Assembly };
+            command.CommandTypes = new[] { typeof(TestCommand) };
+
+            var output = new StringBuilder();
+            using (new ConsoleOutputInterceptor(output))
+            {
+                command.Execute();
+                Assert.Contains("Command \"" + typeof(TestCommand).FullName, output.ToString());
+            }
+        }
+
+        [Fact]
+        public static void DirectsEngineOutputToDebugOutput()
+        {
+            var command = new ExecuteCommands();
+            command.Assemblies = new[] { typeof(TestCommand).Assembly };
+            command.CommandTypes = new[] { typeof(TestCommand) };
+
+            var output = new StringBuilder();
+            using (new DebugOutputInterceptor(output))
+            {
+                command.Execute();
+                Assert.Contains("Command \"" + typeof(TestCommand).FullName, output.ToString());
+            }
         }
 
         [Fact]

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Composition;
+﻿using System.Composition;
 using System.Composition.Hosting;
 using System.Diagnostics.CodeAnalysis;
 using MefBuild.Hosting;
@@ -20,6 +19,7 @@ namespace MefBuild
         {
             CompositionContext context = new ContainerConfiguration()
                 .WithAssembly(typeof(Program).Assembly)
+                .WithAssembly(typeof(Engine).Assembly)
                 .WithProvider(new CommandLineExportDescriptorProvider(args))
                 .CreateContainer();
 
