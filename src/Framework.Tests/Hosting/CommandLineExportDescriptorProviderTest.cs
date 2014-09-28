@@ -88,16 +88,41 @@ namespace MefBuild.Hosting
                     .WithProvider(new CommandLineExportDescriptorProvider(new[] { "-TestArgument:42" }))
                     .CreateContainer();
 
-                var target = new Target();
+                var target = new TargetWithInt32Property();
                 context.SatisfyImports(target);
 
                 Assert.Equal(42, target.Property);
             }
 
-            public class Target
+            [Fact]
+            public static void GetExportDescriptorConvertsArgumentValuesToEnumTypes()
+            {
+                CompositionContext context = new ContainerConfiguration()
+                    .WithProvider(new CommandLineExportDescriptorProvider(new[] { "-TestArgument:TestValue" }))
+                    .CreateContainer();
+
+                var target = new TargetWithEnumProperty();
+                context.SatisfyImports(target);
+
+                Assert.Equal(TestEnum.TestValue, target.Property);
+            }
+
+            public class TargetWithInt32Property
             {
                 [Import("TestArgument")]
                 public int Property { get; set; }
+            }
+
+            public enum TestEnum
+            {
+                DefaultValue,
+                TestValue,
+            }
+
+            public class TargetWithEnumProperty
+            {
+                [Import("TestArgument")]
+                public TestEnum Property { get; set; }
             }
         }
 

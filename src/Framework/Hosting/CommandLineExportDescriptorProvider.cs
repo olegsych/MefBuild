@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Composition.Hosting.Core;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
@@ -40,7 +41,7 @@ namespace MefBuild.Hosting
 
                 foreach (CommandLineArgument argument in matchingArguments)
                 {
-                    object value = Convert.ChangeType(argument.Value, contract.ContractType);
+                    object value = ConvertStringToType(argument.Value, contract.ContractType);
                     yield return new ExportDescriptorPromise(
                         contract,
                         string.Format("Command-line argument: '{0}'", argument.Original),
@@ -49,6 +50,16 @@ namespace MefBuild.Hosting
                         _ => ExportDescriptor.Create((c, o) => value, NoMetadata));
                 }
             }
+        }
+
+        private static object ConvertStringToType(string value, Type type)
+        {
+            if (type.GetTypeInfo().IsEnum)
+            {
+                return Enum.Parse(type, value);
+            }
+
+            return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
         }
 
         private static bool IsSingleImport(CompositionContract contract)
