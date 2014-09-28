@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Composition;
 using System.Composition.Hosting;
 using System.Linq;
 using System.Reflection;
 using MefBuild.Diagnostics;
 using Xunit;
+using Record = MefBuild.Diagnostics.Record;
 
 namespace MefBuild
 {
@@ -48,6 +50,14 @@ namespace MefBuild
         {
             MethodInfo executeOfT = typeof(Engine).GetMethods().Single(m => m.Name == "Execute" && m.IsGenericMethodDefinition);
             Assert.True(typeof(Command).IsAssignableFrom(executeOfT.GetGenericArguments()[0]));
+        }
+
+        private static void InterceptLogOutput(Engine engine, ICollection<Record> records)
+        {
+            var output = new StubOutput();
+            output.Verbosity = Verbosity.Diagnostic;
+            output.OnWrite = record => records.Add(record);
+            engine.Log = new Log(output);
         }
 
         public static class LogProperty
@@ -110,6 +120,42 @@ namespace MefBuild
 
                 var engine = new Engine(container);
                 Assert.Throws<CompositionFailedException>(() => engine.Execute(typeof(Target)));
+            }
+
+            [Fact]
+            public static void LogsStartRecordBeforeExecutingCommand()
+            {
+                CompositionContext context = new ContainerConfiguration().WithPart<Target>().CreateContainer();
+                var engine = new Engine(context);
+
+                var records = new List<Record>();
+                InterceptLogOutput(engine, records);
+
+                engine.Execute<Target>();
+
+                var expected = new Record(
+                    string.Format("Command \"{0}\" in \"{1}\":", typeof(Target).FullName, typeof(Target).Assembly.Location), 
+                    RecordType.Start, 
+                    Importance.High);
+                Assert.Contains(expected, records);
+            }
+
+            [Fact]
+            public static void LogsStopRecordAfterExecutingCommand()
+            {
+                CompositionContext context = new ContainerConfiguration().WithPart<Target>().CreateContainer();
+                var engine = new Engine(context);
+
+                var records = new List<Record>();
+                InterceptLogOutput(engine, records);
+
+                engine.Execute<Target>();
+
+                var expected = new Record(
+                    string.Format("Done executing command \"{0}\".", typeof(Target).FullName), 
+                    RecordType.Stop, 
+                    Importance.Normal);
+                Assert.Contains(expected, records);                
             }
 
             [Export]

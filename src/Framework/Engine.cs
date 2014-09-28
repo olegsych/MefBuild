@@ -126,7 +126,10 @@ namespace MefBuild
                 this.ExecuteCommands(this.GetBeforeCommands(command.GetType()), alreadyExecuted);
 
                 this.context.SatisfyImports(command); // from the dependency and before commands
+
+                this.Log.CommandStarted(command);
                 command.Execute();
+                this.Log.CommandStopped(command);
 
                 this.ExecuteCommands(this.GetAfterCommands(command.GetType()), alreadyExecuted);
             }
