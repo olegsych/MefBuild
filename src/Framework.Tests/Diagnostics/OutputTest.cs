@@ -12,7 +12,7 @@ namespace MefBuild.Diagnostics
         public void VerbosityIsImportedFromCompositionContextToAllowSpecifyingItViaCommandLine()
         {
             CompositionContext context = new ContainerConfiguration()
-                .WithProvider(new CommandLineExportDescriptorProvider(new[] { "-verbosity:Diagnostic" }))
+                .WithProvider(new CommandLineExportDescriptorProvider(new[] { "/verbosity=Diagnostic" }))
                 .CreateContainer();
 
             var output = new TestOutput();
@@ -21,7 +21,7 @@ namespace MefBuild.Diagnostics
             Assert.Equal(Verbosity.Diagnostic, output.Verbosity);
         }
 
-        private class TestOutput: Output
+        private class TestOutput : Output
         {
             public override void Write(Record record)
             {

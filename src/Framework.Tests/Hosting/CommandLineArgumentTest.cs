@@ -29,23 +29,23 @@ namespace MefBuild.Hosting
         [Fact]
         public void ConstructorSetsNameFromArgumentWithLeadingDash()
         {
-            var arg = new CommandLineArgument("-TestName");
+            var arg = new CommandLineArgument("/TestName");
             Assert.Equal("TestName", arg.Name);
         }
 
         [Fact]
-        public void ConstructorSetsNameAndValueFromArgumentWithColon()
+        public void ConstructorSetsNameAndValueFromArgumentWithEqualsSign()
         {
-            var arg = new CommandLineArgument("-TestName:TestValue");
+            var arg = new CommandLineArgument("/TestName=TestValue");
             Assert.Equal("TestName", arg.Name);
             Assert.Equal("TestValue", arg.Value);
         }
 
         [Fact]
-        public void ConstructorTreatsAdditionalColonsAsPartOfValue()
+        public void ConstructorTreatsAdditionalEqualsSignsAsPartOfValue()
         {
-            var arg = new CommandLineArgument("TestName:Test:Value");
-            Assert.Equal("Test:Value", arg.Value);
+            var arg = new CommandLineArgument("/TestName=Test=Value");
+            Assert.Equal("Test=Value", arg.Value);
         }
 
         [Fact]
@@ -58,8 +58,8 @@ namespace MefBuild.Hosting
         [Fact]
         public void ConstructorInitializesOriginalWithOriginalArgumentString()
         {
-            var arg = new CommandLineArgument("-TestName:TestValue");
-            Assert.Equal("-TestName:TestValue", arg.Original);
+            var arg = new CommandLineArgument("/TestName=TestValue");
+            Assert.Equal("/TestName=TestValue", arg.Original);
         }
 
         [Fact]

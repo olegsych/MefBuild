@@ -36,7 +36,7 @@ namespace MefBuild.Hosting
             public static void GetExportDescriptorsSatisfiesStringImportWithNamedContract()
             {
                 CompositionContext context = new ContainerConfiguration()
-                    .WithProvider(new CommandLineExportDescriptorProvider(new[] { "-TestArgument:TestValue" }))
+                    .WithProvider(new CommandLineExportDescriptorProvider(new[] { "/TestArgument=TestValue" }))
                     .CreateContainer();
 
                 var target = new Target();
@@ -49,21 +49,21 @@ namespace MefBuild.Hosting
             public static void ThrowsCompositionFailedExceptionSingleImportIsExpectedAndMultipleArgumentsAreSpecified()
             {
                 CompositionContext context = new ContainerConfiguration()
-                    .WithProvider(new CommandLineExportDescriptorProvider(new[] { "-TestArgument:42", "-TestArgument:43" }))
+                    .WithProvider(new CommandLineExportDescriptorProvider(new[] { "/TestArgument=42", "/TestArgument=43" }))
                     .CreateContainer();
 
                 var target = new Target();
                 var e = Assert.Throws<CompositionFailedException>(() => context.SatisfyImports(target));
                 Assert.Contains("command-line argument", e.Message, StringComparison.OrdinalIgnoreCase);
-                Assert.Contains("-TestArgument:42", e.Message, StringComparison.OrdinalIgnoreCase);
-                Assert.Contains("-TestArgument:43", e.Message, StringComparison.OrdinalIgnoreCase);
+                Assert.Contains("/TestArgument=42", e.Message, StringComparison.OrdinalIgnoreCase);
+                Assert.Contains("/TestArgument=43", e.Message, StringComparison.OrdinalIgnoreCase);
             }
 
             [Fact]
             public static void IgnoresCaseWhenComparingArgumentAndContractName()
             {
                 CompositionContext context = new ContainerConfiguration()
-                    .WithProvider(new CommandLineExportDescriptorProvider(new[] { "-testArgument:TestValue" }))
+                    .WithProvider(new CommandLineExportDescriptorProvider(new[] { "/testArgument=TestValue" }))
                     .CreateContainer();
 
                 var target = new Target();
@@ -85,7 +85,7 @@ namespace MefBuild.Hosting
             public static void GetExportDescriptorConvertsArgumentValuesToExpectedTypes()
             {
                 CompositionContext context = new ContainerConfiguration()
-                    .WithProvider(new CommandLineExportDescriptorProvider(new[] { "-TestArgument:42" }))
+                    .WithProvider(new CommandLineExportDescriptorProvider(new[] { "/TestArgument=42" }))
                     .CreateContainer();
 
                 var target = new TargetWithInt32Property();
@@ -98,7 +98,7 @@ namespace MefBuild.Hosting
             public static void GetExportDescriptorConvertsArgumentValuesToEnumTypes()
             {
                 CompositionContext context = new ContainerConfiguration()
-                    .WithProvider(new CommandLineExportDescriptorProvider(new[] { "-TestArgument:TestValue" }))
+                    .WithProvider(new CommandLineExportDescriptorProvider(new[] { "/TestArgument=TestValue" }))
                     .CreateContainer();
 
                 var target = new TargetWithEnumProperty();
@@ -132,7 +132,7 @@ namespace MefBuild.Hosting
             public static void GetExportDescriptorSatisfiesImportManyWithNamedContract()
             {
                 CompositionContext context = new ContainerConfiguration()
-                    .WithProvider(new CommandLineExportDescriptorProvider(new[] { "-TestArgument:42", "-TestArgument:43" }))
+                    .WithProvider(new CommandLineExportDescriptorProvider(new[] { "/TestArgument=42", "/TestArgument=43" }))
                     .CreateContainer();
 
                 var target = new Target();

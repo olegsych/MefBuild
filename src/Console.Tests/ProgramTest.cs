@@ -12,8 +12,8 @@ namespace MefBuild
             TestCommand.ExecutedCommands.Clear();
 
             Program.Main(
-                "-assembly:" + typeof(TestCommand).Assembly.Location,
-                "-command:" + typeof(TestCommand).FullName);
+                "/assembly=" + typeof(TestCommand).Assembly.Location,
+                "/command=" + typeof(TestCommand).FullName);
 
             Assert.Equal(new[] { typeof(TestCommand).FullName }, TestCommand.ExecutedCommands.Select(c => c.GetType().FullName));
         }

@@ -17,8 +17,8 @@ namespace MefBuild.Hosting
 
             this.original = argument;
 
-            argument = argument.TrimStart('-');
-            int indexOfSeparator = argument.IndexOf(':');
+            argument = argument.TrimStart('/');
+            int indexOfSeparator = argument.IndexOf('=');
             if (indexOfSeparator >= 0)
             {
                 this.name = argument.Substring(0, indexOfSeparator);
