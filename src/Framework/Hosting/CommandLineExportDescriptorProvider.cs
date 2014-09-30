@@ -56,7 +56,7 @@ namespace MefBuild.Hosting
         {
             if (type.GetTypeInfo().IsEnum)
             {
-                return Enum.Parse(type, value);
+                return Enum.Parse(type, value, true);
             }
 
             return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);

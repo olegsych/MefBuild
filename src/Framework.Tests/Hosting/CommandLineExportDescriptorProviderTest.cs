@@ -95,10 +95,10 @@ namespace MefBuild.Hosting
             }
 
             [Fact]
-            public static void GetExportDescriptorConvertsArgumentValuesToEnumTypes()
+            public static void GetExportDescriptorConvertsArgumentValuesToEnumTypesIgnoringCase()
             {
                 CompositionContext context = new ContainerConfiguration()
-                    .WithProvider(new CommandLineExportDescriptorProvider(new[] { "/TestArgument=TestValue" }))
+                    .WithProvider(new CommandLineExportDescriptorProvider(new[] { "/TestArgument=testValue" }))
                     .CreateContainer();
 
                 var target = new TargetWithEnumProperty();
