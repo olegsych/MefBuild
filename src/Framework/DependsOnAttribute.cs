@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Composition;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace MefBuild
@@ -9,40 +10,41 @@ namespace MefBuild
     /// Specifies <see cref="Command"/> types that should be executed before the command the attribute is applied to.
     /// </summary>
     [MetadataAttribute, AttributeUsage(AttributeTargets.Class)]
+    [SuppressMessage("Microsoft.Design", "CA1019:DefineAccessorsForAttributeArguments", Justification = "commandTypes argument is exposed as DependsOn property.")]
     public sealed class DependsOnAttribute : Attribute
     {
-        private readonly Type[] dependencyCommandTypes;
+        private readonly Type[] dependsOn;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DependsOnAttribute"/> class with the given command types.
         /// </summary>
-        /// <param name="dependencyCommandTypes">
+        /// <param name="commandTypes">
         /// An array of <see cref="Type"/> objects representing classes that derive from <see cref="Command"/>.
         /// </param>
         /// <exception cref="ArgumentNullException">
-        /// The <paramref name="dependencyCommandTypes"/> is null.
+        /// The <paramref name="commandTypes"/> array is null.
         /// </exception>
         /// <exception cref="ArgumentException">
-        /// The <paramref name="dependencyCommandTypes"/> array is empty -or 
-        /// the <paramref name="dependencyCommandTypes"/> array contains null elements -or- 
-        /// the <paramref name="dependencyCommandTypes"/> array contains <see cref="Type"/> objects of classes that don't derive from <see cref="Command"/>.
+        /// The <paramref name="commandTypes"/> array is empty -or 
+        /// the <paramref name="commandTypes"/> array contains null elements -or- 
+        /// the <paramref name="commandTypes"/> array contains <see cref="Type"/> objects of classes that don't derive from <see cref="Command"/>.
         /// </exception>
-        public DependsOnAttribute(params Type[] dependencyCommandTypes)
+        public DependsOnAttribute(params Type[] commandTypes)
         {
-            const string ParameterName = "dependencyCommandTypes";
-            const string ExceptionMessage = "One or more types derived from ICommand are expected.";
+            const string ParameterName = "commandTypes";
+            const string ExceptionMessage = "One or more types derived from Command are expected.";
 
-            if (dependencyCommandTypes == null)
+            if (commandTypes == null)
             {
                 throw new ArgumentNullException(ParameterName);
             }
 
-            if (dependencyCommandTypes.Length == 0)
+            if (commandTypes.Length == 0)
             {
                 throw new ArgumentException(ExceptionMessage, ParameterName);
             }
 
-            foreach (Type type in dependencyCommandTypes)
+            foreach (Type type in commandTypes)
             {
                 if (type == null || !typeof(Command).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
                 {
@@ -50,15 +52,15 @@ namespace MefBuild
                 }
             }
 
-            this.dependencyCommandTypes = dependencyCommandTypes;
+            this.dependsOn = commandTypes;
         }
 
         /// <summary>
         /// Gets a collection of <see cref="Command"/> types that must be executed before the command marked with the <see cref="DependsOnAttribute"/>.
         /// </summary>
-        public IEnumerable<Type> DependencyCommandTypes 
+        public IEnumerable<Type> DependsOn 
         {
-            get { return this.dependencyCommandTypes; }
+            get { return this.dependsOn; }
         }
     }
 }

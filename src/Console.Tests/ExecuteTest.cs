@@ -32,7 +32,7 @@ namespace MefBuild
         public static void ClassDefinesExecutionOrderOfCommandsItDependsOn()
         {
             DependsOnAttribute attribute = typeof(Execute).GetCustomAttributes(false).OfType<DependsOnAttribute>().Single();
-            Assert.Equal(new[] { typeof(LoadAssemblies), typeof(ResolveCommandTypes), typeof(ExecuteCommands) }, attribute.DependencyCommandTypes);
+            Assert.Equal(new[] { typeof(LoadAssemblies), typeof(ResolveCommandTypes), typeof(ExecuteCommands) }, attribute.DependsOn);
         }
     }
 }

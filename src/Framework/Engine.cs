@@ -153,8 +153,8 @@ namespace MefBuild
 
         private static IEnumerable<Type> GetDependsOnCommands(Lazy<Command, Metadata> commandExport)
         {
-            return (commandExport.Metadata != null && commandExport.Metadata.DependencyCommandTypes != null)
-                ? commandExport.Metadata.DependencyCommandTypes
+            return (commandExport.Metadata != null && commandExport.Metadata.DependsOn != null)
+                ? commandExport.Metadata.DependsOn
                 : Enumerable.Empty<Type>();
         }
 
@@ -191,7 +191,7 @@ namespace MefBuild
         private class Metadata
         {
             [DefaultValue(null)]
-            public IEnumerable<Type> DependencyCommandTypes { get; set; }
+            public IEnumerable<Type> DependsOn { get; set; }
         }
     }
 }
