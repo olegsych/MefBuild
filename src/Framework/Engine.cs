@@ -110,12 +110,12 @@ namespace MefBuild
 
         private void ExecuteCommand<T>(ICollection<Command> alreadyExecuted) where T : Command
         {
-            var genericExport = this.context.GetExport<Lazy<T, Metadata>>();
-            var abstractExport = new Lazy<Command, Metadata>(() => genericExport.Value, genericExport.Metadata);
+            var genericExport = this.context.GetExport<Lazy<T, CommandMetadata>>();
+            var abstractExport = new Lazy<Command, CommandMetadata>(() => genericExport.Value, genericExport.Metadata);
             this.ExecuteCommand(abstractExport, alreadyExecuted);
         }
 
-        private void ExecuteCommand(Lazy<Command, Metadata> commandExport, ICollection<Command> alreadyExecuted)
+        private void ExecuteCommand(Lazy<Command, CommandMetadata> commandExport, ICollection<Command> alreadyExecuted)
         {
             Command command = commandExport.Value;
             if (!alreadyExecuted.Contains(command))
@@ -143,34 +143,34 @@ namespace MefBuild
             }
         }
 
-        private void ExecuteCommands(IEnumerable<Lazy<Command, Metadata>> commandExports, ICollection<Command> alreadyExecuted)
+        private void ExecuteCommands(IEnumerable<Lazy<Command, CommandMetadata>> commandExports, ICollection<Command> alreadyExecuted)
         {
-            foreach (Lazy<Command, Metadata> commandExport in commandExports)
+            foreach (Lazy<Command, CommandMetadata> commandExport in commandExports)
             {
                 this.ExecuteCommand(commandExport, alreadyExecuted);
             }
         }
 
-        private static IEnumerable<Type> GetDependsOnCommands(Lazy<Command, Metadata> commandExport)
+        private static IEnumerable<Type> GetDependsOnCommands(Lazy<Command, CommandMetadata> commandExport)
         {
             return (commandExport.Metadata != null && commandExport.Metadata.DependsOn != null)
                 ? commandExport.Metadata.DependsOn
                 : Enumerable.Empty<Type>();
         }
 
-        private IEnumerable<Lazy<Command, Metadata>> GetBeforeCommands(Type commandType)
+        private IEnumerable<Lazy<Command, CommandMetadata>> GetBeforeCommands(Type commandType)
         {
             return this.GetCommandExports(commandType, ExecuteBeforeAttribute.PredefinedContractName);
         }
 
-        private IEnumerable<Lazy<Command, Metadata>> GetAfterCommands(Type commandType)
+        private IEnumerable<Lazy<Command, CommandMetadata>> GetAfterCommands(Type commandType)
         {
             return this.GetCommandExports(commandType, ExecuteAfterAttribute.PredefinedContractName);
         }
 
-        private IEnumerable<Lazy<Command, Metadata>> GetCommandExports(Type targetCommandType, string contractName)
+        private IEnumerable<Lazy<Command, CommandMetadata>> GetCommandExports(Type targetCommandType, string contractName)
         {
-            Type contractType = typeof(Lazy<Command, Metadata>[]);
+            Type contractType = typeof(Lazy<Command, CommandMetadata>[]);
             var constraints = new Dictionary<string, object> 
             { 
                 { "IsImportMany", true },
@@ -181,17 +181,10 @@ namespace MefBuild
             object export;
             if (this.context.TryGetExport(contract, out export))
             {
-                return (IEnumerable<Lazy<Command, Metadata>>)export;
+                return (IEnumerable<Lazy<Command, CommandMetadata>>)export;
             }
 
-            return Enumerable.Empty<Lazy<Command, Metadata>>();
-        }
-
-        [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses", Justification = "This class is instantiated by MEF.")]
-        private class Metadata
-        {
-            [DefaultValue(null)]
-            public IEnumerable<Type> DependsOn { get; set; }
+            return Enumerable.Empty<Lazy<Command, CommandMetadata>>();
         }
     }
 }
