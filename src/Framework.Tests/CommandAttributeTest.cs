@@ -43,6 +43,22 @@ namespace MefBuild
         }
 
         [Fact]
+        public void ExecuteBeforeProvidesExecuteBeforeCommandMetadata()
+        {
+            var context = new ContainerConfiguration().WithPart<TestCommand>().CreateContainer();
+            var export = context.GetExport<ExportFactory<Command, CommandMetadata>>();
+            Assert.Equal(typeof(TestCommand).GetCustomAttribute<CommandAttribute>().ExecuteBefore, export.Metadata.ExecuteBefore);
+        }
+
+        [Fact]
+        public void ExecuteAfterProvidesExecuteAfterCommandMetadata()
+        {
+            var context = new ContainerConfiguration().WithPart<TestCommand>().CreateContainer();
+            var export = context.GetExport<ExportFactory<Command, CommandMetadata>>();
+            Assert.Equal(typeof(TestCommand).GetCustomAttribute<CommandAttribute>().ExecuteAfter, export.Metadata.ExecuteAfter);
+        }
+
+        [Fact]
         public void SummaryProvidesSummaryCommandMetadata()
         {
             var context = new ContainerConfiguration().WithPart<TestCommand>().CreateContainer();
@@ -53,6 +69,8 @@ namespace MefBuild
         [Command(
             typeof(TestCommand), 
             DependsOn = new[] { typeof(StubCommand) },
+            ExecuteBefore = new[] { typeof(StubCommand) },
+            ExecuteAfter = new[] { typeof(StubCommand) },
             Summary = "Test Summary")]
         public class TestCommand : Command
         {

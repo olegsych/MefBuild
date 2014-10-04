@@ -50,8 +50,6 @@
     <Compile Include="Hosting\CommandLineExportDescriptorProviderTest.cs" />
     <Compile Include="CommandTest.cs" />
     <Compile Include="EngineTest.cs" />
-    <Compile Include="ExecuteAfterAttributeTest.cs" />
-    <Compile Include="ExecuteBeforeAttributeTest.cs" />
     <Compile Include="ExecutionTracker.cs" />
     <Compile Include="Diagnostics\DebugOutputTest.cs" />
     <Compile Include="Diagnostics\RecordTest.cs" />

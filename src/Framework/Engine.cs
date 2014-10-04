@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Composition;
-using System.Composition.Hosting.Core;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using MefBuild.Diagnostics;
@@ -98,7 +97,7 @@ namespace MefBuild
             Lazy<Command, CommandMetadata> commandExport = commandExports.SingleOrDefault(c => c.Metadata.CommandType == commandType);
             if (commandExport == null)
             {
-                throw new ArgumentException("Command type is not exported");
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Command type {0} is not exported", commandType));
             }
 
             this.ExecuteCommand(commandExport, alreadyExecuted);
@@ -149,31 +148,30 @@ namespace MefBuild
 
         private IEnumerable<Lazy<Command, CommandMetadata>> GetBeforeCommands(Type commandType)
         {
-            return this.GetCommandExports(commandType, ExecuteBeforeAttribute.PredefinedContractName);
+            IEnumerable<Lazy<Command, CommandMetadata>> commandExports = this.context.GetExports<Lazy<Command, CommandMetadata>>();
+            foreach (Lazy<Command, CommandMetadata> commandExport in commandExports)
+            {
+                if (commandExport.Metadata != null && 
+                    commandExport.Metadata.ExecuteBefore != null &&
+                    commandExport.Metadata.ExecuteBefore.Contains(commandType))
+                {
+                    yield return commandExport;
+                }
+            }
         }
 
         private IEnumerable<Lazy<Command, CommandMetadata>> GetAfterCommands(Type commandType)
         {
-            return this.GetCommandExports(commandType, ExecuteAfterAttribute.PredefinedContractName);
-        }
-
-        private IEnumerable<Lazy<Command, CommandMetadata>> GetCommandExports(Type targetCommandType, string contractName)
-        {
-            Type contractType = typeof(Lazy<Command, CommandMetadata>[]);
-            var constraints = new Dictionary<string, object> 
-            { 
-                { "IsImportMany", true },
-                { "TargetCommandType", targetCommandType },
-            };
-            var contract = new CompositionContract(contractType, contractName, constraints);
-
-            object export;
-            if (this.context.TryGetExport(contract, out export))
+            IEnumerable<Lazy<Command, CommandMetadata>> commandExports = this.context.GetExports<Lazy<Command, CommandMetadata>>();
+            foreach (Lazy<Command, CommandMetadata> commandExport in commandExports)
             {
-                return (IEnumerable<Lazy<Command, CommandMetadata>>)export;
+                if (commandExport.Metadata != null &&
+                    commandExport.Metadata.ExecuteAfter != null &&
+                    commandExport.Metadata.ExecuteAfter.Contains(commandType))
+                {
+                    yield return commandExport;
+                }
             }
-
-            return Enumerable.Empty<Lazy<Command, CommandMetadata>>();
         }
     }
 }

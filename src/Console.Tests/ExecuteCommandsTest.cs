@@ -120,7 +120,7 @@ namespace MefBuild
                 using System.Composition;
                 using MefBuild;
 
-                [Export, Shared, ExecuteBefore(typeof(TestCommand))]
+                [Export, Shared, Command(typeof(BeforeCommand), ExecuteBefore = new[] { typeof(TestCommand) })]
                 public class BeforeCommand : TestCommand
                 {
                 }";

@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Reflection;
 using MefBuild.Diagnostics;
-using MefBuild.Properties;
 
 namespace MefBuild
 {
@@ -12,7 +11,7 @@ namespace MefBuild
         {
             string text = string.Format(
                 CultureInfo.CurrentCulture,
-                Resources.CommandStartedMessage,
+                Messages.CommandStartedMessage,
                 command.GetType().FullName,
                 command.GetType().GetTypeInfo().Assembly.Modules.First().FullyQualifiedName);
             log.Write(new Record(text, RecordType.Start, Importance.High));
@@ -22,7 +21,7 @@ namespace MefBuild
         {
             string text = string.Format(
                 CultureInfo.CurrentCulture,
-                Resources.CommandStoppedMessage,
+                Messages.CommandStoppedMessage,
                 command.GetType().FullName);
             log.Write(new Record(text, RecordType.Stop, Importance.Normal));
         }

@@ -2,7 +2,7 @@
 
 namespace MefBuild
 {
-    [Shared, Command(
+    [Export, Shared, Command(
         typeof(Execute), 
         DependsOn = new[] { typeof(LoadAssemblies), typeof(ResolveCommandTypes), typeof(ExecuteCommands) })]
     internal class Execute : Command

@@ -11,4 +11,6 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 [assembly: CLSCompliant(false)]
 
+[assembly: InternalsVisibleTo("MefBuild")]
+[assembly: InternalsVisibleTo("MefBuild.Console.Tests")]
 [assembly: InternalsVisibleTo("MefBuild.Framework.Tests")]

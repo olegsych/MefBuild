@@ -21,8 +21,6 @@
     <Compile Include="Hosting\CommandLineArgument.cs" />
     <Compile Include="Hosting\CommandLineExportDescriptorProvider.cs" />
     <Compile Include="Engine.cs" />
-    <Compile Include="ExecuteAfterAttribute.cs" />
-    <Compile Include="ExecuteBeforeAttribute.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Diagnostics\DebugOutput.cs" />
     <Compile Include="Diagnostics\Importance.cs" />
@@ -33,10 +31,10 @@
     <Compile Include="Diagnostics\Verbosity.cs" />
     <Compile Include="CommandAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
+    <Compile Include="Messages.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
+      <DependentUpon>Messages.resx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -63,9 +61,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
+    <EmbeddedResource Include="Messages.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <LastGenOutput>Messages.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />

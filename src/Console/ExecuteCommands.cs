@@ -7,7 +7,7 @@ using MefBuild.Diagnostics;
 
 namespace MefBuild
 {
-    [Export, Shared]
+    [Export, Shared, Command(typeof(ExecuteCommands))]
     internal class ExecuteCommands : Command
     {
         [Import(ContractNames.Command)]

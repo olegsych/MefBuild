@@ -258,12 +258,12 @@ namespace MefBuild
                 container.GetExport<ExecutionTracker>().Verify(typeof(Before1), typeof(Before2), typeof(Target));
             }
 
-            [Command(typeof(Before1)), ExecuteBefore(typeof(Target))]
+            [Command(typeof(Before1), ExecuteBefore = new[] { typeof(Target) })]
             public class Before1 : StubCommand
             {
             }
 
-            [Command(typeof(Before2)), ExecuteBefore(typeof(Target))]
+            [Command(typeof(Before2), ExecuteBefore = new[] { typeof(Target) })]
             public class Before2 : StubCommand
             {
             }
@@ -293,12 +293,12 @@ namespace MefBuild
             {
             }
 
-            [Command(typeof(After1)), ExecuteAfter(typeof(Target))]
+            [Command(typeof(After1), ExecuteAfter = new[] { typeof(Target) })]
             public class After1 : StubCommand
             {
             }
 
-            [Command(typeof(After2)), ExecuteAfter(typeof(Target))]
+            [Command(typeof(After2), ExecuteAfter = new[] { typeof(Target) })]
             public class After2 : StubCommand
             { 
             }
@@ -306,7 +306,7 @@ namespace MefBuild
 
         public static class ExecutesDependenciesOfBeforeCommands
         {
-            [Fact(Skip = "ExecuteBefore doesn't inherit command metadata")]
+            [Fact]
             public static void ExecutesCommandsListedInDependsOnAttributeOfCommandWithExecuteBeforeAttribute()
             {
                 CompositionContext container = new ContainerConfiguration()
@@ -315,7 +315,7 @@ namespace MefBuild
 
                 new Engine(container).Execute(typeof(Target));
 
-                container.GetExport<ExecutionTracker>().Verify(typeof(Dependency), typeof(Before), typeof(Target));
+                container.GetExport<ExecutionTracker>().Verify(typeof(Dependency), typeof(Before), typeof(Target));    
             }
 
             [Command(typeof(Target))]
@@ -323,7 +323,7 @@ namespace MefBuild
             {
             }
 
-            [Command(typeof(Before), DependsOn = new[] { typeof(Dependency) }), ExecuteBefore(typeof(Target))]
+            [Command(typeof(Before), DependsOn = new[] { typeof(Dependency) }, ExecuteBefore = new[] { typeof(Target) })]
             public class Before : StubCommand
             {
             }
@@ -336,7 +336,7 @@ namespace MefBuild
 
         public static class ExecutesDependenciesOfAfterCommands
         {
-            [Fact(Skip = "ExecuteAfter doesn't inherit DependsOnMetadata")]
+            [Fact]
             public static void ExecutesCommandsListedInDependsOnAttributeOfCommandWithExecuteBeforeAttribute()
             {
                 CompositionContext container = new ContainerConfiguration()
@@ -353,7 +353,7 @@ namespace MefBuild
             {
             }
 
-            [Command(typeof(After), DependsOn = new[] { typeof(Dependency) }), ExecuteAfter(typeof(Target))]
+            [Command(typeof(After), DependsOn = new[] { typeof(Dependency) }, ExecuteAfter = new[] { typeof(Target) })]
             public class After : StubCommand
             {
             }
@@ -417,7 +417,7 @@ namespace MefBuild
                 Assert.Same(producer.Export, consumer.Import);
             }
 
-            [Shared, Export, Command(typeof(Producer)), ExecuteBefore(typeof(Consumer))]
+            [Shared, Export, Command(typeof(Producer), ExecuteBefore = new[] { typeof(Consumer) })]
             public class Producer : StubCommand
             {
                 [Export("BeforeExport")]
