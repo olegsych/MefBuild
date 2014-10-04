@@ -9,6 +9,9 @@ namespace MefBuild
     /// </summary>
     public class CommandMetadata
     {
+        [DefaultValue(null)]
+        public Type CommandType { get; set; }
+
         /// <summary>
         /// Gets or sets a collection of command types a <see cref="Command"/> depends on.
         /// </summary>

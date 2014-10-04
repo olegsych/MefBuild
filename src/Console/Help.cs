@@ -22,10 +22,10 @@ namespace MefBuild
             if (this.commands.Count > 0)
             {
                 Console.WriteLine(Resources.AvailableCommandsHeader);
-                int maxNameLength = this.commands.Max(e => e.CreateExport().Value.GetType().Name.Length);
+                int maxNameLength = this.commands.Max(e => e.Metadata.CommandType.Name.Length);
                 foreach (ExportFactory<Command, CommandMetadata> command in this.commands)
                 {
-                    string commandName = command.CreateExport().Value.GetType().Name.PadRight(maxNameLength);
+                    string commandName = command.Metadata.CommandType.Name.PadRight(maxNameLength);
                     string commandSummary = command.Metadata.Summary;
                     Console.WriteLine(Resources.AvailableCommandsLine, commandName, commandSummary);
                 }

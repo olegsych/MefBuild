@@ -89,17 +89,17 @@ namespace MefBuild
             }
         }
 
-        [Export(typeof(Command))]
+        [Export(typeof(Command)), ExportMetadata("CommandType", typeof(TestCommand))]
         public class TestCommand : Command
         {
         }
 
-        [Export(typeof(Command)), Summary("Test command summary")]
+        [Export(typeof(Command)), ExportMetadata("CommandType", typeof(TestCommandWithSummary)), Summary("Test command summary")]
         public class TestCommandWithSummary : Command
         {
         }
 
-        [Export(typeof(Command)), Summary("Short command summary")]
+        [Export(typeof(Command)), ExportMetadata("CommandType", typeof(ShortWithSummary)), Summary("Short command summary"), ]
         public class ShortWithSummary : Command
         {
         }
