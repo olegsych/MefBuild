@@ -12,6 +12,18 @@ namespace MefBuild
     public class HelpTest
     {
         [Fact]
+        public void ClassInheritsFromCommandToBeExecutedByEngine()
+        {
+            Assert.True(typeof(Command).IsAssignableFrom(typeof(Help)));
+        }
+
+        [Fact]
+        public void ExecuteOverridesMethodInheritedFromCommandToBeInvokedPolymorphically()
+        {
+            Assert.Same(typeof(Command).GetMethod("Execute"), typeof(Help).GetMethod("Execute").GetBaseDefinition());
+        }
+
+        [Fact]
         public void ExecuteWritesCommandsAvailableInCompositionContextToConsoleOutput()
         {
             var configuration = new ContainerConfiguration().WithPart<TestCommand>();

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Composition;
 using System.Linq;
 using MefBuild.Properties;
@@ -8,7 +7,7 @@ using MefBuild.Properties;
 namespace MefBuild
 {
     [Export]
-    internal class Help
+    internal class Help : Command
     {
         private readonly IList<ExportFactory<Command, CommandMetadata>> commands;
 
@@ -18,7 +17,7 @@ namespace MefBuild
             this.commands = commands.ToList();
         }
 
-        internal void Execute()
+        public override void Execute()
         {
             if (this.commands.Count > 0)
             {
