@@ -15,9 +15,6 @@ namespace MefBuild
     /// </summary>
     public class Engine
     {
-        private static readonly MethodInfo ExecuteCommandDefinition = typeof(Engine)
-            .GetRuntimeMethods().Single(m => m.Name == "ExecuteCommand" && m.IsGenericMethodDefinition);
-
         private readonly CompositionContext context;
         private Log log;
 
@@ -69,7 +66,7 @@ namespace MefBuild
         [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "This method is a strongly typed equivalent of Execute(Type).")]
         public void Execute<T>() where T : Command
         {
-            this.ExecuteCommand<T>(new HashSet<Command>());
+            this.Execute(typeof(T));
         }
 
         /// <summary>
@@ -97,22 +94,14 @@ namespace MefBuild
 
         private void ExecuteCommand(Type commandType, ICollection<Command> alreadyExecuted)
         {
-            MethodInfo executeCommandType = ExecuteCommandDefinition.MakeGenericMethod(commandType);
-            try
+            IEnumerable<Lazy<Command, CommandMetadata>> commandExports = this.context.GetExports<Lazy<Command, CommandMetadata>>();
+            Lazy<Command, CommandMetadata> commandExport = commandExports.SingleOrDefault(c => c.Metadata.CommandType == commandType);
+            if (commandExport == null)
             {
-                executeCommandType.Invoke(this, new object[] { alreadyExecuted });
+                throw new ArgumentException("Command type is not exported");
             }
-            catch (TargetInvocationException e)
-            {
-                throw e.InnerException;
-            }
-        }
 
-        private void ExecuteCommand<T>(ICollection<Command> alreadyExecuted) where T : Command
-        {
-            var genericExport = this.context.GetExport<Lazy<T, CommandMetadata>>();
-            var abstractExport = new Lazy<Command, CommandMetadata>(() => genericExport.Value, genericExport.Metadata);
-            this.ExecuteCommand(abstractExport, alreadyExecuted);
+            this.ExecuteCommand(commandExport, alreadyExecuted);
         }
 
         private void ExecuteCommand(Lazy<Command, CommandMetadata> commandExport, ICollection<Command> alreadyExecuted)

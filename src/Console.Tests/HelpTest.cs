@@ -61,8 +61,8 @@ namespace MefBuild
 
             string output = ExecuteHelpCommand(configuration);
 
-            Assert.Contains(typeof(TestCommandWithSummary).Name + " " + typeof(TestCommandWithSummary).GetCustomAttribute<SummaryAttribute>().Summary, output);
-            Assert.Contains(typeof(ShortWithSummary).Name + "       " + typeof(ShortWithSummary).GetCustomAttribute<SummaryAttribute>().Summary, output);
+            Assert.Contains(GetMetadata<TestCommandWithSummary>().CommandType.Name + " " + GetMetadata<TestCommandWithSummary>().Summary, output);
+            Assert.Contains(GetMetadata<ShortWithSummary>().CommandType.Name + "       " + GetMetadata<ShortWithSummary>().Summary, output);
         }
 
         [Fact]
@@ -72,8 +72,9 @@ namespace MefBuild
 
             string output = ExecuteHelpCommand(configuration);
 
-            string name = typeof(TestCommandWithSummary).Name;
-            string summary = typeof(TestCommandWithSummary).GetCustomAttribute<SummaryAttribute>().Summary;
+            CommandMetadata metadata = GetMetadata<TestCommandWithSummary>();
+            string name = metadata.CommandType.Name;
+            string summary = metadata.Summary;
             Assert.Matches(name + "\\s*" + summary, output);
         }
 
@@ -89,17 +90,24 @@ namespace MefBuild
             }
         }
 
-        [Export(typeof(Command)), ExportMetadata("CommandType", typeof(TestCommand))]
+        private static CommandMetadata GetMetadata<T>()
+        {
+            var configuration = new ContainerConfiguration().WithPart<T>().CreateContainer();
+            var export = configuration.GetExport<ExportFactory<Command, CommandMetadata>>();
+            return export.Metadata;
+        }
+
+        [Command(typeof(TestCommand))]
         public class TestCommand : Command
         {
         }
 
-        [Export(typeof(Command)), ExportMetadata("CommandType", typeof(TestCommandWithSummary)), Summary("Test command summary")]
+        [Command(typeof(TestCommandWithSummary), Summary = "Test Summary")]
         public class TestCommandWithSummary : Command
         {
         }
 
-        [Export(typeof(Command)), ExportMetadata("CommandType", typeof(ShortWithSummary)), Summary("Short command summary"), ]
+        [Command(typeof(ShortWithSummary), Summary = "Test Summary")]
         public class ShortWithSummary : Command
         {
         }
