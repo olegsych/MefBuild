@@ -16,7 +16,7 @@ namespace MefBuild
     public class Engine
     {
         private readonly CompositionContext context;
-        private Log log;
+        private readonly Log log;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Engine"/> class with the given <see cref="CompositionContext"/>.
@@ -33,38 +33,11 @@ namespace MefBuild
                 .CreateContainer();
 
             IEnumerable<Output> outputs = this.context.GetExports<Output>();
-            this.Log = new Log(outputs);
+            this.log = new Log(outputs);
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="Log"/> object this instance uses to log diagnostics information.
-        /// </summary>
-        [Import(AllowDefault = true)]
-        public Log Log 
-        {
-            get 
-            {
-                if (this.log == null)
-                {
-                    this.log = Log.Empty;
-                }
-
-                return this.log; 
-            }
-            
-            set 
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException("value");
-                }
-
-                this.log = value;
-            } 
-        }
-
-        /// <summary>
-        /// Executes an <see cref="Command"/> of type <typeparamref name="T"/>.
+        /// Executes a <see cref="Command"/> of type <typeparamref name="T"/>.
         /// </summary>
         /// <typeparam name="T">A type that implements the <see cref="Command"/> interface.</typeparam>
         [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "This method is a strongly typed equivalent of Execute(Type).")]
@@ -118,11 +91,11 @@ namespace MefBuild
                 this.ExecuteCommands(GetDependsOnCommands(commandExport), alreadyExecuted);
                 this.ExecuteCommands(this.GetBeforeCommands(command.GetType()), alreadyExecuted);
 
-                this.Log.CommandStarted(command);
-                command.Log = this.Log;
+                this.log.CommandStarted(command);
+                command.Log = this.log;
                 this.context.SatisfyImports(command); // from the dependency and before commands
                 command.Execute();
-                this.Log.CommandStopped(command);
+                this.log.CommandStopped(command);
 
                 this.ExecuteCommands(this.GetAfterCommands(command.GetType()), alreadyExecuted);
             }

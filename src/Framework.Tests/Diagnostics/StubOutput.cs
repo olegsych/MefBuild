@@ -16,6 +16,7 @@ namespace MefBuild.Diagnostics
 
         public StubOutput()
         {
+            this.Verbosity = Verbosity.Diagnostic;
             this.OnWrite = record => writtenRecords.Add(record);
         }
 

@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Composition;
 using System.Composition.Hosting;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using MefBuild.Diagnostics;
@@ -39,19 +39,7 @@ namespace MefBuild
         }
 
         [Fact]
-        public static void InitializesLogWithOutputsExportedFromCompositionContext()
-        {
-            var configuration = new ContainerConfiguration().WithPart<StubOutput>();
-            var engine = new Engine(configuration);
-
-            var record = new Record("Test Record", RecordType.Error, Importance.High);
-            engine.Log.Write(record);
-
-            Assert.Same(record, StubOutput.WrittenRecords.Single());
-        }
-
-        [Fact]
-        public static void ExecuteThrowsArgumentNullExceptionToPreventUsageErrors()
+        public static void ExecuteThrowsArgumentNullExceptionWhenGivenTypeIsNullToPreventUsageErrors()
         {
             var engine = new Engine(new ContainerConfiguration());
             Type commandType = null;
@@ -74,14 +62,6 @@ namespace MefBuild
         {
             MethodInfo executeOfT = typeof(Engine).GetMethods().Single(m => m.Name == "Execute" && m.IsGenericMethodDefinition);
             Assert.True(typeof(Command).IsAssignableFrom(executeOfT.GetGenericArguments()[0]));
-        }
-
-        private static void InterceptLogOutput(Engine engine, ICollection<Record> records)
-        {
-            var output = new StubOutput();
-            output.Verbosity = Verbosity.Diagnostic;
-            output.OnWrite = record => records.Add(record);
-            engine.Log = new Log(new[] { output });
         }
 
         public class ExecutesOne : EngineTest
@@ -118,11 +98,8 @@ namespace MefBuild
             [Fact]
             public void LogsStartRecordBeforeExecutingCommand()
             {
-                var configuration = new ContainerConfiguration().WithPart<Target>();
+                var configuration = new ContainerConfiguration().WithParts(typeof(Target), typeof(StubOutput));
                 var engine = new Engine(configuration);
-
-                var records = new List<Record>();
-                EngineTest.InterceptLogOutput(engine, records);
 
                 engine.Execute<Target>();
 
@@ -130,17 +107,14 @@ namespace MefBuild
                     string.Format("Command \"{0}\" in \"{1}\":", typeof(Target).FullName, typeof(Target).Assembly.Location), 
                     RecordType.Start, 
                     Importance.High);
-                Assert.Contains(expected, records);
+                Assert.Contains(expected, StubOutput.WrittenRecords);
             }
 
             [Fact]
             public void LogsStopRecordAfterExecutingCommand()
             {
-                var configuration = new ContainerConfiguration().WithPart<Target>();
+                var configuration = new ContainerConfiguration().WithParts(typeof(Target), typeof(StubOutput));
                 var engine = new Engine(configuration);
-
-                var records = new List<Record>();
-                EngineTest.InterceptLogOutput(engine, records);
 
                 engine.Execute<Target>();
 
@@ -148,7 +122,7 @@ namespace MefBuild
                     string.Format("Done executing command \"{0}\".", typeof(Target).FullName), 
                     RecordType.Stop, 
                     Importance.Normal);
-                Assert.Contains(expected, records);                
+                Assert.Contains(expected, StubOutput.WrittenRecords);                
             }
 
             [Command]
@@ -410,30 +384,28 @@ namespace MefBuild
             }
         }
 
-        public class InitializesLogPropertyOfCommand : EngineTest
+        public class Logging : EngineTest
         {
             [Fact]
-            public void ExecuteInitializesLogPropertyOfCommandBeforeExecutingIt()
+            public void DirectsLoggingOfCommandsToOutputsImportedFromContainer()
             {
-                var configuration = new ContainerConfiguration().WithParts(typeof(TestCommand), typeof(Log));
+                var configuration = new ContainerConfiguration().WithParts(typeof(TestCommand), typeof(StubOutput));
                 var engine = new Engine(configuration);
 
                 engine.Execute<TestCommand>();
 
-                var command = (TestCommand)StubCommand.ExecutedCommands.Single();
-                Assert.Same(engine.Log, command.ExecutionLog);
-                Assert.NotSame(Log.Empty, command.ExecutionLog);
+                Assert.Contains(TestCommand.TestRecord, StubOutput.WrittenRecords);
             }
 
             [Command]
             public class TestCommand : StubCommand
             {
-                public Log ExecutionLog { get; set; }
+                [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Record is immutable type")]
+                public static readonly Record TestRecord = new Record("Test Value", RecordType.Error, Importance.High);
 
                 public override void Execute()
                 {
-                    base.Execute();
-                    this.ExecutionLog = this.Log;
+                    this.Log.Write(TestRecord);
                 }
             }
         }
