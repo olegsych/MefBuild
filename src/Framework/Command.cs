@@ -12,30 +12,12 @@ namespace MefBuild
         private Log log;
 
         /// <summary>
-        /// Gets or sets the <see cref="Log"/> object this instance can use to log diagnostics information.
+        /// Gets the <see cref="Log"/> object this instance can use to log diagnostics information.
         /// </summary>
-        [Import(AllowDefault = true)]
-        public Log Log 
+        protected internal Log Log 
         {
-            get 
-            { 
-                if (this.log == null)
-                {
-                    this.log = Log.Empty;
-                }
-
-                return this.log; 
-            }
-
-            set 
-            { 
-                if (value == null)
-                {
-                    throw new ArgumentNullException("value");
-                }
-
-                this.log = value; 
-            }
+            get { return this.log ?? Log.Empty; }
+            internal set { this.log = value; }
         }
 
         /// <summary>

@@ -423,5 +423,33 @@ namespace MefBuild
                 public object Import { get; set; }
             }
         }
+
+        public class InitializesLogPropertyOfCommand : EngineTest
+        {
+            [Fact]
+            public void ExecuteInitializesLogPropertyOfCommandBeforeExecutingIt()
+            {
+                var configuration = new ContainerConfiguration().WithParts(typeof(TestCommand), typeof(Log));
+                var engine = new Engine(configuration);
+
+                engine.Execute<TestCommand>();
+
+                var command = (TestCommand)StubCommand.ExecutedCommands.Single();
+                Assert.Same(engine.Log, command.ExecutionLog);
+                Assert.NotSame(Log.Empty, command.ExecutionLog);
+            }
+
+            [Command]
+            public class TestCommand : StubCommand
+            {
+                public Log ExecutionLog { get; set; }
+
+                public override void Execute()
+                {
+                    base.Execute();
+                    this.ExecutionLog = this.Log;
+                }
+            }
+        }
     }
 }

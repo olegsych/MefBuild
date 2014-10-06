@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Composition;
 using System.Composition.Hosting;
+using System.Reflection;
 using MefBuild.Diagnostics;
 using Xunit;
 
@@ -33,16 +34,6 @@ namespace MefBuild
         }
 
         [Fact]
-        public void LogIsAutomaticallyImportedDuringComposition()
-        {
-            CompositionContext context = new ContainerConfiguration().WithPart<Log>().CreateContainer();
-            var log = context.GetExport<Log>();
-            var command = new StubCommand();
-            context.SatisfyImports(command);
-            Assert.Same(log, command.Log);
-        }
-
-        [Fact]
         public void LogHasDefaultValueToEnableTestingCommandsWithoutComposition()
         {
             var command = new StubCommand();
@@ -50,11 +41,9 @@ namespace MefBuild
         }
 
         [Fact]
-        public void LogSetterThrowsArgumentNullExceptionToPreventUsageErrors()
+        public void LogIsProtectedBecauseItShouldBeAccessedOnlyByCommand()
         {
-            var command = new StubCommand();
-            var e = Assert.Throws<ArgumentNullException>(() => command.Log = null);
-            Assert.Equal("value", e.ParamName);
+            Assert.False(typeof(Command).GetProperty("Log", BindingFlags.Instance | BindingFlags.NonPublic).GetMethod.IsPublic);
         }
     }
 }
