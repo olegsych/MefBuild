@@ -31,7 +31,9 @@ namespace MefBuild
             this.context = configuration
                 .WithDefaultConventions(new CommandExportConventions())
                 .CreateContainer();
-            this.context.SatisfyImports(this);            
+
+            IEnumerable<Output> outputs = this.context.GetExports<Output>();
+            this.Log = new Log(outputs);
         }
 
         /// <summary>

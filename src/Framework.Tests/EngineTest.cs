@@ -21,6 +21,7 @@ namespace MefBuild
         protected virtual void Dispose(bool disposing)
         {
             StubCommand.ExecutedCommands.Clear();
+            StubOutput.WrittenRecords.Clear();
         }
 
         [Fact]
@@ -35,6 +36,18 @@ namespace MefBuild
             ContainerConfiguration configuration = null;
             var e = Assert.Throws<ArgumentNullException>(() => new Engine(configuration));
             Assert.Equal("configuration", e.ParamName);
+        }
+
+        [Fact]
+        public static void InitializesLogWithOutputsExportedFromCompositionContext()
+        {
+            var configuration = new ContainerConfiguration().WithPart<StubOutput>();
+            var engine = new Engine(configuration);
+
+            var record = new Record("Test Record", RecordType.Error, Importance.High);
+            engine.Log.Write(record);
+
+            Assert.Same(record, StubOutput.WrittenRecords.Single());
         }
 
         [Fact]
@@ -68,34 +81,7 @@ namespace MefBuild
             var output = new StubOutput();
             output.Verbosity = Verbosity.Diagnostic;
             output.OnWrite = record => records.Add(record);
-            engine.Log = new Log(output);
-        }
-
-        public static class LogProperty
-        {
-            [Fact(Skip = "Log property should not be public")]
-            public static void IsAutomaticallyImportedFromCompositionContext()
-            {
-                var configuration = new ContainerConfiguration().WithPart<Log>();
-                var log = configuration.CreateContainer().GetExport<Log>();
-                var engine = new Engine(configuration);
-                Assert.Same(log, engine.Log);
-            }
-
-            [Fact]
-            public static void HasDefaultValueSoThatUsersDontHaveToExportLogInCompositionContext()
-            {
-                var engine = new Engine(new ContainerConfiguration());
-                Assert.Same(Log.Empty, engine.Log);
-            }
-
-            [Fact]
-            public static void ThrowsArgumentNullExceptionToPreventUsageErrors()
-            {
-                var engine = new Engine(new ContainerConfiguration());
-                var e = Assert.Throws<ArgumentNullException>(() => engine.Log = null);
-                Assert.Equal("value", e.ParamName);
-            }
+            engine.Log = new Log(new[] { output });
         }
 
         public class ExecutesOne : EngineTest

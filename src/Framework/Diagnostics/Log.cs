@@ -1,27 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Composition;
-using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace MefBuild.Diagnostics
 {
     /// <summary>
     /// Represents an object that writes diagnostics records to one or more outputs.
     /// </summary>
-    [Export, Shared]
     public sealed class Log
     {
-        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1311:StaticReadonlyFieldsMustBeginWithUpperCaseLetter", Justification = "Private fields should be camelCased")]
-        private static readonly Log empty = new Log();
-        private readonly IReadOnlyCollection<Output> outputs;
+        private static readonly Log empty = new Log(Enumerable.Empty<Output>());
+        private readonly IEnumerable<Output> outputs;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Log"/> class with an array of 
         /// <see cref="Output"/> objects responsible for writing records to specific 
         /// outputs.
         /// </summary>
-        [ImportingConstructor]
-        public Log([ImportMany] params Output[] outputs)
+        public Log(IEnumerable<Output> outputs)
         {
             const string ParamName = "outputs";
 
@@ -30,12 +26,15 @@ namespace MefBuild.Diagnostics
                 throw new ArgumentNullException(ParamName);
             }
 
-            for (int i = 0; i < outputs.Length; i++)
+            int i = 0;
+            foreach (Output output in outputs)
             {
-                if (outputs[i] == null)
+                if (output == null)
                 {
                     throw new ArgumentNullException(ParamName + "[" + i + "]");
                 }
+
+                i++;
             }
 
             this.outputs = outputs;

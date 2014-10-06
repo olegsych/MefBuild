@@ -36,23 +36,6 @@ namespace MefBuild.Diagnostics
         }
 
         [Fact]
-        public void ConstructorImportsOutputsFromCompositionContext()
-        {
-            CompositionContext context = new ContainerConfiguration()
-                .WithParts(typeof(Log), typeof(StubOutput))
-                .CreateContainer();
-
-            var output = context.GetExport<StubOutput>();
-            bool recordWrittenToOutput = false;
-            output.OnWrite = record => recordWrittenToOutput = true;
-
-            var log = context.GetExport<Log>();
-            log.Write(new Record("Test Message", RecordType.Error, Importance.High));
-
-            Assert.True(recordWrittenToOutput);
-        }
-
-        [Fact]
         public void EmptyReturnsLogInstanceUsedByEngineAndCommandsWhenCompositionContextHasNoExport()
         {
             Log instance = Log.Empty;
@@ -68,7 +51,7 @@ namespace MefBuild.Diagnostics
         [Fact]
         public void WriteThrowsArgumentNullExceptionToPreventUsageErrors()
         {
-            var log = new Log();
+            var log = new Log(Enumerable.Empty<Output>());
             var e = Assert.Throws<ArgumentNullException>(() => log.Write(null));
             Assert.Equal("record", e.ParamName);
         }
@@ -80,7 +63,7 @@ namespace MefBuild.Diagnostics
             var output = new StubOutput();
             output.OnWrite = record => outputRecord = record;
 
-            var log = new Log(output);
+            var log = new Log(new[] { output });
             var logRecord = new Record(string.Empty, RecordType.Error, Importance.High);
             log.Write(logRecord);
 
@@ -156,7 +139,7 @@ namespace MefBuild.Diagnostics
             var output = new StubOutput();
             output.OnWrite = record => events.Add(record.Text);
             output.Verbosity = verbosity;
-            var log = new Log(output);
+            var log = new Log(new[] { output });
 
             WriteAllEventTypeAndImportanceCombinationsTo(log);
 
