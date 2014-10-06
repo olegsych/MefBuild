@@ -45,12 +45,12 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandExportConventionsTest.cs" />
     <Compile Include="Diagnostics\OutputTest.cs" />
     <Compile Include="Hosting\CommandLineArgumentTest.cs" />
     <Compile Include="Hosting\CommandLineExportDescriptorProviderTest.cs" />
     <Compile Include="CommandTest.cs" />
     <Compile Include="EngineTest.cs" />
-    <Compile Include="ExecutionTracker.cs" />
     <Compile Include="Diagnostics\DebugOutputTest.cs" />
     <Compile Include="Diagnostics\RecordTest.cs" />
     <Compile Include="Diagnostics\StubOutput.cs" />

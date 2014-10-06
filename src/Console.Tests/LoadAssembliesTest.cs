@@ -23,15 +23,6 @@ namespace MefBuild
             Assert.True(typeof(Command).IsAssignableFrom(typeof(LoadAssemblies)));
         }
 
-        [Fact]
-        public static void ClassIsExportedSharedToPreventCreationOfMoreThanOneInstanceDuringComposition()
-        {
-            CompositionContext context = new ContainerConfiguration().WithPart<LoadAssemblies>().CreateContainer();
-            var instance1 = context.GetExport<LoadAssemblies>();
-            var instance2 = context.GetExport<LoadAssemblies>();
-            Assert.Same(instance1, instance2);
-        }
-
         private static Assembly CreateTestAssembly(string fileName)
         {
             var options = new CompilerParameters(new string[0], fileName);
@@ -48,6 +39,7 @@ namespace MefBuild
             public static void PropertyIsImportedFromCommandLineArgumentsDuringComposition()
             {
                 CompositionContext context = new ContainerConfiguration()
+                    .WithDefaultConventions(new CommandExportConventions())
                     .WithParts(typeof(LoadAssemblies), typeof(CommandLineArguments))
                     .CreateContainer();
 
@@ -77,7 +69,11 @@ namespace MefBuild
             [Fact]
             public static void PropertyIsExportedForNextCommandInBuildProcess()
             {
-                CompositionContext context = new ContainerConfiguration().WithPart<LoadAssemblies>().CreateContainer();
+                CompositionContext context = new ContainerConfiguration()
+                    .WithDefaultConventions(new CommandExportConventions())
+                    .WithPart<LoadAssemblies>()
+                    .CreateContainer();
+
                 var assemblies = context.GetExport<IEnumerable<Assembly>>();
                 var command = context.GetExport<LoadAssemblies>();
 

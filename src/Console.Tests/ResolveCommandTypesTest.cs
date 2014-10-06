@@ -24,17 +24,6 @@ namespace MefBuild
             Assert.True(typeof(Command).IsAssignableFrom(typeof(ResolveCommandTypes)));
         }
 
-        [Fact]
-        public static void ClassIsExportedSharedToPreventCreationOfMoreThanOneInstanceDuringComposition()
-        {
-            CompositionContext context = new ContainerConfiguration()
-                .WithParts(typeof(ResolveCommandTypes), typeof(RequiredExports))
-                .CreateContainer();
-            var instance1 = context.GetExport<ResolveCommandTypes>();
-            var instance2 = context.GetExport<ResolveCommandTypes>();
-            Assert.Same(instance1, instance2);
-        }
-
         public class RequiredExports
         {
             [Export]
@@ -50,6 +39,7 @@ namespace MefBuild
             public static void AreImportedDuringCompositionBasedOnCommandLineArguments()
             {
                 CompositionContext context = new ContainerConfiguration()
+                    .WithDefaultConventions(new CommandExportConventions())
                     .WithParts(typeof(ResolveCommandTypes), typeof(CommandLineArguments), typeof(RequiredExports))
                     .CreateContainer();
 
@@ -77,9 +67,10 @@ namespace MefBuild
         public static class CommandTypes
         {
             [Fact]
-            public static void PropertyIsExportedDuringCompositionForNextCommandInBuildProcess()
+            public static void AreExportedDuringCompositionForNextCommandInBuildProcess()
             {
                 CompositionContext context = new ContainerConfiguration()
+                    .WithDefaultConventions(new CommandExportConventions())
                     .WithParts(typeof(ResolveCommandTypes), typeof(RequiredExports))
                     .CreateContainer();
 
@@ -103,6 +94,7 @@ namespace MefBuild
             public static void AreImportedDuringCompositionFromPreviousCommand()
             {
                 CompositionContext context = new ContainerConfiguration()
+                    .WithDefaultConventions(new CommandExportConventions())
                     .WithParts(typeof(ResolveCommandTypes), typeof(PreviousCommand))
                     .CreateContainer();
 

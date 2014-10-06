@@ -17,13 +17,12 @@ namespace MefBuild
         [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "args", Justification = "Temporary")]
         public static void Main(params string[] args)
         {
-            CompositionContext context = new ContainerConfiguration()
+            var configuration = new ContainerConfiguration()
                 .WithAssembly(typeof(Program).Assembly)
                 .WithAssembly(typeof(Engine).Assembly)
-                .WithProvider(new CommandLineExportDescriptorProvider(args))
-                .CreateContainer();
+                .WithProvider(new CommandLineExportDescriptorProvider(args));
 
-            var engine = new Engine(context);
+            var engine = new Engine(configuration);
             engine.Execute<Execute>();
         }
     }

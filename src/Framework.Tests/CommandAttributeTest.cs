@@ -10,28 +10,19 @@ namespace MefBuild
     public class CommandAttributeTest
     {
         [Fact]
-        public void ClassIsExportAttributeThatProvidesMetadataAboutCommandType()
+        public void ClassIsMetadataAttributeDescribingConcreteCommandClass()
         {
             Assert.True(typeof(CommandAttribute).IsPublic);
             Assert.True(typeof(CommandAttribute).IsSealed);
-            Assert.True(typeof(ExportAttribute).IsAssignableFrom(typeof(CommandAttribute)));
+            Assert.True(typeof(Attribute).IsAssignableFrom(typeof(CommandAttribute)));
             Assert.NotNull(typeof(CommandAttribute).GetCustomAttribute<MetadataAttributeAttribute>());
             Assert.Equal(AttributeTargets.Class, typeof(CommandAttribute).GetCustomAttribute<AttributeUsageAttribute>().ValidOn);
         }
 
         [Fact]
-        public void ConstructorInitializesCommandType()
+        public void ClassIsNotExportAttributeBecauseMefDoesNotCombineMetadataFromMultipleAttributes()
         {
-            var attribute = new CommandAttribute(typeof(TestCommand));
-            Assert.Equal(typeof(TestCommand), attribute.CommandType);
-        }
-
-        [Fact]
-        public void CommandTypeProvidesCommandTypeMetadata()
-        {
-            var context = new ContainerConfiguration().WithPart<TestCommand>().CreateContainer();
-            var export = context.GetExport<ExportFactory<Command, CommandMetadata>>();
-            Assert.Equal(typeof(TestCommand).GetCustomAttribute<CommandAttribute>().CommandType, export.Metadata.CommandType);
+            Assert.False(typeof(ExportAttribute).IsAssignableFrom(typeof(CommandAttribute)));
         }
 
         [Fact]
@@ -66,8 +57,7 @@ namespace MefBuild
             Assert.Equal(typeof(TestCommand).GetCustomAttribute<CommandAttribute>().Summary, export.Metadata.Summary);
         }
 
-        [Command(
-            typeof(TestCommand), 
+        [Export(typeof(Command)), Command(
             DependsOn = new[] { typeof(StubCommand) },
             ExecuteBefore = new[] { typeof(StubCommand) },
             ExecuteAfter = new[] { typeof(StubCommand) },

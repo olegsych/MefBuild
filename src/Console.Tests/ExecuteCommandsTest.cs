@@ -24,22 +24,10 @@ namespace MefBuild
         }
 
         [Fact]
-        public static void ClassIsExportedSharedToExecuteCommandOnlyOnce()
-        {
-            CompositionContext context = new ContainerConfiguration()
-                .WithParts(typeof(ExecuteCommands), typeof(RequiredExports))
-                .CreateContainer();
-
-            var instance1 = context.GetExport<ExecuteCommands>();
-            var instance2 = context.GetExport<ExecuteCommands>();
-
-            Assert.Same(instance1, instance2);
-        }
-
-        [Fact]
         public static void AssembliesPropertyIsImportedDuringComposition()
         {
             CompositionContext context = new ContainerConfiguration()
+                .WithDefaultConventions(new CommandExportConventions())
                 .WithParts(typeof(ExecuteCommands), typeof(RequiredExports))
                 .CreateContainer();
 
@@ -53,6 +41,7 @@ namespace MefBuild
         public static void CommandTypesPropertyIsImportedDuringComposition()
         {
             CompositionContext context = new ContainerConfiguration()
+                .WithDefaultConventions(new CommandExportConventions())
                 .WithParts(typeof(ExecuteCommands), typeof(RequiredExports))
                 .CreateContainer();
 
@@ -120,7 +109,7 @@ namespace MefBuild
                 using System.Composition;
                 using MefBuild;
 
-                [Export, Shared, Command(typeof(BeforeCommand), ExecuteBefore = new[] { typeof(TestCommand) })]
+                [Command(ExecuteBefore = new[] { typeof(TestCommand) })]
                 public class BeforeCommand : TestCommand
                 {
                 }";

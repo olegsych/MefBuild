@@ -83,7 +83,10 @@ namespace MefBuild
             var output = new StringBuilder();
             using (new ConsoleOutputInterceptor(output))
             {
-                CompositionContext context = configuration.WithPart<Help>().CreateContainer();
+                CompositionContext context = configuration
+                    .WithDefaultConventions(new CommandExportConventions())
+                    .WithPart<Help>()
+                    .CreateContainer();
                 var help = context.GetExport<Help>();
                 help.Execute();
                 return output.ToString();
@@ -92,22 +95,25 @@ namespace MefBuild
 
         private static CommandMetadata GetMetadata<T>()
         {
-            var configuration = new ContainerConfiguration().WithPart<T>().CreateContainer();
+            var configuration = new ContainerConfiguration()
+                .WithDefaultConventions(new CommandExportConventions())
+                .WithPart<T>()
+                .CreateContainer();
             var export = configuration.GetExport<ExportFactory<Command, CommandMetadata>>();
             return export.Metadata;
         }
 
-        [Command(typeof(TestCommand))]
+        [Command]
         public class TestCommand : Command
         {
         }
 
-        [Command(typeof(TestCommandWithSummary), Summary = "Test Summary")]
+        [Command(Summary = "Test Summary")]
         public class TestCommandWithSummary : Command
         {
         }
 
-        [Command(typeof(ShortWithSummary), Summary = "Test Summary")]
+        [Command(Summary = "Test Summary")]
         public class ShortWithSummary : Command
         {
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Composition;
+using System.Composition.Hosting;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
@@ -20,14 +21,16 @@ namespace MefBuild
         /// <summary>
         /// Initializes a new instance of the <see cref="Engine"/> class with the given <see cref="CompositionContext"/>.
         /// </summary>
-        public Engine(CompositionContext context)
+        public Engine(ContainerConfiguration configuration)
         {
-            if (context == null)
+            if (configuration == null)
             {
-                throw new ArgumentNullException("context");
+                throw new ArgumentNullException("configuration");
             }
 
-            this.context = context;
+            this.context = configuration
+                .WithDefaultConventions(new CommandExportConventions())
+                .CreateContainer();
             this.context.SatisfyImports(this);            
         }
 

@@ -1,6 +1,4 @@
-﻿using System.Composition;
-using System.Composition.Hosting;
-using System.Linq;
+﻿using System.Reflection;
 using Xunit;
 
 namespace MefBuild
@@ -20,19 +18,9 @@ namespace MefBuild
         }
 
         [Fact]
-        public static void ClassIsExportedSharedToExecuteOnlyOnceDuringBuild()
-        {
-            CompositionContext context = new ContainerConfiguration().WithPart<Execute>().CreateContainer();
-            var instance1 = context.GetExport<Execute>();
-            var instance2 = context.GetExport<Execute>();
-            Assert.Same(instance1, instance2);
-        }
-
-        [Fact]
         public static void ClassDefinesExecutionOrderOfCommandsItDependsOn()
         {
-            var context = new ContainerConfiguration().WithPart<Execute>().CreateContainer();
-            var metadata = context.GetExport<ExportFactory<Command, CommandMetadata>>().Metadata;
+            var metadata = typeof(Execute).GetCustomAttribute<CommandAttribute>();
             Assert.Equal(new[] { typeof(LoadAssemblies), typeof(ResolveCommandTypes), typeof(ExecuteCommands) }, metadata.DependsOn);
         }
     }

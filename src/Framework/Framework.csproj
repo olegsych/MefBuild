@@ -16,6 +16,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Command.cs" />
+    <Compile Include="CommandExportConventions.cs" />
     <Compile Include="CommandMetadata.cs" />
     <Compile Include="EngineLogExtensions.cs" />
     <Compile Include="Hosting\CommandLineArgument.cs" />

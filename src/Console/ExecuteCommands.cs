@@ -7,7 +7,7 @@ using MefBuild.Diagnostics;
 
 namespace MefBuild
 {
-    [Export, Shared, Command(typeof(ExecuteCommands))]
+    [Command]
     internal class ExecuteCommands : Command
     {
         [Import(ContractNames.Command)]
@@ -18,13 +18,12 @@ namespace MefBuild
 
         public override void Execute()
         {
-            CompositionContext context = new ContainerConfiguration()
+            var configuration = new ContainerConfiguration()
                 .WithAssembly(typeof(Engine).Assembly)
                 .WithPart<ConsoleOutput>()
-                .WithAssemblies(this.Assemblies)
-                .CreateContainer();
+                .WithAssemblies(this.Assemblies);
             
-            var engine = new Engine(context);
+            var engine = new Engine(configuration);
             foreach (Type commandType in this.CommandTypes)
             {
                 engine.Execute(commandType);

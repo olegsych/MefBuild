@@ -6,30 +6,11 @@ using System.Diagnostics.CodeAnalysis;
 namespace MefBuild
 {
     /// <summary>
-    /// Provides required and optional metadata describing a concrete <see cref="Command"/> class.
+    /// Provides metadata describing a concrete <see cref="Command"/> class.
     /// </summary>
     [MetadataAttribute, AttributeUsage(AttributeTargets.Class)]
-    public sealed class CommandAttribute : ExportAttribute
+    public sealed class CommandAttribute : Attribute
     {
-        private readonly Type commandType;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CommandAttribute"/> class.
-        /// </summary>
-        /// <param name="commandType">A <see cref="Type"/> of the concrete <see cref="Command"/> class.</param>
-        public CommandAttribute(Type commandType) : base(typeof(Command))
-        {
-            this.commandType = commandType;
-        }
-
-        /// <summary>
-        /// Gets the type of the concrete <see cref="Command"/> class.
-        /// </summary>
-        public Type CommandType
-        {
-            get { return this.commandType; }
-        }
-
         /// <summary>
         /// Gets or sets a collection of types derived from the <see cref="Command"/> class that must be 
         /// executed before the command marked with the <see cref="CommandAttribute"/>.

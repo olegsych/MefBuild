@@ -10,8 +10,19 @@ using Record = MefBuild.Diagnostics.Record;
 
 namespace MefBuild
 {
-    public static class EngineTest
+    public class EngineTest : IDisposable
     {
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            StubCommand.ExecutedCommands.Clear();
+        }
+
         [Fact]
         public static void ClassIsPublicAndCanBeUsedDirectly()
         {
@@ -21,15 +32,15 @@ namespace MefBuild
         [Fact]
         public static void ConstructorThrowsArgumentNullExceptionToPreventUsageErrors()
         {
-            CompositionContext context = null;
-            var e = Assert.Throws<ArgumentNullException>(() => new Engine(context));
-            Assert.Equal("context", e.ParamName);
+            ContainerConfiguration configuration = null;
+            var e = Assert.Throws<ArgumentNullException>(() => new Engine(configuration));
+            Assert.Equal("configuration", e.ParamName);
         }
 
         [Fact]
         public static void ExecuteThrowsArgumentNullExceptionToPreventUsageErrors()
         {
-            var engine = new Engine(new ContainerConfiguration().CreateContainer());
+            var engine = new Engine(new ContainerConfiguration());
             Type commandType = null;
             var e = Assert.Throws<ArgumentNullException>(() => engine.Execute(commandType));
             Assert.Equal("commandType", e.ParamName);
@@ -38,7 +49,7 @@ namespace MefBuild
         [Fact]
         public static void ExecuteThrowsArgumentExceptionWhenGivenTypeIsNotCommandToPreventUsageErrors()
         {
-            var engine = new Engine(new ContainerConfiguration().CreateContainer());
+            var engine = new Engine(new ContainerConfiguration());
             Type commandType = typeof(object);
             var e = Assert.Throws<ArgumentException>(() => engine.Execute(commandType));
             Assert.Equal("commandType", e.ParamName);
@@ -62,74 +73,70 @@ namespace MefBuild
 
         public static class LogProperty
         {
-            [Fact]
+            [Fact(Skip = "Log property should not be public")]
             public static void IsAutomaticallyImportedFromCompositionContext()
             {
-                CompositionContext context = new ContainerConfiguration().WithPart<Log>().CreateContainer();
-                var log = context.GetExport<Log>();
-                var engine = new Engine(context);
+                var configuration = new ContainerConfiguration().WithPart<Log>();
+                var log = configuration.CreateContainer().GetExport<Log>();
+                var engine = new Engine(configuration);
                 Assert.Same(log, engine.Log);
             }
 
             [Fact]
             public static void HasDefaultValueSoThatUsersDontHaveToExportLogInCompositionContext()
             {
-                var engine = new Engine(new ContainerConfiguration().CreateContainer());
+                var engine = new Engine(new ContainerConfiguration());
                 Assert.Same(Log.Empty, engine.Log);
             }
 
             [Fact]
             public static void ThrowsArgumentNullExceptionToPreventUsageErrors()
             {
-                var engine = new Engine(new ContainerConfiguration().CreateContainer());
+                var engine = new Engine(new ContainerConfiguration());
                 var e = Assert.Throws<ArgumentNullException>(() => engine.Log = null);
                 Assert.Equal("value", e.ParamName);
             }
         }
 
-        public static class ExecutesOne
+        public class ExecutesOne : EngineTest
         {
             [Fact]
-            public static void ExecutesCommandSpecifiedAsType()
+            public void ExecutesCommandSpecifiedAsType()
             {
-                CompositionContext container = new ContainerConfiguration()
-                    .WithParts(typeof(Target), typeof(ExecutionTracker))
-                    .CreateContainer();
+                var configuration = new ContainerConfiguration().WithPart<Target>();
 
-                new Engine(container).Execute(typeof(Target));
+                new Engine(configuration).Execute(typeof(Target));
 
-                container.GetExport<ExecutionTracker>().Verify(typeof(Target));
+                Assert.Equal(new[] { typeof(Target) }, StubCommand.ExecutedCommands.Select(c => c.GetType()));
             }
 
             [Fact]
-            public static void ExecutesCommandSpecifiedAsGeneric()
+            public void ExecutesCommandSpecifiedAsGeneric()
             {
-                CompositionContext container = new ContainerConfiguration()
-                    .WithParts(typeof(Target), typeof(ExecutionTracker))
-                    .CreateContainer();
+                var configuration = new ContainerConfiguration().WithPart<Target>();
 
-                new Engine(container).Execute<Target>();
+                new Engine(configuration).Execute<Target>();
 
-                container.GetExport<ExecutionTracker>().Verify(typeof(Target));
+                Assert.Equal(new[] { typeof(Target) }, StubCommand.ExecutedCommands.Select(c => c.GetType()));
             }
 
             [Fact]
-            public static void ThrowsArgumentExceptionIfCommandTypeIsNotExported()
+            public void ThrowsArgumentExceptionIfCommandTypeIsNotExported()
             {
-                CompositionContext container = new ContainerConfiguration().CreateContainer();
+                var configuration = new ContainerConfiguration();
 
-                var engine = new Engine(container);
+                var engine = new Engine(configuration);
                 Assert.Throws<ArgumentException>(() => engine.Execute(typeof(Target)));
             }
 
             [Fact]
-            public static void LogsStartRecordBeforeExecutingCommand()
+            public void LogsStartRecordBeforeExecutingCommand()
             {
-                CompositionContext context = new ContainerConfiguration().WithPart<Target>().CreateContainer();
-                var engine = new Engine(context);
+                var configuration = new ContainerConfiguration().WithPart<Target>();
+                var engine = new Engine(configuration);
 
                 var records = new List<Record>();
-                InterceptLogOutput(engine, records);
+                EngineTest.InterceptLogOutput(engine, records);
 
                 engine.Execute<Target>();
 
@@ -141,13 +148,13 @@ namespace MefBuild
             }
 
             [Fact]
-            public static void LogsStopRecordAfterExecutingCommand()
+            public void LogsStopRecordAfterExecutingCommand()
             {
-                CompositionContext context = new ContainerConfiguration().WithPart<Target>().CreateContainer();
-                var engine = new Engine(context);
+                var configuration = new ContainerConfiguration().WithPart<Target>();
+                var engine = new Engine(configuration);
 
                 var records = new List<Record>();
-                InterceptLogOutput(engine, records);
+                EngineTest.InterceptLogOutput(engine, records);
 
                 engine.Execute<Target>();
 
@@ -158,229 +165,209 @@ namespace MefBuild
                 Assert.Contains(expected, records);                
             }
 
-            [Command(typeof(Target))]
+            [Command]
             public class Target : StubCommand
             {
             }
         }
 
-        public static class ExecutesDependcies
+        public class ExecutesDependcies : EngineTest
         {
             [Fact]
-            public static void ExecutesCommandTypesSpecifiedInDependsOnAttributeBeforeCommand()
+            public void ExecutesCommandTypesSpecifiedInDependsOnAttributeBeforeCommand()
             {
-                CompositionContext container = new ContainerConfiguration()
-                    .WithParts(typeof(Child), typeof(Parent1), typeof(Parent2), typeof(ExecutionTracker))
-                    .CreateContainer();
+                var configuration = new ContainerConfiguration()
+                    .WithParts(typeof(Child), typeof(Parent1), typeof(Parent2));
 
-                new Engine(container).Execute(typeof(Child));
+                new Engine(configuration).Execute(typeof(Child));
 
-                container.GetExport<ExecutionTracker>().Verify(typeof(Parent1), typeof(Parent2), typeof(Child));
+                Assert.Equal(
+                    new[] { typeof(Parent1), typeof(Parent2), typeof(Child) }, 
+                    StubCommand.ExecutedCommands.Select(c => c.GetType()));
             }
 
-            [Command(typeof(Child), DependsOn = new[] { typeof(Parent1), typeof(Parent2) })]
+            [Command(DependsOn = new[] { typeof(Parent1), typeof(Parent2) })]
             public class Child : StubCommand
             {
             }
 
-            [Command(typeof(Parent1))]
+            [Command]
             public class Parent1 : StubCommand
             {
             }
 
-            [Command(typeof(Parent2))]
+            [Command]
             public class Parent2 : StubCommand
             {
             }
         }
 
-        public static class ExecutesSharedDependenciesOnce
+        public class ExecutesDependenciesOnce : EngineTest
         {
             [Fact]
-            public static void ExecutesDependencyCommandMarkedWithSharedAttributeOnlyOnce()
+            public void ExecutesDependencyCommandMarkedWithSharedAttributeOnlyOnce()
             {
-                CompositionContext container = new ContainerConfiguration()
-                    .WithParts(typeof(SharedDependency), typeof(Target), typeof(ExecutionTracker))
-                    .CreateContainer();
+                var configuration = new ContainerConfiguration()
+                    .WithParts(typeof(SharedDependency), typeof(Target));
 
-                new Engine(container).Execute(typeof(Target));
+                new Engine(configuration).Execute(typeof(Target));
 
-                container.GetExport<ExecutionTracker>().Verify(typeof(SharedDependency), typeof(Target));
+                Assert.Equal(
+                    new[] { typeof(SharedDependency), typeof(Target) },
+                    StubCommand.ExecutedCommands.Select(c => c.GetType()));
             }
             
-            [Shared, Command(typeof(SharedDependency))]
+            [Command]
             public class SharedDependency : StubCommand
             {
             }
 
-            [Command(typeof(Target), DependsOn = new[] { typeof(SharedDependency), typeof(SharedDependency) })]
+            [Command(DependsOn = new[] { typeof(SharedDependency), typeof(SharedDependency) })]
             public class Target : StubCommand
             {
             }
         }
 
-        public static class ExecutesNewInstancesOfNonSharedDependencies
+        public class ExecutesBeforeCommands : EngineTest
         {
             [Fact]
-            public static void ExecutesDependencyCommandNotMarkedWithSharedAttributeAsManyTimesAsItAppearsInMetadata()
+            public void ExecutesCommandsWithExecuteBeforeAttributeThatSpecifiesGivenCommandType()
             {
-                CompositionContext container = new ContainerConfiguration()
-                    .WithParts(typeof(Dependency), typeof(Target), typeof(ExecutionTracker))
-                    .CreateContainer();
+                var configuration = new ContainerConfiguration()
+                    .WithParts(typeof(Before1), typeof(Before2), typeof(Target));
 
-                new Engine(container).Execute(typeof(Target));
+                new Engine(configuration).Execute(typeof(Target));
 
-                container.GetExport<ExecutionTracker>().Verify(typeof(Dependency), typeof(Dependency), typeof(Target));
+                Assert.Equal(
+                    new[] { typeof(Before1), typeof(Before2), typeof(Target) },
+                    StubCommand.ExecutedCommands.Select(c => c.GetType()));
             }
 
-            [Command(typeof(Dependency))]
-            public class Dependency : StubCommand
-            {
-            }
-
-            [Command(typeof(Target), DependsOn = new[] { typeof(Dependency), typeof(Dependency) })]
-            public class Target : StubCommand
-            {
-            }
-        }
-
-        public static class ExecutesBeforeCommands
-        {
-            [Fact]
-            public static void ExecutesCommandsWithExecuteBeforeAttributeThatSpecifiesGivenCommandType()
-            {
-                CompositionContext container = new ContainerConfiguration()
-                    .WithParts(typeof(Before1), typeof(Before2), typeof(Target), typeof(ExecutionTracker))
-                    .CreateContainer();
-
-                new Engine(container).Execute(typeof(Target));
-
-                container.GetExport<ExecutionTracker>().Verify(typeof(Before1), typeof(Before2), typeof(Target));
-            }
-
-            [Command(typeof(Before1), ExecuteBefore = new[] { typeof(Target) })]
+            [Command(ExecuteBefore = new[] { typeof(Target) })]
             public class Before1 : StubCommand
             {
             }
 
-            [Command(typeof(Before2), ExecuteBefore = new[] { typeof(Target) })]
+            [Command(ExecuteBefore = new[] { typeof(Target) })]
             public class Before2 : StubCommand
             {
             }
 
-            [Command(typeof(Target))]
+            [Command]
             public class Target : StubCommand
             {
             }
         }
 
-        public static class ExecutesAfterCommands
+        public class ExecutesAfterCommands : EngineTest
         {
             [Fact]
-            public static void ExecuteDoesNotExecuteAfterCommandIfItHasAlreadyBeenExecuted()
+            public void ExecuteDoesNotExecuteAfterCommandIfItHasAlreadyBeenExecuted()
             {
-                CompositionContext container = new ContainerConfiguration()
-                    .WithParts(typeof(Target), typeof(After1), typeof(After2), typeof(ExecutionTracker))
-                    .CreateContainer();
+                var configuration = new ContainerConfiguration()
+                    .WithParts(typeof(Target), typeof(After1), typeof(After2));
 
-                new Engine(container).Execute(typeof(Target));
+                new Engine(configuration).Execute(typeof(Target));
 
-                container.GetExport<ExecutionTracker>().Verify(typeof(Target), typeof(After1), typeof(After2));
+                Assert.Equal(
+                    new[] { typeof(Target), typeof(After1), typeof(After2) },
+                    StubCommand.ExecutedCommands.Select(c => c.GetType()));
             }
 
-            [Command(typeof(Target))]
+            [Command]
             public class Target : StubCommand
             {
             }
 
-            [Command(typeof(After1), ExecuteAfter = new[] { typeof(Target) })]
+            [Command(ExecuteAfter = new[] { typeof(Target) })]
             public class After1 : StubCommand
             {
             }
 
-            [Command(typeof(After2), ExecuteAfter = new[] { typeof(Target) })]
+            [Command(ExecuteAfter = new[] { typeof(Target) })]
             public class After2 : StubCommand
             { 
             }
         }
 
-        public static class ExecutesDependenciesOfBeforeCommands
+        public class ExecutesDependenciesOfBeforeCommands : EngineTest
         {
             [Fact]
-            public static void ExecutesCommandsListedInDependsOnAttributeOfCommandWithExecuteBeforeAttribute()
+            public void ExecutesCommandsListedInDependsOnAttributeOfCommandWithExecuteBeforeAttribute()
             {
-                CompositionContext container = new ContainerConfiguration()
-                    .WithParts(typeof(Target), typeof(Before), typeof(Dependency), typeof(ExecutionTracker))
-                    .CreateContainer();
+                var configuration = new ContainerConfiguration()
+                    .WithParts(typeof(Target), typeof(Before), typeof(Dependency));
 
-                new Engine(container).Execute(typeof(Target));
+                new Engine(configuration).Execute(typeof(Target));
 
-                container.GetExport<ExecutionTracker>().Verify(typeof(Dependency), typeof(Before), typeof(Target));    
+                Assert.Equal(
+                    new[] { typeof(Dependency), typeof(Before), typeof(Target) },
+                    StubCommand.ExecutedCommands.Select(c => c.GetType()));
             }
 
-            [Command(typeof(Target))]
+            [Command]
             public class Target : StubCommand
             {
             }
 
-            [Command(typeof(Before), DependsOn = new[] { typeof(Dependency) }, ExecuteBefore = new[] { typeof(Target) })]
+            [Command(DependsOn = new[] { typeof(Dependency) }, ExecuteBefore = new[] { typeof(Target) })]
             public class Before : StubCommand
             {
             }
 
-            [Command(typeof(Dependency))]
+            [Command]
             public class Dependency : StubCommand
             {
             }
         }
 
-        public static class ExecutesDependenciesOfAfterCommands
+        public class ExecutesDependenciesOfAfterCommands : EngineTest
         {
             [Fact]
-            public static void ExecutesCommandsListedInDependsOnAttributeOfCommandWithExecuteBeforeAttribute()
+            public void ExecutesCommandsListedInDependsOnAttributeOfCommandWithExecuteBeforeAttribute()
             {
-                CompositionContext container = new ContainerConfiguration()
-                    .WithParts(typeof(Target), typeof(After), typeof(Dependency), typeof(ExecutionTracker))
-                    .CreateContainer();
+                var configuration = new ContainerConfiguration()
+                    .WithParts(typeof(Target), typeof(After), typeof(Dependency));
 
-                new Engine(container).Execute(typeof(Target));
+                new Engine(configuration).Execute(typeof(Target));
 
-                container.GetExport<ExecutionTracker>().Verify(typeof(Target), typeof(Dependency), typeof(After));
+                Assert.Equal(
+                    new[] { typeof(Target), typeof(Dependency), typeof(After) },
+                    StubCommand.ExecutedCommands.Select(c => c.GetType()));
             }
 
-            [Command(typeof(Target))]
+            [Command]
             public class Target : StubCommand
             {
             }
 
-            [Command(typeof(After), DependsOn = new[] { typeof(Dependency) }, ExecuteAfter = new[] { typeof(Target) })]
+            [Command(DependsOn = new[] { typeof(Dependency) }, ExecuteAfter = new[] { typeof(Target) })]
             public class After : StubCommand
             {
             }
 
-            [Command(typeof(Dependency))]
+            [Command]
             public class Dependency : StubCommand
             {
             }
         }
 
-        public static class PassesExportsOfDependencyCommandToImportsOfLaterCommand
+        public class PassesExportsOfDependencyCommandToImportsOfLaterCommand : EngineTest
         {
             [Fact]
-            public static void ExecutePassesExportsOfDependencyCommandToImportsOfLaterCommand()
+            public void ExecutePassesExportsOfDependencyCommandToImportsOfLaterCommand()
             {
-                CompositionContext container = new ContainerConfiguration()
-                    .WithParts(typeof(Producer), typeof(Consumer))
-                    .CreateContainer();
+                var configuration = new ContainerConfiguration()
+                    .WithParts(typeof(Producer), typeof(Consumer));
 
-                new Engine(container).Execute<Consumer>();
+                new Engine(configuration).Execute<Consumer>();
 
-                var producer = container.GetExport<Producer>();
-                var consumer = container.GetExport<Consumer>();
+                var producer = StubCommand.ExecutedCommands.OfType<Producer>().Single();
+                var consumer = StubCommand.ExecutedCommands.OfType<Consumer>().Single();
                 Assert.Same(producer.Export, consumer.Import);
             }
 
-            [Shared, Export, Command(typeof(Producer))]
+            [Command]
             public class Producer : StubCommand
             {
                 [Export("DependsOnExport")]
@@ -393,7 +380,7 @@ namespace MefBuild
                 }
             }
 
-            [Shared, Export, Command(typeof(Consumer), DependsOn = new[] { typeof(Producer) })]
+            [Command(DependsOn = new[] { typeof(Producer) })]
             public class Consumer : StubCommand
             {
                 [Import("DependsOnExport")]
@@ -401,23 +388,22 @@ namespace MefBuild
             }
         }
 
-        public static class PassesExportsOfBeforeCommandToImportsOfLaterCommand
+        public class PassesExportsOfBeforeCommandToImportsOfLaterCommand : EngineTest
         {
             [Fact]
-            public static void ExecutePassesExportsOfBeforeCommandToImportsOfLaterCommand()
+            public void ExecutePassesExportsOfBeforeCommandToImportsOfLaterCommand()
             {
-                CompositionContext container = new ContainerConfiguration()
-                    .WithParts(typeof(Producer), typeof(Consumer))
-                    .CreateContainer();
+                var configuration = new ContainerConfiguration()
+                    .WithParts(typeof(Producer), typeof(Consumer));
 
-                new Engine(container).Execute<Consumer>();
+                new Engine(configuration).Execute<Consumer>();
 
-                var producer = container.GetExport<Producer>();
-                var consumer = container.GetExport<Consumer>();
+                var producer = StubCommand.ExecutedCommands.OfType<Producer>().Single();
+                var consumer = StubCommand.ExecutedCommands.OfType<Consumer>().Single();
                 Assert.Same(producer.Export, consumer.Import);
             }
 
-            [Shared, Export, Command(typeof(Producer), ExecuteBefore = new[] { typeof(Consumer) })]
+            [Command(ExecuteBefore = new[] { typeof(Consumer) })]
             public class Producer : StubCommand
             {
                 [Export("BeforeExport")]
@@ -430,7 +416,7 @@ namespace MefBuild
                 }
             }
 
-            [Shared, Export, Command(typeof(Consumer))]
+            [Command]
             public class Consumer : StubCommand
             {
                 [Import("BeforeExport")]
