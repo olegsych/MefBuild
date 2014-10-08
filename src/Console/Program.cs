@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Composition;
 using System.Composition.Hosting;
-using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 using System.Linq;
+using System.Reflection;
 using MefBuild.Hosting;
 
 namespace MefBuild

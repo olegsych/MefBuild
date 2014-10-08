@@ -1,8 +1,8 @@
-﻿using System.Composition;
-
-namespace MefBuild
+﻿namespace MefBuild
 {
-    [Command(DependsOn = new[] { typeof(LoadAssemblies), typeof(ResolveCommandTypes), typeof(ExecuteCommands) })]
+    [Command(
+        Summary = "Executes a specified command.",
+        DependsOn = new[] { typeof(LoadAssemblies), typeof(ResolveCommandTypes), typeof(ExecuteCommands) })]
     internal class Execute : Command
     {
     }

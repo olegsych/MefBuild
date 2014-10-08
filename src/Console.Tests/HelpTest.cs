@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Composition;
 using System.Composition.Hosting;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using MefBuild.Properties;
 using Xunit;
 
 namespace MefBuild
@@ -37,55 +36,65 @@ namespace MefBuild
         }
 
         [Fact]
-        public void ExecuteWritesCommandsAvailableInCompositionContextToConsoleOutput()
+        public void ExecuteWritesCommandsWithSummaryToConsoleOutput()
         {
-            var configuration = new ContainerConfiguration().WithPart<TestCommand>();
+            var configuration = new ContainerConfiguration().WithPart<CommandWithSummary>();
 
             string output = ExecuteHelpCommand(configuration);
 
-            Assert.Contains("Available commands:", output, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains(typeof(TestCommand).Name, output, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(Resources.CommonCommandsHeader, output, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(typeof(CommandWithSummary).Name, output, StringComparison.OrdinalIgnoreCase);
         }
 
         [Fact]
-        public void ExecuteDoesNotWriteAvailableCommandsSectionIfNoCommandsAreAvailable()
+        public void ExecuteAssumesCommandsWithoutSummaryAreInternalAndDowsNotWriteThemToConsoleOutput()
+        {
+            var configuration = new ContainerConfiguration().WithPart<CommandWithoutSummary>();
+
+            string output = ExecuteHelpCommand(configuration);
+
+            Assert.DoesNotContain(Resources.CommonCommandsHeader, output);
+        }
+
+        [Fact]
+        public void ExecuteDoesNotWriteCommonCommandsSectionIfThereAreNoCommands()
         {
             var configuration = new ContainerConfiguration();
 
             string output = ExecuteHelpCommand(configuration);
 
-            Assert.DoesNotContain("Available commands:", output, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(Resources.CommonCommandsHeader, output, StringComparison.OrdinalIgnoreCase);
         }
 
         [Fact]
-        public void ExecuteIndentsCommandNamesInAvailableCommandsSectionForReadability()
+        public void ExecuteIndentsCommandNamesInCommonCommandsSectionForReadability()
         {
-            var configuration = new ContainerConfiguration().WithPart<TestCommand>();
+            var configuration = new ContainerConfiguration().WithPart<CommandWithSummary>();
 
             string output = ExecuteHelpCommand(configuration);
 
-            Assert.Matches(new Regex(@"^\s+" + typeof(TestCommand).Name, RegexOptions.Multiline), output);
+            Assert.Matches(new Regex(@"^\s+" + typeof(CommandWithSummary).Name, RegexOptions.Multiline), output);
         }
 
         [Fact]
-        public void ExecuteAlignsSummariesInAvailableCommandsSectionForReadability()
+        public void ExecuteAlignsSummariesInCommonCommandsSectionForReadability()
         {
-            var configuration = new ContainerConfiguration().WithParts(typeof(TestCommandWithSummary), typeof(ShortWithSummary));
+            var configuration = new ContainerConfiguration().WithParts(typeof(CommandWithSummary), typeof(ShortWithSummary));
 
             string output = ExecuteHelpCommand(configuration);
 
-            Assert.Contains(GetMetadata<TestCommandWithSummary>().CommandType.Name + " " + GetMetadata<TestCommandWithSummary>().Summary, output);
-            Assert.Contains(GetMetadata<ShortWithSummary>().CommandType.Name + "       " + GetMetadata<ShortWithSummary>().Summary, output);
+            Assert.Contains(GetMetadata<CommandWithSummary>().CommandType.Name + " " + GetMetadata<CommandWithSummary>().Summary, output);
+            Assert.Contains(GetMetadata<ShortWithSummary>().CommandType.Name + "   " + GetMetadata<ShortWithSummary>().Summary, output);
         }
 
         [Fact]
         public void ExecuteWritesSummaryDescriptionsOfCommandsAfterTheirNames()
         {
-            var configuration = new ContainerConfiguration().WithPart<TestCommandWithSummary>();
+            var configuration = new ContainerConfiguration().WithPart<CommandWithSummary>();
 
             string output = ExecuteHelpCommand(configuration);
 
-            CommandMetadata metadata = GetMetadata<TestCommandWithSummary>();
+            CommandMetadata metadata = GetMetadata<CommandWithSummary>();
             string name = metadata.CommandType.Name;
             string summary = metadata.Summary;
             Assert.Matches(name + "\\s*" + summary, output);
@@ -116,12 +125,12 @@ namespace MefBuild
         }
 
         [Command]
-        public class TestCommand : Command
+        public class CommandWithoutSummary : Command
         {
         }
 
         [Command(Summary = "Test Summary")]
-        public class TestCommandWithSummary : Command
+        public class CommandWithSummary : Command
         {
         }
 

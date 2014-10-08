@@ -6,7 +6,7 @@ using MefBuild.Properties;
 
 namespace MefBuild
 {
-    [Shared, Command]
+    [Shared, Command(Summary = "Displays help information about MefBuild and other commands.")]
     internal class Help : Command
     {
         private readonly IList<ExportFactory<Command, CommandMetadata>> commands;
@@ -19,17 +19,41 @@ namespace MefBuild
 
         public override void Execute()
         {
+            PrintUsage();
+            this.PrintCommonCommands();
+        }
+
+        private static void PrintUsage()
+        {
             Console.WriteLine(Resources.UsageHeader);
-            if (this.commands.Count > 0)
+        }
+
+        private IReadOnlyCollection<CommandMetadata> GetCommonCommands()
+        {
+            return this.commands
+                .Where(e => !string.IsNullOrWhiteSpace(e.Metadata.Summary))
+                .Select(e => e.Metadata)
+                .ToList();            
+        }
+
+        private void PrintCommonCommands()
+        {
+            IReadOnlyCollection<CommandMetadata> commonCommands = this.GetCommonCommands();
+            if (commonCommands.Count > 0)
             {
-                Console.WriteLine(Resources.AvailableCommandsHeader);
-                int maxNameLength = this.commands.Max(e => e.Metadata.CommandType.Name.Length);
-                foreach (ExportFactory<Command, CommandMetadata> command in this.commands)
-                {
-                    string commandName = command.Metadata.CommandType.Name.PadRight(maxNameLength);
-                    string commandSummary = command.Metadata.Summary;
-                    Console.WriteLine(Resources.AvailableCommandsLine, commandName, commandSummary);
-                }
+                Console.WriteLine(Resources.CommonCommandsHeader);
+                PrintCommandsWithSummaries(commonCommands);
+            }
+        }
+
+        private static void PrintCommandsWithSummaries(IEnumerable<CommandMetadata> commands)
+        {
+            int maxNameLength = commands.Max(c => c.CommandType.Name.Length);
+            foreach (CommandMetadata command in commands)
+            {
+                string commandName = command.CommandType.Name.PadRight(maxNameLength);
+                string commandSummary = command.Summary;
+                Console.WriteLine(Resources.AvailableCommandsLine, commandName, commandSummary);
             }
         }
     }
