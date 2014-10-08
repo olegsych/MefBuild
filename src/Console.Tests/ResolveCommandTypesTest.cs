@@ -1,11 +1,9 @@
 ﻿using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Composition;
 using System.Composition.Hosting;
 using System.Linq;
 using System.Reflection;
-using Microsoft.CSharp;
 using Xunit;
 
 namespace MefBuild
@@ -43,7 +41,7 @@ namespace MefBuild
                     .WithParts(typeof(ResolveCommandTypes), typeof(CommandLineArguments), typeof(RequiredExports))
                     .CreateContainer();
 
-                var command = context.GetExport<ResolveCommandTypes>();
+                var command = (ResolveCommandTypes)context.GetExport<Command>();
 
                 Assert.Equal(new[] { "TestCommand1", "TestCommand2" }, command.CommandTypeNames);
             }
@@ -74,7 +72,7 @@ namespace MefBuild
                     .WithParts(typeof(ResolveCommandTypes), typeof(RequiredExports))
                     .CreateContainer();
 
-                var command = context.GetExport<ResolveCommandTypes>();
+                var command = (ResolveCommandTypes)context.GetExport<Command>();
                 var commandTypes = context.GetExport<IEnumerable<Type>>(ContractNames.Command);
 
                 Assert.NotNull(commandTypes);
@@ -95,15 +93,15 @@ namespace MefBuild
             {
                 CompositionContext context = new ContainerConfiguration()
                     .WithDefaultConventions(new CommandExportConventions())
-                    .WithParts(typeof(ResolveCommandTypes), typeof(PreviousCommand))
+                    .WithParts(typeof(ResolveCommandTypes), typeof(ExportAssemblies))
                     .CreateContainer();
 
-                var command = context.GetExport<ResolveCommandTypes>();
+                var command = (ResolveCommandTypes)context.GetExport<Command>();
 
-                Assert.Equal(new PreviousCommand().Assemblies, command.Assemblies);
+                Assert.Equal(new ExportAssemblies().Assemblies, command.Assemblies);
             }
 
-            public class PreviousCommand
+            public class ExportAssemblies
             {
                 [Export]
                 public IEnumerable<Assembly> Assemblies

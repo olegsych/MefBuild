@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace MefBuild
 {
-    [Command]
+    [Shared, Command]
     internal class LoadAssemblies : Command
     {
         private readonly ICollection<Assembly> assemblies = new List<Assembly>();

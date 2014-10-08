@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Composition;
 using System.Composition.Convention;
 using System.Linq;
 using System.Reflection;
@@ -71,32 +70,12 @@ namespace MefBuild
         {
             var attributes = new List<Attribute>(type.GetCustomAttributes());
 
-            if (type.GetCustomAttributes<CommandAttribute>().Any())
+            foreach (var commandAttirbute in attributes.OfType<CommandAttribute>())
             {
-                AddCommandAttributes(reflectedType, attributes);
+                commandAttirbute.CommandType = reflectedType;
             }
 
             return attributes;
-        }
-
-        private static void AddCommandAttributes(Type commandType, ICollection<Attribute> attributes)
-        {
-            if (!attributes.OfType<ExportAttribute>().Any(a => a.ContractType == null))
-            {
-                attributes.Add(new ExportAttribute());
-            }
-
-            if (!attributes.OfType<ExportAttribute>().Any(a => a.ContractType == typeof(Command)))
-            {
-                attributes.Add(new ExportAttribute(typeof(Command)));
-            }
-                
-            if (!attributes.OfType<SharedAttribute>().Any())
-            {
-                attributes.Add(new SharedAttribute());
-            }
-
-            attributes.Add(new ExportMetadataAttribute("CommandType", commandType));
         }
     }
 }

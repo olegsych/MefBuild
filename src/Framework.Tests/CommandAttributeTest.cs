@@ -10,19 +10,21 @@ namespace MefBuild
     public class CommandAttributeTest
     {
         [Fact]
-        public void ClassIsMetadataAttributeDescribingConcreteCommandClass()
+        public void CommandAttributeExportsClassWithCommandContractTypeAndAdditionalMetadata()
         {
             Assert.True(typeof(CommandAttribute).IsPublic);
             Assert.True(typeof(CommandAttribute).IsSealed);
-            Assert.True(typeof(Attribute).IsAssignableFrom(typeof(CommandAttribute)));
+            Assert.True(typeof(ExportAttribute).IsAssignableFrom(typeof(CommandAttribute)));
             Assert.NotNull(typeof(CommandAttribute).GetCustomAttribute<MetadataAttributeAttribute>());
             Assert.Equal(AttributeTargets.Class, typeof(CommandAttribute).GetCustomAttribute<AttributeUsageAttribute>().ValidOn);
         }
 
         [Fact]
-        public void ClassIsNotExportAttributeBecauseMefDoesNotCombineMetadataFromMultipleAttributes()
+        public void CommandTypeProvidesCommandTypeMetadata()
         {
-            Assert.False(typeof(ExportAttribute).IsAssignableFrom(typeof(CommandAttribute)));
+            var context = new ContainerConfiguration().WithPart<TestCommand>().CreateContainer();
+            var export = context.GetExport<ExportFactory<Command, CommandMetadata>>();
+            Assert.Equal(typeof(TestCommand).GetCustomAttribute<CommandAttribute>().CommandType, export.Metadata.CommandType);
         }
 
         [Fact]
@@ -57,7 +59,8 @@ namespace MefBuild
             Assert.Equal(typeof(TestCommand).GetCustomAttribute<CommandAttribute>().Summary, export.Metadata.Summary);
         }
 
-        [Export(typeof(Command)), Command(
+        [Command(
+            CommandType = typeof(TestCommand),
             DependsOn = new[] { typeof(StubCommand) },
             ExecuteBefore = new[] { typeof(StubCommand) },
             ExecuteAfter = new[] { typeof(StubCommand) },

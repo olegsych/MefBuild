@@ -177,7 +177,7 @@ namespace MefBuild
                     StubCommand.ExecutedCommands.Select(c => c.GetType()));
             }
             
-            [Command]
+            [Shared, Command]
             public class SharedDependency : StubCommand
             {
             }
@@ -327,7 +327,7 @@ namespace MefBuild
                 Assert.Same(producer.Export, consumer.Import);
             }
 
-            [Command]
+            [Shared, Command]
             public class Producer : StubCommand
             {
                 [Export("DependsOnExport")]
@@ -363,7 +363,7 @@ namespace MefBuild
                 Assert.Same(producer.Export, consumer.Import);
             }
 
-            [Command(ExecuteBefore = new[] { typeof(Consumer) })]
+            [Shared, Command(ExecuteBefore = new[] { typeof(Consumer) })]
             public class Producer : StubCommand
             {
                 [Export("BeforeExport")]

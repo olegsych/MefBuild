@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Composition;
 using System.Composition.Convention;
+using System.Composition.Hosting;
 using System.Linq;
 using System.Reflection;
 using Xunit;
@@ -116,99 +117,16 @@ namespace MefBuild
             }
 
             [Fact]
-            public static void AddsExportAttributeWithCommandContractTypeRequiredByEngineToTypesWithCommandAttribute()
+            public static void SuppliesCommandTypeMetadataForTypesWithCommandAttribute()
             {
-                var provider = new CommandExportConventions();
+                CompositionContext container = new ContainerConfiguration()
+                    .WithDefaultConventions(new CommandExportConventions())
+                    .WithPart<ClassWithCommandAttribute>()
+                    .CreateContainer();
 
-                Type reflectedType = typeof(ExportedCommand);
-                TypeInfo member = reflectedType.GetTypeInfo();
-                IEnumerable<Attribute> attributes = provider.GetCustomAttributes(reflectedType, member);
+                var export = container.GetExport<ExportFactory<Command, CommandMetadata>>();
 
-                Assert.Equal(1, attributes.OfType<ExportAttribute>().Count(a => a.ContractType == typeof(Command)));
-            }
-
-            [Fact]
-            public static void DoesNotAddSecondExportAttributeWithCommandContractTypeToTypesThatAlreadyHaveIt()
-            {
-                var provider = new CommandExportConventions();
-
-                Type reflectedType = typeof(CommandWithAttributes);
-                TypeInfo member = reflectedType.GetTypeInfo();
-                IEnumerable<Attribute> attributes = provider.GetCustomAttributes(reflectedType, member);
-
-                Assert.Equal(1, attributes.OfType<ExportAttribute>().Count(a => a.ContractType == typeof(Command)));
-            }
-
-            [Fact]
-            public static void AddsSharedAttributeToTypesWithCommandAttributeToPreventMultipleExecutionOfSingleCommandType()
-            {
-                var provider = new CommandExportConventions();
-
-                Type reflectedType = typeof(ExportedCommand);
-                TypeInfo member = reflectedType.GetTypeInfo();
-                IEnumerable<Attribute> attributes = provider.GetCustomAttributes(reflectedType, member);
-
-                Assert.Equal(1, attributes.OfType<SharedAttribute>().Count());
-            }
-
-            [Fact]
-            public static void DoesNotAddSecondSharedAttributeToTypesThatAlreadyHaveIt()
-            {
-                var provider = new CommandExportConventions();
-
-                Type reflectedType = typeof(CommandWithAttributes);
-                TypeInfo member = reflectedType.GetTypeInfo();
-                IEnumerable<Attribute> attributes = provider.GetCustomAttributes(reflectedType, member);
-
-                Assert.Equal(1, attributes.OfType<SharedAttribute>().Count());
-            }
-
-            [Fact]
-            public static void AddsExportAttributeWithoutContractTypeToTypesWithCommandAttributeForUseInTests()
-            {
-                var provider = new CommandExportConventions();
-
-                Type reflectedType = typeof(ExportedCommand);
-                TypeInfo member = reflectedType.GetTypeInfo();
-                IEnumerable<Attribute> attributes = provider.GetCustomAttributes(reflectedType, member);
-
-                Assert.Equal(1, attributes.OfType<ExportAttribute>().Count(a => a.ContractType == null));
-            }
-
-            [Fact]
-            public static void DoesNotAddSecondExportAttributeToTypesThatAlreadyHaveIt()
-            {
-                var provider = new CommandExportConventions();
-
-                Type reflectedType = typeof(CommandWithAttributes);
-                TypeInfo member = reflectedType.GetTypeInfo();
-                IEnumerable<Attribute> attributes = provider.GetCustomAttributes(reflectedType, member);
-
-                Assert.Equal(1, attributes.OfType<ExportAttribute>().Count(a => a.ContractType == null));
-            }
-
-            [Fact]
-            public static void AddsCommandTypeMetadataRequiredByEngineToTypesWithCommandAttribute()
-            {
-                var provider = new CommandExportConventions();
-
-                Type reflectedType = typeof(ExportedCommand);
-                TypeInfo member = reflectedType.GetTypeInfo();
-                IEnumerable<Attribute> attributes = provider.GetCustomAttributes(reflectedType, member);
-
-                Assert.Equal(1, attributes.OfType<ExportMetadataAttribute>().Count(a => a.Name == "CommandType" && (Type)a.Value == typeof(ExportedCommand)));
-            }
-
-            [Fact]
-            public static void DoesNotAddCommandTypeMetadataToTypesThatDontHaveCommandAttribute()
-            {
-                var provider = new CommandExportConventions();
-
-                Type reflectedType = typeof(UnexportedCommand);
-                TypeInfo member = reflectedType.GetTypeInfo();
-                IEnumerable<Attribute> attributes = provider.GetCustomAttributes(reflectedType, member);
-
-                Assert.Equal(0, attributes.OfType<ExportMetadataAttribute>().Count(a => a.Name == "CommandType"));
+                Assert.Equal(typeof(ClassWithCommandAttribute), export.Metadata.CommandType);
             }
 
             [Export]
@@ -223,16 +141,7 @@ namespace MefBuild
             }
 
             [Command]
-            public class ExportedCommand : Command
-            { 
-            }
-
-            public class UnexportedCommand : Command
-            {
-            }
-
-            [Command, Shared, Export(typeof(Command)), Export]
-            public class CommandWithAttributes : Command
+            public class ClassWithCommandAttribute : Command
             {
             }
         }

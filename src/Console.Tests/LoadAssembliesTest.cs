@@ -43,7 +43,7 @@ namespace MefBuild
                     .WithParts(typeof(LoadAssemblies), typeof(CommandLineArguments))
                     .CreateContainer();
 
-                var command = context.GetExport<LoadAssemblies>();
+                var command = (LoadAssemblies)context.GetExport<Command>();
 
                 Assert.Equal(new[] { "Assembly1", "Assembly2" }, command.AssemblyFileNames);
             }
@@ -75,7 +75,7 @@ namespace MefBuild
                     .CreateContainer();
 
                 var assemblies = context.GetExport<IEnumerable<Assembly>>();
-                var command = context.GetExport<LoadAssemblies>();
+                var command = (LoadAssemblies)context.GetExport<Command>();
 
                 Assert.NotNull(assemblies);
                 Assert.Same(assemblies, command.Assemblies);

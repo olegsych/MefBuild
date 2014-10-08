@@ -32,7 +32,7 @@ namespace MefBuild
                 .CreateContainer();
 
             var assemblies = context.GetExport<IEnumerable<Assembly>>();
-            var command = context.GetExport<ExecuteCommands>();
+            var command = (ExecuteCommands)context.GetExport<Command>();
 
             Assert.Same(assemblies, command.Assemblies);
         }
@@ -46,7 +46,7 @@ namespace MefBuild
                 .CreateContainer();
 
             var commandTypes = context.GetExport<IEnumerable<Type>>(ContractNames.Command);
-            var command = context.GetExport<ExecuteCommands>();
+            var command = (ExecuteCommands)context.GetExport<Command>();
 
             Assert.Same(commandTypes, command.CommandTypes);
         }
