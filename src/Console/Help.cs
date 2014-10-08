@@ -6,7 +6,7 @@ using MefBuild.Properties;
 
 namespace MefBuild
 {
-    [Export]
+    [Shared, Command]
     internal class Help : Command
     {
         private readonly IList<ExportFactory<Command, CommandMetadata>> commands;

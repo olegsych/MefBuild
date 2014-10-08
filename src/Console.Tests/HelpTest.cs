@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Composition;
 using System.Composition.Hosting;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Xunit;
@@ -96,15 +98,14 @@ namespace MefBuild
             {
                 CompositionContext context = configuration
                     .WithDefaultConventions(new CommandExportConventions())
-                    .WithPart<Help>()
                     .CreateContainer();
-                var help = context.GetExport<Help>();
+                var help = new Help(context.GetExports<ExportFactory<Command, CommandMetadata>>());
                 help.Execute();
                 return output.ToString();
             }
         }
 
-        private static CommandMetadata GetMetadata<T>()
+        private static CommandMetadata GetMetadata<T>() where T : Command
         {
             var configuration = new ContainerConfiguration()
                 .WithDefaultConventions(new CommandExportConventions())

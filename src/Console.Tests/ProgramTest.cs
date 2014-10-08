@@ -19,24 +19,35 @@ namespace MefBuild
         }
 
         [Fact]
-        public static void MainDirectsEngineOutputToConsole()
+        public static void MainDoesNotWriteInternalExecutionLogToConsole()
         {
             var output = new StringBuilder();
             using (new ConsoleOutputInterceptor(output))
             {
                 Program.Main();
-                Assert.Contains("Command \"" + typeof(Execute).FullName, output.ToString());
+                Assert.DoesNotContain("Command \"" + typeof(Help).FullName, output.ToString());
             }
         }
 
         [Fact]
-        public static void MainDirectsEngineOutputToDebugger()
+        public static void MainWritesInternalExecutionLogToDebugger()
         {
             var output = new StringBuilder();
             using (new DebugOutputInterceptor(output))
             {
                 Program.Main();
-                Assert.Contains("Command \"" + typeof(Execute).FullName, output.ToString());
+                Assert.Contains("Command \"" + typeof(Help).FullName, output.ToString());
+            }
+        }
+
+        [Fact]
+        public static void MainPrintsUsageToConsoleWhenArgumentsAreEmpty()
+        {
+            var output = new StringBuilder();
+            using (new ConsoleOutputInterceptor(output))
+            {
+                Program.Main();
+                Assert.Contains("MefBuild <command> [options]", output.ToString());
             }
         }
     }
