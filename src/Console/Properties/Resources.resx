@@ -123,4 +123,11 @@
   <data name="AvailableCommandsLine" xml:space="preserve">
     <value>    {0} {1}</value>
   </data>
+  <data name="UsageHeader" xml:space="preserve">
+    <value>Usage:
+    MefBuild &lt;command&gt; [options]
+
+For help about specific command, type:
+    MefBuild help &lt;command&gt;</value>
+  </data>
 </root>

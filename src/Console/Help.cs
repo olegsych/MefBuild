@@ -19,6 +19,7 @@ namespace MefBuild
 
         public override void Execute()
         {
+            Console.WriteLine(Resources.UsageHeader);
             if (this.commands.Count > 0)
             {
                 Console.WriteLine(Resources.AvailableCommandsHeader);

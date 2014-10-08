@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Composition;
 using System.Composition.Hosting;
-using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Xunit;
@@ -24,6 +22,19 @@ namespace MefBuild
         }
 
         [Fact]
+        public void ExecuteWritesUsageSectionToConsoleOutput()
+        {
+            var configuration = new ContainerConfiguration();
+
+            string output = ExecuteHelpCommand(configuration);
+
+            Assert.Contains("Usage:", output);
+            Assert.Matches(new Regex(@"^\s+MefBuild <command> \[options]", RegexOptions.Multiline), output);
+            Assert.Contains("For help about specific command, type:", output);
+            Assert.Matches(new Regex(@"^\s+MefBuild help <command>", RegexOptions.Multiline), output);
+        }
+
+        [Fact]
         public void ExecuteWritesCommandsAvailableInCompositionContextToConsoleOutput()
         {
             var configuration = new ContainerConfiguration().WithPart<TestCommand>();
@@ -40,7 +51,7 @@ namespace MefBuild
             var configuration = new ContainerConfiguration();
 
             string output = ExecuteHelpCommand(configuration);
-            
+
             Assert.DoesNotContain("Available commands:", output, StringComparison.OrdinalIgnoreCase);
         }
 
@@ -51,7 +62,7 @@ namespace MefBuild
 
             string output = ExecuteHelpCommand(configuration);
 
-            Assert.Matches(new Regex("^\\s+" + typeof(TestCommand).Name, RegexOptions.Multiline), output);
+            Assert.Matches(new Regex(@"^\s+" + typeof(TestCommand).Name, RegexOptions.Multiline), output);
         }
 
         [Fact]
