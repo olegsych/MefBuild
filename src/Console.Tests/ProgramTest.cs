@@ -25,7 +25,7 @@ namespace MefBuild
             using (new ConsoleOutputInterceptor(output))
             {
                 Program.Main();
-                Assert.DoesNotContain("Command \"" + typeof(Help).FullName, output.ToString());
+                Assert.DoesNotContain("Command \"" + typeof(Usage).FullName, output.ToString());
             }
         }
 
@@ -36,7 +36,7 @@ namespace MefBuild
             using (new DebugOutputInterceptor(output))
             {
                 Program.Main();
-                Assert.Contains("Command \"" + typeof(Help).FullName, output.ToString());
+                Assert.Contains("Command \"" + typeof(Usage).FullName, output.ToString());
             }
         }
 

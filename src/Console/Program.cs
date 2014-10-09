@@ -33,7 +33,7 @@ namespace MefBuild
             }
             else
             {
-                engine.Execute<Help>();
+                engine.Execute<Usage>();
             }
         }
     }

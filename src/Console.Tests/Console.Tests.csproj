@@ -51,7 +51,7 @@
     <Compile Include="TestCommand.cs" />
     <Compile Include="ConsoleOutputInterceptor.cs" />
     <Compile Include="DebugOutputInterceptor.cs" />
-    <Compile Include="HelpTest.cs" />
+    <Compile Include="UsageTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

@@ -8,18 +8,18 @@ using Xunit;
 
 namespace MefBuild
 {
-    public class HelpTest
+    public class UsageTest
     {
         [Fact]
         public void ClassInheritsFromCommandToBeExecutedByEngine()
         {
-            Assert.True(typeof(Command).IsAssignableFrom(typeof(Help)));
+            Assert.True(typeof(Command).IsAssignableFrom(typeof(Usage)));
         }
 
         [Fact]
         public void ExecuteOverridesMethodInheritedFromCommandToBeInvokedPolymorphically()
         {
-            Assert.Same(typeof(Command).GetMethod("Execute"), typeof(Help).GetMethod("Execute").GetBaseDefinition());
+            Assert.Same(typeof(Command).GetMethod("Execute"), typeof(Usage).GetMethod("Execute").GetBaseDefinition());
         }
 
         [Fact]
@@ -108,7 +108,7 @@ namespace MefBuild
                 CompositionContext context = configuration
                     .WithDefaultConventions(new CommandExportConventions())
                     .CreateContainer();
-                var help = new Help(context.GetExports<ExportFactory<Command, CommandMetadata>>());
+                var help = new Usage(context.GetExports<ExportFactory<Command, CommandMetadata>>());
                 help.Execute();
                 return output.ToString();
             }

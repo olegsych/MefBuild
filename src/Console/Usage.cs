@@ -7,12 +7,12 @@ using MefBuild.Properties;
 namespace MefBuild
 {
     [Shared, Command(Summary = "Displays help information about MefBuild and other commands.")]
-    internal class Help : Command
+    internal class Usage : Command
     {
         private readonly IList<ExportFactory<Command, CommandMetadata>> commands;
 
         [ImportingConstructor]
-        public Help([ImportMany] IEnumerable<ExportFactory<Command, CommandMetadata>> commands)
+        public Usage([ImportMany] IEnumerable<ExportFactory<Command, CommandMetadata>> commands)
         {
             this.commands = commands.ToList();
         }
