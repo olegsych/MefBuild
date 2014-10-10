@@ -53,7 +53,7 @@ namespace MefBuild
             {
                 string commandName = command.CommandType.Name.PadRight(maxNameLength);
                 string commandSummary = command.Summary;
-                Console.WriteLine(Resources.AvailableCommandsLine, commandName, commandSummary);
+                Console.WriteLine(Resources.NameAndSummaryFormat, commandName, commandSummary);
             }
         }
     }

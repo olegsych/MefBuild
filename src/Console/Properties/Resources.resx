@@ -117,11 +117,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AvailableCommandsLine" xml:space="preserve">
-    <value>    {0} {1}</value>
+  <data name="CommandUsageHeaderFormat" xml:space="preserve">
+    <value>Usage:
+    MefBuild {0}
+</value>
   </data>
   <data name="CommonCommandsHeader" xml:space="preserve">
     <value>Common commands:</value>
+  </data>
+  <data name="NameAndSummaryFormat" xml:space="preserve">
+    <value>    {0} {1}</value>
+  </data>
+  <data name="ParametersHeader" xml:space="preserve">
+    <value>Parameters:</value>
   </data>
   <data name="UsageHeader" xml:space="preserve">
     <value>Usage:

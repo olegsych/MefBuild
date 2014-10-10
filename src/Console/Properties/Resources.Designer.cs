@@ -61,11 +61,13 @@ namespace MefBuild.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to     {0} {1}.
+        ///   Looks up a localized string similar to Usage:
+        ///    MefBuild {0}
+        ///.
         /// </summary>
-        internal static string AvailableCommandsLine {
+        internal static string CommandUsageHeaderFormat {
             get {
-                return ResourceManager.GetString("AvailableCommandsLine", resourceCulture);
+                return ResourceManager.GetString("CommandUsageHeaderFormat", resourceCulture);
             }
         }
         
@@ -75,6 +77,24 @@ namespace MefBuild.Properties {
         internal static string CommonCommandsHeader {
             get {
                 return ResourceManager.GetString("CommonCommandsHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to     {0} {1}.
+        /// </summary>
+        internal static string NameAndSummaryFormat {
+            get {
+                return ResourceManager.GetString("NameAndSummaryFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Parameters:.
+        /// </summary>
+        internal static string ParametersHeader {
+            get {
+                return ResourceManager.GetString("ParametersHeader", resourceCulture);
             }
         }
         
