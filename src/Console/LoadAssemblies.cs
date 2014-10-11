@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Composition;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -9,10 +8,15 @@ namespace MefBuild
     [Shared, Command]
     internal class LoadAssemblies : Command
     {
-        private readonly ICollection<Assembly> assemblies = new List<Assembly>();
+        private readonly IEnumerable<string> assemblyFileNames;
+        private readonly ICollection<Assembly> assemblies;
 
-        [ImportMany(ContractNames.Assembly)]
-        public IEnumerable<string> AssemblyFileNames { get; set; }
+        [ImportingConstructor]
+        public LoadAssemblies([ImportMany(ContractNames.Assembly)] IEnumerable<string> assemblyFileNames)
+        {
+            this.assemblyFileNames = assemblyFileNames;
+            this.assemblies = new List<Assembly>();
+        }
 
         [Export]
         public IEnumerable<Assembly> Assemblies 
@@ -23,7 +27,7 @@ namespace MefBuild
         [SuppressMessage("Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", MessageId = "System.Reflection.Assembly.LoadFrom", Justification = "LoadFrom allows loading command assemblies from outside of MefBuild's own probing path.")]
         public override void Execute()
         {
-            foreach (string assemblyFileName in this.AssemblyFileNames)
+            foreach (string assemblyFileName in this.assemblyFileNames)
             {
                 Assembly assembly = Assembly.LoadFrom(assemblyFileName);
                 this.assemblies.Add(assembly);

@@ -33,37 +33,6 @@ namespace MefBuild
             return results.CompiledAssembly;
         }
 
-        public static class AssemblyFileNames
-        {
-            [Fact]
-            public static void PropertyIsImportedFromCommandLineArgumentsDuringComposition()
-            {
-                CompositionContext context = new ContainerConfiguration()
-                    .WithDefaultConventions(new CommandExportConventions())
-                    .WithParts(typeof(LoadAssemblies), typeof(CommandLineArguments))
-                    .CreateContainer();
-
-                var command = (LoadAssemblies)context.GetExport<Command>();
-
-                Assert.Equal(new[] { "Assembly1", "Assembly2" }, command.AssemblyFileNames);
-            }
-
-            public class CommandLineArguments
-            {
-                [Export(ContractNames.Assembly)]
-                public string Assembly1
-                {
-                    get { return "Assembly1"; }
-                }
-
-                [Export(ContractNames.Assembly)]
-                public string Assembly2
-                {
-                    get { return "Assembly2"; }
-                }
-            }
-        }
-
         public static class Assemblies
         {
             [Fact]
@@ -96,8 +65,7 @@ namespace MefBuild
                 Assembly testAssembly1 = CreateTestAssembly("TestAssembly1.dll");
                 Assembly testAssembly2 = CreateTestAssembly("TestAssembly2.dll");
 
-                var command = new LoadAssemblies();
-                command.AssemblyFileNames = new[] { testAssembly1.Location, testAssembly2.Location };
+                var command = new LoadAssemblies(new[] { testAssembly1.Location, testAssembly2.Location });
                 command.Execute();
 
                 Assert.Equal(new[] { testAssembly1, testAssembly2 }, command.Assemblies);
@@ -106,8 +74,7 @@ namespace MefBuild
             [Fact]
             public static void ThrowsExceptionWhenAssemblyCouldNotBeLoadedFromGivenFileName()
             {
-                var command = new LoadAssemblies();
-                command.AssemblyFileNames = new[] { "NonExistentAssembly.dll" };
+                var command = new LoadAssemblies(new[] { "NonExistentAssembly.dll" });
                 var e = Assert.ThrowsAny<Exception>(() => command.Execute());
                 Assert.Contains("NonExistentAssembly.dll", e.Message);
             }
