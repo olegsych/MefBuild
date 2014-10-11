@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="CommandExportConventionsTest.cs" />
     <Compile Include="Diagnostics\OutputTest.cs" />
+    <Compile Include="Execution\ExecutionStepTest.cs" />
     <Compile Include="Hosting\CommandLineArgumentTest.cs" />
     <Compile Include="Hosting\CommandLineExportDescriptorProviderTest.cs" />
     <Compile Include="CommandTest.cs" />
