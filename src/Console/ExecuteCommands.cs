@@ -10,21 +10,27 @@ namespace MefBuild
     [Command]
     internal class ExecuteCommands : Command
     {
-        [Import(ContractNames.Command)]
-        public IEnumerable<Type> CommandTypes { get; set; }
+        private readonly IEnumerable<Type> commandTypes;
+        private readonly IEnumerable<Assembly> assemblies;
 
-        [Import]
-        public IEnumerable<Assembly> Assemblies { get; set; }
+        [ImportingConstructor]
+        public ExecuteCommands(
+            [Import(ContractNames.Command)] IEnumerable<Type> commandTypes,
+            [Import] IEnumerable<Assembly> assemblies)
+        {
+            this.commandTypes = commandTypes;
+            this.assemblies = assemblies;
+        }
 
         public override void Execute()
         {
             var configuration = new ContainerConfiguration()
                 .WithAssembly(typeof(Engine).Assembly)
                 .WithPart<ConsoleOutput>()
-                .WithAssemblies(this.Assemblies);
+                .WithAssemblies(this.assemblies);
             
             var engine = new Engine(configuration);
-            foreach (Type commandType in this.CommandTypes)
+            foreach (Type commandType in this.commandTypes)
             {
                 engine.Execute(commandType);
             }

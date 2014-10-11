@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Composition;
-using System.Composition.Hosting;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -24,41 +23,11 @@ namespace MefBuild
         }
 
         [Fact]
-        public static void AssembliesPropertyIsImportedDuringComposition()
-        {
-            CompositionContext context = new ContainerConfiguration()
-                .WithDefaultConventions(new CommandExportConventions())
-                .WithParts(typeof(ExecuteCommands), typeof(RequiredExports))
-                .CreateContainer();
-
-            var assemblies = context.GetExport<IEnumerable<Assembly>>();
-            var command = (ExecuteCommands)context.GetExport<Command>();
-
-            Assert.Same(assemblies, command.Assemblies);
-        }
-
-        [Fact]
-        public static void CommandTypesPropertyIsImportedDuringComposition()
-        {
-            CompositionContext context = new ContainerConfiguration()
-                .WithDefaultConventions(new CommandExportConventions())
-                .WithParts(typeof(ExecuteCommands), typeof(RequiredExports))
-                .CreateContainer();
-
-            var commandTypes = context.GetExport<IEnumerable<Type>>(ContractNames.Command);
-            var command = (ExecuteCommands)context.GetExport<Command>();
-
-            Assert.Same(commandTypes, command.CommandTypes);
-        }
-
-        [Fact]
-        public static void ExecutesCommandOfGivenTypeInCompositionContext()
+        public static void ExecutesCommandOfGivenType()
         {
             TestCommand.ExecutedCommands.Clear();
 
-            var command = new ExecuteCommands();
-            command.Assemblies = new[] { typeof(TestCommand).Assembly };
-            command.CommandTypes = new[] { typeof(TestCommand) };
+            var command = new ExecuteCommands(new[] { typeof(TestCommand) }, new[] { typeof(TestCommand).Assembly });
             command.Execute();
 
             Assert.Equal(typeof(TestCommand), TestCommand.ExecutedCommands.Single().GetType());
@@ -67,9 +36,7 @@ namespace MefBuild
         [Fact]
         public static void DirectsEngineOutputToConsoleOutput()
         {
-            var command = new ExecuteCommands();
-            command.Assemblies = new[] { typeof(TestCommand).Assembly };
-            command.CommandTypes = new[] { typeof(TestCommand) };
+            var command = new ExecuteCommands(new[] { typeof(TestCommand) }, new[] { typeof(TestCommand).Assembly });
 
             var output = new StringBuilder();
             using (new ConsoleOutputInterceptor(output))
@@ -82,9 +49,7 @@ namespace MefBuild
         [Fact]
         public static void DirectsEngineOutputToDebugOutput()
         {
-            var command = new ExecuteCommands();
-            command.Assemblies = new[] { typeof(TestCommand).Assembly };
-            command.CommandTypes = new[] { typeof(TestCommand) };
+            var command = new ExecuteCommands(new[] { typeof(TestCommand) }, new[] { typeof(TestCommand).Assembly });
 
             var output = new StringBuilder();
             using (new DebugOutputInterceptor(output))
@@ -116,9 +81,9 @@ namespace MefBuild
 
             Assembly extensionAssembly = CSharpCompiler.CompileInMemory(extensionCode, references);
 
-            var command = new ExecuteCommands();
-            command.Assemblies = new[] { typeof(TestCommand).Assembly, extensionAssembly };
-            command.CommandTypes = new[] { typeof(TestCommand) };
+            var command = new ExecuteCommands(
+                new[] { typeof(TestCommand) },
+                new[] { typeof(TestCommand).Assembly, extensionAssembly });
 
             TestCommand.ExecutedCommands.Clear();
             command.Execute();
