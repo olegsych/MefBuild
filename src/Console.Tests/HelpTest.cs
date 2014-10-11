@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Composition;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Xunit;
@@ -24,18 +26,18 @@ namespace MefBuild
         [Fact]
         public void ExecuteWritesCommandSummaryToConsoleOutput()
         {
-            var help = new Help(typeof(TestCommand));
+            Help help = NewHelp(typeof(Summarized));
 
             help.Execute();
 
-            var commandAttribute = typeof(TestCommand).GetCustomAttribute<CommandAttribute>();
+            var commandAttribute = typeof(Summarized).GetCustomAttribute<CommandAttribute>();
             Assert.Contains(commandAttribute.Summary, this.console.Output);
         }
 
         [Fact]
         public void ExecuteDoesNotWriteBlankLineWhenCommandDoesNotHaveSummary()
         {
-            var help = new Help(typeof(CommandWithoutSummary));
+            Help help = NewHelp(typeof(UnsummarizedParameterless));
 
             help.Execute();
 
@@ -45,18 +47,18 @@ namespace MefBuild
         [Fact]
         public void ExecuteWritesCommandUsageToConsoleOutput()
         {
-            var help = new Help(typeof(TestCommand));
+            Help help = NewHelp(typeof(UnsummarizedParameterless));
 
             help.Execute();
 
             Assert.Contains("Usage:", this.console.Output);
-            Assert.Matches(new Regex(@"^\s+MefBuild " + typeof(TestCommand).Name, RegexOptions.Multiline), this.console.Output);
+            Assert.Matches(new Regex(@"^\s+MefBuild " + typeof(UnsummarizedParameterless).Name, RegexOptions.Multiline), this.console.Output);
         }
 
         [Fact]
         public void ExecuteWritesParameterSectionHeader()
         {
-            var help = new Help(typeof(TestCommand));
+            Help help = NewHelp(typeof(Parameterized));
 
             help.Execute();
 
@@ -66,7 +68,7 @@ namespace MefBuild
         [Fact]
         public void ExecuteDoesNotWriteParameterSectionHeaderIfCommandHasNoParameters()
         {
-            var help = new Help(typeof(CommandWithoutParameters));
+            Help help = NewHelp(typeof(Summarized));
 
             help.Execute();
 
@@ -76,71 +78,108 @@ namespace MefBuild
         [Fact]
         public void ExecuteWritesParameterNamesAndSummariesToConsoleOutput()
         {
-            var help = new Help(typeof(TestCommand));
+            Help help = NewHelp(typeof(Parameterized));
 
             help.Execute();
 
-            var parameter = typeof(TestCommand).GetProperty("IntProperty").GetCustomAttribute<ParameterAttribute>();
+            var parameter = typeof(Parameterized).GetProperty("Property").GetCustomAttribute<ParameterAttribute>();
             Assert.Matches(new Regex(parameter.Name + @"\s+" + parameter.Summary), this.console.Output);
         }
         
         [Fact]
         public void ExecuteIndentsParameterNamesToImproveReadability()
         {
-            var help = new Help(typeof(TestCommand));
+            Help help = NewHelp(typeof(Parameterized));
 
             help.Execute();
 
-            var parameter = typeof(TestCommand).GetProperty("IntProperty").GetCustomAttribute<ParameterAttribute>();
+            var parameter = typeof(Parameterized).GetProperty("Property").GetCustomAttribute<ParameterAttribute>();
             Assert.Matches(new Regex(@"^\s+" + parameter.Name, RegexOptions.Multiline), this.console.Output);
         }
 
         [Fact]
         public void ExecuteAlignsParameterSummariesToImproveReadability()
         {
-            var help = new Help(typeof(TestCommand));
+            Help help = NewHelp(typeof(Parameterized));
 
             help.Execute();
 
-            var intParameter = typeof(TestCommand).GetProperty("IntProperty").GetCustomAttribute<ParameterAttribute>();
-            var stringParameter = typeof(TestCommand).GetProperty("StringProperty").GetCustomAttribute<ParameterAttribute>();
-            Assert.Contains(intParameter.Name + "    " + intParameter.Summary, this.console.Output);
-            Assert.Contains(stringParameter.Name + " " + stringParameter.Summary, this.console.Output);
+            var parameter = typeof(Parameterized).GetProperty("Property").GetCustomAttribute<ParameterAttribute>();
+            var longParameter = typeof(Parameterized).GetProperty("LongProperty").GetCustomAttribute<ParameterAttribute>();
+            Assert.Contains(parameter.Name + "     " + parameter.Summary, this.console.Output);
+            Assert.Contains(longParameter.Name + " " + longParameter.Summary, this.console.Output);
         }
 
-        [Fact(Skip = "Until Engine is modified to support this feature of Help command")]
+        [Fact]
         public void ExecuteListsParametersOfCommandsTargetCommandsDependsOn()
         {
-            var help = new Help(typeof(ParameterlessCommandWithDependency));
+            Help help = NewHelp(typeof(ParameterlessDependent), new[] { typeof(ParameterizedDependency).Assembly });
 
             help.Execute();
 
-            Assert.Contains("Parameters:", this.console.Output);
+            Assert.Contains("DependencyParameter", this.console.Output);
+            Assert.DoesNotContain("UnrelatedParameter", this.console.Output);
         }
 
-        [Command(Summary = "Helps testing the Help command")]
-        public class TestCommand : Command
+        [Fact]
+        public void ExecuteSupportsValueTypedParameters()
         {
-            [Import(AllowDefault = true), Parameter(Name = "IntParameter", Summary = "Int Parameter Summary")]
-            public int IntProperty { get; set; }
+            Help help = NewHelp(typeof(ValueTypeParameterized));
 
-            [Import(AllowDefault = true), Parameter(Name = "StringParameter", Summary = "String Parameter Summary")]
-            public string StringProperty { get; set; }
+            help.Execute();
+
+            Assert.Contains("ValueTypeParameter", this.console.Output);
         }
 
-        [Command(Summary = "Test command without parameters")]
-        public class CommandWithoutParameters : Command
+        private static Help NewHelp(Type commandType, IEnumerable<Assembly> assemblies = null)
+        {
+            return new Help(commandType, assemblies ?? Enumerable.Empty<Assembly>());
+        }
+
+        [Command]
+        public class Parameterized : Command
+        {
+            [Import(AllowDefault = true), Parameter(Name = "Parameter", Summary = "Parameter Summary")]
+            public string Property { get; set; }
+
+            [Import(AllowDefault = true), Parameter(Name = "LongParameter", Summary = "Long Parameter Summary")]
+            public string LongProperty { get; set; }
+        }
+
+        [Command(Summary = "Test command with summary")]
+        public class Summarized : Command
         {
         }
 
         [Command]
-        public class CommandWithoutSummary : Command
+        public class UnsummarizedParameterless : Command
         {
         }
 
-        [Command(DependsOn = new[] { typeof(TestCommand) })]
-        public class ParameterlessCommandWithDependency : Command
+        [Command]
+        public class ParameterizedDependency : Command
         {
+            [Import(AllowDefault = true), Parameter(Name = "DependencyParameter", Summary = "Dependency Parameter Summary")]
+            public string DependencyProperty { get; set; }
+        }
+
+        [Command]
+        public class ParameterizedUnrelated : Command
+        {
+            [Import(AllowDefault = true), Parameter(Name = "UnrelatedParameter", Summary = "Unrelated Parameter Summary")]
+            public string UnrelatedProperty { get; set; }
+        }
+
+        [Command(DependsOn = new[] { typeof(ParameterizedDependency) })]
+        public class ParameterlessDependent : Command
+        {
+        }
+
+        [Command]
+        public class ValueTypeParameterized : Command
+        {
+            [Import(AllowDefault = true), Parameter(Name = "ValueTypeParameter", Summary = "Value Type Parameter")]
+            public int ValueTypeProperty { get; set; }
         }
     }
 }

@@ -3,18 +3,23 @@ using System.Collections.Generic;
 using System.Composition;
 using System.Composition.Hosting;
 using System.Composition.Hosting.Core;
+using System.Globalization;
 using System.Linq;
+using System.Reflection;
+using MefBuild.Execution;
 using MefBuild.Properties;
 
 namespace MefBuild
 {
     internal class Help : Command
     {
-        private Type commandType;
+        private readonly Type commandType;
+        private readonly IEnumerable<Assembly> assemblies;
 
-        public Help(Type commandType)
+        public Help(Type commandType, IEnumerable<Assembly> assemblies)
         {
             this.commandType = commandType;
+            this.assemblies = assemblies.Concat(new[] { commandType.Assembly }).Distinct();
         }
 
         public override void Execute()
@@ -23,16 +28,22 @@ namespace MefBuild
 
             CompositionContext container = new ContainerConfiguration()
                 .WithDefaultConventions(new CommandExportConventions())
-                .WithPart(this.commandType)
+                .WithAssemblies(this.assemblies)
                 .WithProvider(parameterExtractor)
                 .CreateContainer();
 
-            var command = container.GetExports<ExportFactory<Command, CommandMetadata>>()
-                .Where(e => e.Metadata.CommandType == this.commandType)
-                .First();
+            IEnumerable<Lazy<Command, CommandMetadata>> allCommands = container.GetExports<Lazy<Command, CommandMetadata>>();
 
+            var command = allCommands.First(e => e.Metadata.CommandType == this.commandType);
             PrintCommandSummary(command.Metadata);
             PrintCommandUsage(command.Metadata);
+
+            var plan = new ExecutionPlan(this.commandType, allCommands);
+            foreach (ExecutionStep step in plan.Steps)
+            {
+                Command forceParameterImport = step.Command.Value;
+            }
+
             PrintCommandParameters(parameterExtractor.Parameters);
         }
 
@@ -93,7 +104,32 @@ namespace MefBuild
                         parameter.Summary = summary;
                     }
 
-                    this.parameters.Add(parameter);
+                    Func<IEnumerable<CompositionDependency>, ExportDescriptor> exportFactory = dependencies =>
+                    {
+                        CompositeActivator instanceFactory = (c, o) =>
+                        {
+                            this.parameters.Add(parameter);
+                            if (contract.ContractType.IsValueType)
+                            {
+                                return Activator.CreateInstance(contract.ContractType);
+                            }
+                            else
+                            {
+                                return null;
+                            }
+                        };
+    
+                        return ExportDescriptor.Create(instanceFactory, NoMetadata);
+                    };
+
+                    var promise = new ExportDescriptorPromise(
+                        contract,
+                        string.Format(CultureInfo.CurrentCulture, "Parameter: '{0}'", name),
+                        true,
+                        NoDependencies,
+                        exportFactory);
+
+                    return new[] { promise };
                 }
 
                 return Enumerable.Empty<ExportDescriptorPromise>();
