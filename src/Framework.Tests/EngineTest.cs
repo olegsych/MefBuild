@@ -165,7 +165,7 @@ namespace MefBuild
         public class ExecutesDependenciesOnce : EngineTest
         {
             [Fact]
-            public void ExecutesDependencyCommandMarkedWithSharedAttributeOnlyOnce()
+            public void ExecutesDependencyCommandOnlyOnce()
             {
                 var configuration = new ContainerConfiguration()
                     .WithParts(typeof(SharedDependency), typeof(Target));
@@ -177,7 +177,7 @@ namespace MefBuild
                     StubCommand.ExecutedCommands.Select(c => c.GetType()));
             }
             
-            [Shared, Command]
+            [Command]
             public class SharedDependency : StubCommand
             {
             }

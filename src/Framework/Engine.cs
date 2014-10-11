@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using MefBuild.Diagnostics;
+using MefBuild.Execution;
 
 namespace MefBuild
 {
@@ -66,11 +67,25 @@ namespace MefBuild
                 throw new ArgumentException("The type must derive from the Command class.", ParameterName);
             }
 
-            this.ExecuteCommand(commandType, new HashSet<Command>());
+            var plan = new List<ExecutionStep>();
+            this.PlanCommand(commandType, plan);
+            this.Execute(plan);
         }
 
-        private void ExecuteCommand(Type commandType, ICollection<Command> alreadyExecuted)
+        private void Execute(IEnumerable<ExecutionStep> plan)
         {
+            foreach (ExecutionStep step in plan)
+            {
+                Command command = step.Command.Value;
+                this.log.CommandStarted(command);
+                command.Log = this.log;
+                command.Execute();
+                this.log.CommandStopped(command);
+            }
+        }
+
+        private void PlanCommand(Type commandType, ICollection<ExecutionStep> plan)
+        { 
             IEnumerable<Lazy<Command, CommandMetadata>> commandExports = this.context.GetExports<Lazy<Command, CommandMetadata>>();
             Lazy<Command, CommandMetadata> commandExport = commandExports.SingleOrDefault(c => c.Metadata.CommandType == commandType);
             if (commandExport == null)
@@ -78,42 +93,35 @@ namespace MefBuild
                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Command type {0} is not exported", commandType));
             }
 
-            this.ExecuteCommand(commandExport, alreadyExecuted);
+            this.PlanCommand(commandExport, plan);
         }
 
-        private void ExecuteCommand(Lazy<Command, CommandMetadata> commandExport, ICollection<Command> alreadyExecuted)
+        private void PlanCommand(Lazy<Command, CommandMetadata> commandExport, ICollection<ExecutionStep> plan)
         {
-            Command command = commandExport.Value;
-            if (!alreadyExecuted.Contains(command))
+            if (!plan.Any(step => step.Command.Metadata.CommandType == commandExport.Metadata.CommandType))
             {
-                alreadyExecuted.Add(command);
+                this.PlanCommands(GetDependsOnCommands(commandExport), plan);
+                this.PlanCommands(this.GetBeforeCommands(commandExport.Metadata.CommandType), plan);
 
-                this.ExecuteCommands(GetDependsOnCommands(commandExport), alreadyExecuted);
-                this.ExecuteCommands(this.GetBeforeCommands(command.GetType()), alreadyExecuted);
+                plan.Add(new ExecutionStep(commandExport, DependencyType.None, null));
 
-                this.log.CommandStarted(command);
-                command.Log = this.log;
-                this.context.SatisfyImports(command); // from the dependency and before commands
-                command.Execute();
-                this.log.CommandStopped(command);
-
-                this.ExecuteCommands(this.GetAfterCommands(command.GetType()), alreadyExecuted);
+                this.PlanCommands(this.GetAfterCommands(commandExport.Metadata.CommandType), plan);
             }
         }
 
-        private void ExecuteCommands(IEnumerable<Type> commandTypes, ICollection<Command> alreadyExecuted)
+        private void PlanCommands(IEnumerable<Type> commandTypes, ICollection<ExecutionStep> plan)
         {
             foreach (Type commandType in commandTypes)
             {
-                this.ExecuteCommand(commandType, alreadyExecuted);
+                this.PlanCommand(commandType, plan);
             }
         }
 
-        private void ExecuteCommands(IEnumerable<Lazy<Command, CommandMetadata>> commandExports, ICollection<Command> alreadyExecuted)
+        private void PlanCommands(IEnumerable<Lazy<Command, CommandMetadata>> commandExports, ICollection<ExecutionStep> plan)
         {
             foreach (Lazy<Command, CommandMetadata> commandExport in commandExports)
             {
-                this.ExecuteCommand(commandExport, alreadyExecuted);
+                this.PlanCommand(commandExport, plan);
             }
         }
 
