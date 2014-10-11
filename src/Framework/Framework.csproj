@@ -20,6 +20,7 @@
     <Compile Include="CommandMetadata.cs" />
     <Compile Include="EngineLogExtensions.cs" />
     <Compile Include="Execution\DependencyType.cs" />
+    <Compile Include="Execution\ExecutionPlan.cs" />
     <Compile Include="Execution\ExecutionStep.cs" />
     <Compile Include="Hosting\CommandLineArgument.cs" />
     <Compile Include="Hosting\CommandLineExportDescriptorProvider.cs" />

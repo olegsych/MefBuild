@@ -67,96 +67,19 @@ namespace MefBuild
                 throw new ArgumentException("The type must derive from the Command class.", ParameterName);
             }
 
-            var plan = new List<ExecutionStep>();
-            this.PlanCommand(commandType, plan);
-            this.Execute(plan);
+            var plan = new ExecutionPlan(commandType, this.context.GetExports<Lazy<Command, CommandMetadata>>());
+            this.Execute(plan.Steps);
         }
 
-        private void Execute(IEnumerable<ExecutionStep> plan)
+        private void Execute(IEnumerable<ExecutionStep> steps)
         {
-            foreach (ExecutionStep step in plan)
+            foreach (ExecutionStep step in steps)
             {
                 Command command = step.Command.Value;
                 this.log.CommandStarted(command);
                 command.Log = this.log;
                 command.Execute();
                 this.log.CommandStopped(command);
-            }
-        }
-
-        private void PlanCommand(Type commandType, ICollection<ExecutionStep> plan)
-        { 
-            IEnumerable<Lazy<Command, CommandMetadata>> commandExports = this.context.GetExports<Lazy<Command, CommandMetadata>>();
-            Lazy<Command, CommandMetadata> commandExport = commandExports.SingleOrDefault(c => c.Metadata.CommandType == commandType);
-            if (commandExport == null)
-            {
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Command type {0} is not exported", commandType));
-            }
-
-            this.PlanCommand(commandExport, plan);
-        }
-
-        private void PlanCommand(Lazy<Command, CommandMetadata> commandExport, ICollection<ExecutionStep> plan)
-        {
-            if (!plan.Any(step => step.Command.Metadata.CommandType == commandExport.Metadata.CommandType))
-            {
-                this.PlanCommands(GetDependsOnCommands(commandExport), plan);
-                this.PlanCommands(this.GetBeforeCommands(commandExport.Metadata.CommandType), plan);
-
-                plan.Add(new ExecutionStep(commandExport, DependencyType.None, null));
-
-                this.PlanCommands(this.GetAfterCommands(commandExport.Metadata.CommandType), plan);
-            }
-        }
-
-        private void PlanCommands(IEnumerable<Type> commandTypes, ICollection<ExecutionStep> plan)
-        {
-            foreach (Type commandType in commandTypes)
-            {
-                this.PlanCommand(commandType, plan);
-            }
-        }
-
-        private void PlanCommands(IEnumerable<Lazy<Command, CommandMetadata>> commandExports, ICollection<ExecutionStep> plan)
-        {
-            foreach (Lazy<Command, CommandMetadata> commandExport in commandExports)
-            {
-                this.PlanCommand(commandExport, plan);
-            }
-        }
-
-        private static IEnumerable<Type> GetDependsOnCommands(Lazy<Command, CommandMetadata> commandExport)
-        {
-            return (commandExport.Metadata != null && commandExport.Metadata.DependsOn != null)
-                ? commandExport.Metadata.DependsOn
-                : Enumerable.Empty<Type>();
-        }
-
-        private IEnumerable<Lazy<Command, CommandMetadata>> GetBeforeCommands(Type commandType)
-        {
-            IEnumerable<Lazy<Command, CommandMetadata>> commandExports = this.context.GetExports<Lazy<Command, CommandMetadata>>();
-            foreach (Lazy<Command, CommandMetadata> commandExport in commandExports)
-            {
-                if (commandExport.Metadata != null && 
-                    commandExport.Metadata.ExecuteBefore != null &&
-                    commandExport.Metadata.ExecuteBefore.Contains(commandType))
-                {
-                    yield return commandExport;
-                }
-            }
-        }
-
-        private IEnumerable<Lazy<Command, CommandMetadata>> GetAfterCommands(Type commandType)
-        {
-            IEnumerable<Lazy<Command, CommandMetadata>> commandExports = this.context.GetExports<Lazy<Command, CommandMetadata>>();
-            foreach (Lazy<Command, CommandMetadata> commandExport in commandExports)
-            {
-                if (commandExport.Metadata != null &&
-                    commandExport.Metadata.ExecuteAfter != null &&
-                    commandExport.Metadata.ExecuteAfter.Contains(commandType))
-                {
-                    yield return commandExport;
-                }
             }
         }
     }
