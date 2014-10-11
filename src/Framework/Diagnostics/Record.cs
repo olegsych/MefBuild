@@ -5,11 +5,9 @@ namespace MefBuild.Diagnostics
     /// <summary>
     /// Encapsulates a <see cref="Log"/> record.
     /// </summary>
-    public sealed class Record : IEquatable<Record>
+    public sealed class Record
     {
-        private readonly string text;
-        private readonly RecordType recordType;
-        private readonly Importance importance;
+        private readonly Tuple<string, RecordType, Importance> data;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Record"/> class with the specified <paramref name="text"/>, 
@@ -22,9 +20,7 @@ namespace MefBuild.Diagnostics
                 throw new ArgumentNullException("text");
             }
 
-            this.text = text;
-            this.recordType = recordType;
-            this.importance = importance;
+            this.data = new Tuple<string, RecordType, Importance>(text, recordType, importance);
         }
 
         /// <summary>
@@ -32,7 +28,7 @@ namespace MefBuild.Diagnostics
         /// </summary>
         public string Text 
         {
-            get { return this.text; }
+            get { return this.data.Item1; }
         }
 
         /// <summary>
@@ -40,7 +36,7 @@ namespace MefBuild.Diagnostics
         /// </summary>
         public RecordType RecordType 
         {
-            get { return this.recordType; }
+            get { return this.data.Item2; }
         }
 
         /// <summary>
@@ -48,44 +44,7 @@ namespace MefBuild.Diagnostics
         /// </summary>
         public Importance Importance 
         {
-            get { return this.importance; }
-        }
-
-        /// <summary>
-        /// Determines whether two specified records have the same property values.
-        /// </summary>
-        public static bool operator ==(Record left, Record right)
-        {
-            if (object.ReferenceEquals(left, right))
-            {
-                return true;
-            }
-
-            if (object.ReferenceEquals(left, null) || object.ReferenceEquals(right, null))
-            {
-                return false;
-            }
-
-            return left.Equals(right);
-        }
-
-        /// <summary>
-        /// Determines whether two specified records have different property values.
-        /// </summary>
-        public static bool operator !=(Record left, Record right)
-        {
-            return !(left == right);
-        }
-
-        /// <summary>
-        /// Returns true if this record has the same property values as the <paramref name="other"/>.
-        /// </summary>
-        public bool Equals(Record other)
-        {
-            return !object.ReferenceEquals(other, null)
-                && this.text.Equals(other.text) 
-                && this.recordType.Equals(other.recordType) 
-                && this.importance.Equals(other.Importance);
+            get { return this.data.Item3; }
         }
 
         /// <summary>
@@ -93,7 +52,8 @@ namespace MefBuild.Diagnostics
         /// </summary>
         public override bool Equals(object obj)
         {
-            return this.Equals(obj as Record);
+            var record = obj as Record;
+            return record != null && this.data.Equals(record.data);
         }
 
         /// <summary>
@@ -101,21 +61,7 @@ namespace MefBuild.Diagnostics
         /// </summary>
         public override int GetHashCode()
         {
-            return CombineHashCodes(
-                this.text.GetHashCode(),
-                this.recordType.GetHashCode(),
-                this.importance.GetHashCode());
-        }
-
-        // http://referencesource.microsoft.com/#mscorlib/system/tuple.cs
-        private static int CombineHashCodes(int h1, int h2)
-        {
-            return ((h1 << 5) + h1) ^ h2;
-        }
-
-        private static int CombineHashCodes(int h1, int h2, int h3)
-        {
-            return CombineHashCodes(CombineHashCodes(h1, h2), h3);
+            return this.data.GetHashCode();
         }
     }
 }

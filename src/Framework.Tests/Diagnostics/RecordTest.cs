@@ -18,12 +18,6 @@ namespace MefBuild.Diagnostics
         }
 
         [Fact]
-        public void ClassImplementsIEquatableToSimplifyTestingOfLoggingFunctionality()
-        {
-            Assert.True(typeof(IEquatable<Record>).IsAssignableFrom(typeof(Record)));
-        }
-
-        [Fact]
         public void ConstructorInitializesAllProperties()
         {
             var record = new Record("Test Text", RecordType.Error, Importance.High);
@@ -55,34 +49,18 @@ namespace MefBuild.Diagnostics
         }
 
         [Fact]
-        public void EqualsOfRecordReturnsFalseWhenGivenInstanceIsNull()
+        public void EqualsReturnsFalseWhenGivenInstanceIsNull()
         {
             var source = new Record(string.Empty, default(RecordType), default(Importance));
             Assert.False(source.Equals(null));
         }
 
         [Fact]
-        public void RecordsAreEqualWhenTheyAreBothNull()
+        public void EqualsReturnsFalseWhenOtherObjectIsNotRecord()
         {
-            Record source = null;
-            Record target = null;
-            Assert.True(source == target);
-            Assert.False(source != target);
-        }
-
-        [Fact]
-        public void RecordsAreNotEqualWhenOneOfThemIsNull()
-        {
-            Record realRecord = new Record(string.Empty, default(RecordType), default(Importance));
-            Record nullRecord = null;
-
-            Assert.False(object.Equals(realRecord, null));
-            Assert.False(realRecord == nullRecord);
-            Assert.True(realRecord != nullRecord);
-
-            Assert.False(object.Equals(nullRecord, realRecord));
-            Assert.False(nullRecord == realRecord);
-            Assert.True(nullRecord != realRecord);
+            var source = new Record(string.Empty, default(RecordType), default(Importance));
+            var target = new object();
+            Assert.False(source.Equals(target));
         }
 
         [Fact]
@@ -90,10 +68,7 @@ namespace MefBuild.Diagnostics
         {
             var source = new Record(string.Empty, default(RecordType), default(Importance));
             var target = new Record(string.Empty, default(RecordType), default(Importance));
-            Assert.True(object.Equals(source, target));
             Assert.True(source.Equals(target));
-            Assert.True(source == target);
-            Assert.False(source != target);
             Assert.Equal(source.GetHashCode(), target.GetHashCode());
         }
 
@@ -102,10 +77,7 @@ namespace MefBuild.Diagnostics
         {
             var source = new Record("Source Text", default(RecordType), default(Importance));
             var target = new Record("Target Text", default(RecordType), default(Importance));
-            Assert.False(object.Equals(source, target));
             Assert.False(source.Equals(target));
-            Assert.False(source == target);
-            Assert.True(source != target);
             Assert.NotEqual(source.GetHashCode(), target.GetHashCode());
         }
 
@@ -114,10 +86,7 @@ namespace MefBuild.Diagnostics
         {
             var source = new Record(string.Empty, RecordType.Error,   default(Importance));
             var target = new Record(string.Empty, RecordType.Warning, default(Importance));
-            Assert.False(object.Equals(source, target));
             Assert.False(source.Equals(target));
-            Assert.False(source == target);
-            Assert.True(source != target);
             Assert.NotEqual(source.GetHashCode(), target.GetHashCode());
         }
 
@@ -126,20 +95,8 @@ namespace MefBuild.Diagnostics
         {
             var source = new Record(string.Empty, default(RecordType), Importance.Low);
             var target = new Record(string.Empty, default(RecordType), Importance.High);
-            Assert.False(object.Equals(source, target));
             Assert.False(source.Equals(target));
-            Assert.False(source == target);
-            Assert.True(source != target);
             Assert.NotEqual(source.GetHashCode(), target.GetHashCode());
-        }
-
-        [Fact]
-        public void ObjectsAreNotEqualWhenOtherObjectIsNotRecord()
-        {
-            var source = new Record(string.Empty, default(RecordType), default(Importance));
-            var target = new object();
-            Assert.False(object.Equals(source, target));           
-            Assert.False(source.Equals(target));
         }
     }
 }
