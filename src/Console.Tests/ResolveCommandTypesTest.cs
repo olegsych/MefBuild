@@ -31,37 +31,6 @@ namespace MefBuild
             }
         }
 
-        public static class CommandTypeNames
-        {
-            [Fact]
-            public static void AreImportedDuringCompositionBasedOnCommandLineArguments()
-            {
-                CompositionContext context = new ContainerConfiguration()
-                    .WithDefaultConventions(new CommandExportConventions())
-                    .WithParts(typeof(ResolveCommandTypes), typeof(CommandLineArguments), typeof(RequiredExports))
-                    .CreateContainer();
-
-                var command = (ResolveCommandTypes)context.GetExport<Command>();
-
-                Assert.Equal(new[] { "TestCommand1", "TestCommand2" }, command.CommandTypeNames);
-            }
-
-            public class CommandLineArguments
-            {
-                [Export(ContractNames.Command)]
-                public string Command1 
-                { 
-                    get { return "TestCommand1"; } 
-                }
-
-                [Export(ContractNames.Command)]
-                public string Command2 
-                { 
-                    get { return "TestCommand2"; } 
-                }
-            }
-        }
-
         public static class CommandTypes
         {
             [Fact]
@@ -86,31 +55,6 @@ namespace MefBuild
             }
         }
 
-        public static class Assemblies
-        {
-            [Fact]
-            public static void AreImportedDuringCompositionFromPreviousCommand()
-            {
-                CompositionContext context = new ContainerConfiguration()
-                    .WithDefaultConventions(new CommandExportConventions())
-                    .WithParts(typeof(ResolveCommandTypes), typeof(ExportAssemblies))
-                    .CreateContainer();
-
-                var command = (ResolveCommandTypes)context.GetExport<Command>();
-
-                Assert.Equal(new ExportAssemblies().Assemblies, command.Assemblies);
-            }
-
-            public class ExportAssemblies
-            {
-                [Export]
-                public IEnumerable<Assembly> Assemblies
-                {
-                    get { return new[] { typeof(Command).Assembly, this.GetType().Assembly }; }
-                }
-            }
-        }
-
         public static class Execute
         {
             [Fact]
@@ -124,21 +68,23 @@ namespace MefBuild
                         public class TestClass {}
                     }");
 
-                var command = new ResolveCommandTypes();
-                command.Assemblies = new[] { emptyAssembly, testAssembly };
-                command.CommandTypeNames = new[] { "TestNamespace.TestClass" };
+                var command = new ResolveCommandTypes(
+                    new[] { "TestNamespace.TestClass" }, 
+                    new[] { emptyAssembly, testAssembly });
                 command.Execute();
 
-                Assert.Equal(new[] { testAssembly.GetType("TestNamespace.TestClass") }, command.CommandTypes);
+                Assert.Equal(
+                    new[] { testAssembly.GetType("TestNamespace.TestClass") }, 
+                    command.CommandTypes);
             }
 
             [Fact]
             public static void ThrowsExceptionWhenCommandTypeNameCannotBeResolved()
             {
-                var command = new ResolveCommandTypes();
-                command.Assemblies = Enumerable.Empty<Assembly>();
-                command.CommandTypeNames = new[] { "MissingCommandType" };
-
+                var command = new ResolveCommandTypes(
+                    new[] { "MissingCommandType" },
+                    Enumerable.Empty<Assembly>());
+                
                 var e = Assert.ThrowsAny<Exception>(() => command.Execute());
                 Assert.Contains("MissingCommandType", e.Message);
             }

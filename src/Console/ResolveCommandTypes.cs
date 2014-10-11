@@ -9,18 +9,19 @@ namespace MefBuild
     [Shared, Command]
     internal class ResolveCommandTypes : Command
     {
+        private readonly IEnumerable<Assembly> assemblies;
+        private readonly IEnumerable<string> commandTypeNames;
         private readonly ICollection<Type> commandTypes;
 
-        public ResolveCommandTypes()
+        [ImportingConstructor]
+        public ResolveCommandTypes(
+            [ImportMany(ContractNames.Command)] IEnumerable<string> commandTypeNames,
+            [Import] IEnumerable<Assembly> assemblies)
         {
+            this.assemblies = assemblies;
+            this.commandTypeNames = commandTypeNames;
             this.commandTypes = new List<Type>();
         }
-
-        [ImportMany(ContractNames.Command)]
-        public IEnumerable<string> CommandTypeNames { get; set; }
-
-        [Import]
-        public IEnumerable<Assembly> Assemblies { get; set; }
 
         [Export(ContractNames.Command)]
         public IEnumerable<Type> CommandTypes 
@@ -30,10 +31,10 @@ namespace MefBuild
 
         public override void Execute()
         {
-            foreach (string commandTypeName in this.CommandTypeNames)
+            foreach (string commandTypeName in this.commandTypeNames)
             {
                 bool commandTypeFound = false;
-                foreach (Assembly assembly in this.Assemblies)
+                foreach (Assembly assembly in this.assemblies)
                 {
                     Type commandType = assembly.GetType(commandTypeName);
                     if (commandType != null)
