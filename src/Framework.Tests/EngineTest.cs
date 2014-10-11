@@ -137,27 +137,36 @@ namespace MefBuild
             public void ExecutesCommandTypesSpecifiedInDependsOnAttributeBeforeCommand()
             {
                 var configuration = new ContainerConfiguration()
-                    .WithParts(typeof(Child), typeof(Parent1), typeof(Parent2));
+                    .WithParts(typeof(Child), typeof(Parent));
 
                 new Engine(configuration).Execute(typeof(Child));
 
                 Assert.Equal(
-                    new[] { typeof(Parent1), typeof(Parent2), typeof(Child) }, 
+                    new[] { typeof(Parent), typeof(Child) }, 
                     StubCommand.ExecutedCommands.Select(c => c.GetType()));
             }
 
-            [Command(DependsOn = new[] { typeof(Parent1), typeof(Parent2) })]
+            [Fact]
+            public void LogsStartRecordWithNameOfCommandThatDependsOnCurrentCommand()
+            {
+                var configuration = new ContainerConfiguration()
+                    .WithParts(typeof(Child), typeof(Parent), typeof(StubOutput));
+
+                new Engine(configuration).Execute<Child>();
+
+                Record startRecord = StubOutput.WrittenRecords.First(r => r.RecordType == RecordType.Start);
+                Assert.EndsWith(
+                    string.Format(" (command \"{0}\" depends on it):", typeof(Child).FullName),
+                    startRecord.Text);
+            }
+
+            [Command(DependsOn = new[] { typeof(Parent) })]
             public class Child : StubCommand
             {
             }
 
             [Command]
-            public class Parent1 : StubCommand
-            {
-            }
-
-            [Command]
-            public class Parent2 : StubCommand
+            public class Parent : StubCommand
             {
             }
         }
@@ -194,22 +203,31 @@ namespace MefBuild
             public void ExecutesCommandsWithExecuteBeforeAttributeThatSpecifiesGivenCommandType()
             {
                 var configuration = new ContainerConfiguration()
-                    .WithParts(typeof(Before1), typeof(Before2), typeof(Target));
+                    .WithParts(typeof(Before), typeof(Target));
 
                 new Engine(configuration).Execute(typeof(Target));
 
                 Assert.Equal(
-                    new[] { typeof(Before1), typeof(Before2), typeof(Target) },
+                    new[] { typeof(Before), typeof(Target) },
                     StubCommand.ExecutedCommands.Select(c => c.GetType()));
             }
 
-            [Command(ExecuteBefore = new[] { typeof(Target) })]
-            public class Before1 : StubCommand
+            [Fact]
+            public void LogsStartRecordWithNameOfCommandThatCurrentCommandMustBeExecutedBefore()
             {
+                var configuration = new ContainerConfiguration()
+                    .WithParts(typeof(Before), typeof(Target), typeof(StubOutput));
+
+                new Engine(configuration).Execute(typeof(Target));
+
+                var startRecord = StubOutput.WrittenRecords.First(r => r.RecordType == RecordType.Start);
+                Assert.EndsWith(
+                    string.Format(" (it executes before \"{0}\"):", typeof(Target).FullName), 
+                    startRecord.Text);
             }
 
             [Command(ExecuteBefore = new[] { typeof(Target) })]
-            public class Before2 : StubCommand
+            public class Before : StubCommand
             {
             }
 
@@ -225,13 +243,27 @@ namespace MefBuild
             public void ExecuteDoesNotExecuteAfterCommandIfItHasAlreadyBeenExecuted()
             {
                 var configuration = new ContainerConfiguration()
-                    .WithParts(typeof(Target), typeof(After1), typeof(After2));
+                    .WithParts(typeof(Target), typeof(After));
 
                 new Engine(configuration).Execute(typeof(Target));
 
                 Assert.Equal(
-                    new[] { typeof(Target), typeof(After1), typeof(After2) },
+                    new[] { typeof(Target), typeof(After) },
                     StubCommand.ExecutedCommands.Select(c => c.GetType()));
+            }
+
+            [Fact]
+            public void LogsStartRecordWithNameOfCommandThatCurrentCommandMustBeExecutedAfter()
+            {
+                var configuration = new ContainerConfiguration()
+                    .WithParts(typeof(Target), typeof(After), typeof(StubOutput));
+
+                new Engine(configuration).Execute(typeof(Target));
+
+                var startRecord = StubOutput.WrittenRecords.Last(r => r.RecordType == RecordType.Start);
+                Assert.EndsWith(
+                    string.Format(" (it executes after \"{0}\"):", typeof(Target).FullName),
+                    startRecord.Text);
             }
 
             [Command]
@@ -240,13 +272,8 @@ namespace MefBuild
             }
 
             [Command(ExecuteAfter = new[] { typeof(Target) })]
-            public class After1 : StubCommand
+            public class After : StubCommand
             {
-            }
-
-            [Command(ExecuteAfter = new[] { typeof(Target) })]
-            public class After2 : StubCommand
-            { 
             }
         }
 

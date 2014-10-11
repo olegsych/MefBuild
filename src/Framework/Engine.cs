@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Composition;
 using System.Composition.Hosting;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Linq;
 using System.Reflection;
 using MefBuild.Diagnostics;
 using MefBuild.Execution;
@@ -75,10 +73,12 @@ namespace MefBuild
         {
             foreach (ExecutionStep step in steps)
             {
+                this.log.CommandStarted(step);
+
                 Command command = step.Command.Value;
-                this.log.CommandStarted(command);
                 command.Log = this.log;
                 command.Execute();
+
                 this.log.CommandStopped(command);
             }
         }

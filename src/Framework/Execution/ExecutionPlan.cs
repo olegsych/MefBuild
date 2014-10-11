@@ -14,7 +14,7 @@ namespace MefBuild.Execution
         {
             this.steps = new List<ExecutionStep>();
             this.allCommands = allCommands;
-            this.CreateSteps(this.GetCommand(commandType));
+            this.CreateSteps(this.GetCommand(commandType), DependencyType.None, null);
         }
 
         public IEnumerable<ExecutionStep> Steps
@@ -27,24 +27,30 @@ namespace MefBuild.Execution
             return this.steps.Any(step => step.Command.Metadata.CommandType == command.Metadata.CommandType);
         }
 
-        private void CreateSteps(Lazy<Command, CommandMetadata> command)
+        private void CreateSteps(
+            Lazy<Command, CommandMetadata> command, 
+            DependencyType dependencyType, 
+            Lazy<Command, CommandMetadata> dependency)
         {
             if (!this.ContainsStep(command))
             {
-                this.CreateSteps(this.GetDependsOnCommands(command));
-                this.CreateSteps(this.GetBeforeCommands(command));
+                this.CreateSteps(this.GetDependsOnCommands(command), DependencyType.DependsOn, command);
+                this.CreateSteps(this.GetBeforeCommands(command), DependencyType.ExecuteBefore, command);
 
-                this.steps.Add(new ExecutionStep(command, DependencyType.None, null));
+                this.steps.Add(new ExecutionStep(command, dependencyType, dependency));
 
-                this.CreateSteps(this.GetAfterCommands(command));
+                this.CreateSteps(this.GetAfterCommands(command), DependencyType.ExecuteAfter, command);
             }
         }
 
-        private void CreateSteps(IEnumerable<Lazy<Command, CommandMetadata>> commands)
+        private void CreateSteps(
+            IEnumerable<Lazy<Command, CommandMetadata>> commands,
+            DependencyType dependencyType,
+            Lazy<Command, CommandMetadata> dependency)
         {
             foreach (Lazy<Command, CommandMetadata> command in commands)
             {
-                this.CreateSteps(command);
+                this.CreateSteps(command, dependencyType, dependency);
             }
         }
 

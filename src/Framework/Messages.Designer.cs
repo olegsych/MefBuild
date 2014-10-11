@@ -62,7 +62,7 @@ namespace MefBuild {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Command &quot;{0}&quot; in &quot;{1}&quot;:.
+        ///   Looks up a localized string similar to Command &quot;{0}&quot; in &quot;{1}&quot;{2}:.
         /// </summary>
         internal static string CommandStartedMessage {
             get {
@@ -76,6 +76,33 @@ namespace MefBuild {
         internal static string CommandStoppedMessage {
             get {
                 return ResourceManager.GetString("CommandStoppedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  (command &quot;{0}&quot; depends on it).
+        /// </summary>
+        internal static string DependsOnDependencyExplanation {
+            get {
+                return ResourceManager.GetString("DependsOnDependencyExplanation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  (it executes after &quot;{0}&quot;).
+        /// </summary>
+        internal static string ExecuteAfterDependencyExplanation {
+            get {
+                return ResourceManager.GetString("ExecuteAfterDependencyExplanation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  (it executes before &quot;{0}&quot;).
+        /// </summary>
+        internal static string ExecuteBeforeDependencyExplanation {
+            get {
+                return ResourceManager.GetString("ExecuteBeforeDependencyExplanation", resourceCulture);
             }
         }
     }
