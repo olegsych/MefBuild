@@ -47,7 +47,7 @@ namespace MefBuild
             using (new ConsoleOutputInterceptor(output))
             {
                 Program.Main();
-                Assert.Contains("MefBuild <command> [options]", output.ToString());
+                Assert.Contains("MefBuild <command>", output.ToString());
             }
         }
     }

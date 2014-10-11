@@ -100,7 +100,7 @@ namespace MefBuild.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to Usage:
-        ///    MefBuild &lt;command&gt; [options]
+        ///    MefBuild &lt;command&gt; [parameters]
         ///
         ///For help about specific command, type:
         ///    MefBuild help &lt;command&gt;

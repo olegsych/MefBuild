@@ -30,7 +30,7 @@ namespace MefBuild
             string output = ExecuteHelpCommand(configuration);
 
             Assert.Contains("Usage:", output);
-            Assert.Matches(new Regex(@"^\s+MefBuild <command> \[options]", RegexOptions.Multiline), output);
+            Assert.Matches(new Regex(@"^\s+MefBuild <command> \[parameters]", RegexOptions.Multiline), output);
             Assert.Contains("For help about specific command, type:", output);
             Assert.Matches(new Regex(@"^\s+MefBuild help <command>", RegexOptions.Multiline), output);
         }
