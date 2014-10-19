@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Composition;
-using System.Diagnostics.CodeAnalysis;
 
 namespace MefBuild
 {
     /// <summary>
-    /// Adds dependency metadata to concrete <see cref="Command"/> classes.
+    /// Specifies <see cref="Command"/> types that will be executed before the command to which this
+    /// attribute is applied.
     /// </summary>
     [MetadataAttribute]
     [AttributeUsage(AttributeTargets.Class)]
@@ -18,8 +18,9 @@ namespace MefBuild
         /// Initializes a new instance of the <see cref="DependsOnAttribute"/> class.
         /// </summary>
         /// <param name="dependencies">
-        /// An array of <see cref="Command"/> types that must be executed before the command
-        /// marked with the <see cref="DependsOnAttribute"/>.
+        /// An array of types derived from the <see cref="Command"/> class and marked with the 
+        /// <see cref="ExportAttribute"/> that will be executed before the command to which this
+        /// attribute is applied.
         /// </param>
         public DependsOnAttribute(params Type[] dependencies)
         {
@@ -27,8 +28,8 @@ namespace MefBuild
         }
 
         /// <summary>
-        /// Gets a collection of <see cref="Command"/> types that must be executed before the 
-        /// command marked with the <see cref="DependsOnAttribute"/>.
+        /// Gets a collection of <see cref="Command"/> types that will be executed before the 
+        /// command marked this attribute.
         /// </summary>
         public IEnumerable<Type> Dependencies 
         {

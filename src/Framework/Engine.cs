@@ -38,7 +38,9 @@ namespace MefBuild
         /// <summary>
         /// Executes a <see cref="Command"/> of type <typeparamref name="T"/>.
         /// </summary>
-        /// <typeparam name="T">A type that implements the <see cref="Command"/> interface.</typeparam>
+        /// <typeparam name="T">
+        /// A type derived from the <see cref="Command"/> class and marked with the <see cref="ExportAttribute"/>.
+        /// </typeparam>
         [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "This method is a strongly typed equivalent of Execute(Type).")]
         public void Execute<T>() where T : Command
         {
@@ -46,9 +48,11 @@ namespace MefBuild
         }
 
         /// <summary>
-        /// Executes an <see cref="Command"/> of specified <see cref="Type"/>.
+        /// Executes a <see cref="Command"/> of specified <see cref="Type"/>.
         /// </summary>
-        /// <param name="commandType">A <see cref="Type"/> that implements the <see cref="Command"/> interface.</param>
+        /// <param name="commandType">
+        /// A <see cref="Type"/> derived from the <see cref="Command"/> class and marked with the <see cref="ExportAttribute"/>.
+        /// </param>
         /// <exception cref="ArgumentNullException">The <paramref name="commandType"/> is null.</exception>
         /// <exception cref="ArgumentException">The <paramref name="commandType"/> does not derive from the <see cref="Command"/> class.</exception>
         public void Execute(Type commandType)
