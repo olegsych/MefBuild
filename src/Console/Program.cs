@@ -19,7 +19,8 @@ namespace MefBuild
         public static void Main(params string[] args)
         {
             IEnumerable<Type> commandTypes = typeof(Program).Assembly.DefinedTypes
-                .Where(t => t.GetCustomAttributes<ExportAttribute>().Any(a => a.ContractType == typeof(Command)));
+                .Where(t => typeof(Command).IsAssignableFrom(t) 
+                    && t.GetCustomAttributes<ExportAttribute>().Any());
 
             var configuration = new ContainerConfiguration()
                 .WithParts(commandTypes)

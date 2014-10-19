@@ -7,7 +7,7 @@ using MefBuild.Diagnostics;
 
 namespace MefBuild
 {
-    [Export(typeof(Command))]
+    [Export]
     internal class ExecuteCommands : Command
     {
         private readonly IEnumerable<Type> commandTypes;

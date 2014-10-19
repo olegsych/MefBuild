@@ -87,12 +87,12 @@ namespace MefBuild
             }
 
             [Fact]
-            public void ThrowsArgumentExceptionIfCommandTypeIsNotExported()
+            public void ThrowsCompositionFailedExceptionIfCommandTypeIsNotExported()
             {
                 var configuration = new ContainerConfiguration();
 
                 var engine = new Engine(configuration);
-                Assert.Throws<ArgumentException>(() => engine.Execute(typeof(Target)));
+                Assert.Throws<CompositionFailedException>(() => engine.Execute(typeof(Target)));
             }
 
             [Fact]
@@ -125,7 +125,7 @@ namespace MefBuild
                 Assert.Contains(expected, StubOutput.WrittenRecords);                
             }
 
-            [Export(typeof(Command))]
+            [Export]
             public class Target : StubCommand
             {
             }
@@ -160,12 +160,12 @@ namespace MefBuild
                     startRecord.Text);
             }
 
-            [Export(typeof(Command)), DependsOn(typeof(Parent))]
+            [Export, DependsOn(typeof(Parent))]
             public class Child : StubCommand
             {
             }
 
-            [Export(typeof(Command))]
+            [Export]
             public class Parent : StubCommand
             {
             }
@@ -186,12 +186,12 @@ namespace MefBuild
                     StubCommand.ExecutedCommands.Select(c => c.GetType()));
             }
             
-            [Export(typeof(Command))]
+            [Export]
             public class SharedDependency : StubCommand
             {
             }
 
-            [Export(typeof(Command)), DependsOn(typeof(SharedDependency), typeof(SharedDependency))]
+            [Export, DependsOn(typeof(SharedDependency), typeof(SharedDependency))]
             public class Target : StubCommand
             {
             }
@@ -231,7 +231,7 @@ namespace MefBuild
             {
             }
 
-            [Export(typeof(Command))]
+            [Export]
             public class Target : StubCommand
             {
             }
@@ -266,7 +266,7 @@ namespace MefBuild
                     startRecord.Text);
             }
 
-            [Export(typeof(Command))]
+            [Export]
             public class Target : StubCommand
             {
             }
@@ -292,7 +292,7 @@ namespace MefBuild
                     StubCommand.ExecutedCommands.Select(c => c.GetType()));
             }
 
-            [Export(typeof(Command))]
+            [Export]
             public class Target : StubCommand
             {
             }
@@ -302,7 +302,7 @@ namespace MefBuild
             {
             }
 
-            [Export(typeof(Command))]
+            [Export]
             public class Dependency : StubCommand
             {
             }
@@ -323,7 +323,7 @@ namespace MefBuild
                     StubCommand.ExecutedCommands.Select(c => c.GetType()));
             }
 
-            [Export(typeof(Command))]
+            [Export]
             public class Target : StubCommand
             {
             }
@@ -333,7 +333,7 @@ namespace MefBuild
             {
             }
 
-            [Export(typeof(Command))]
+            [Export]
             public class Dependency : StubCommand
             {
             }
@@ -354,7 +354,7 @@ namespace MefBuild
                 Assert.Same(producer.Export, consumer.Import);
             }
 
-            [Shared, Export(typeof(Command))]
+            [Shared, Export]
             public class Producer : StubCommand
             {
                 [Export("DependsOnExport")]
@@ -367,7 +367,7 @@ namespace MefBuild
                 }
             }
 
-            [Export(typeof(Command)), DependsOn(typeof(Producer))]
+            [Export, DependsOn(typeof(Producer))]
             public class Consumer : StubCommand
             {
                 [Import("DependsOnExport")]
@@ -403,7 +403,7 @@ namespace MefBuild
                 }
             }
 
-            [Export(typeof(Command))]
+            [Export]
             public class Consumer : StubCommand
             {
                 [Import("BeforeExport")]
@@ -424,7 +424,7 @@ namespace MefBuild
                 Assert.Contains(TestCommand.TestRecord, StubOutput.WrittenRecords);
             }
 
-            [Export(typeof(Command))]
+            [Export]
             public class TestCommand : StubCommand
             {
                 [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Record is immutable type")]

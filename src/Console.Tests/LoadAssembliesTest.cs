@@ -44,7 +44,7 @@ namespace MefBuild
                     .CreateContainer();
 
                 var assemblies = context.GetExport<IEnumerable<Assembly>>();
-                var command = (LoadAssemblies)context.GetExport<Command>();
+                var command = context.GetExport<LoadAssemblies>();
 
                 Assert.NotNull(assemblies);
                 Assert.Same(assemblies, command.Assemblies);

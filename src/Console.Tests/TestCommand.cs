@@ -3,7 +3,7 @@ using System.Composition;
 
 namespace MefBuild
 {
-    [Export(typeof(Command))]
+    [Export]
     public class TestCommand : Command
     {
         private static ICollection<Command> executedCommands = new List<Command>();

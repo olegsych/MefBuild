@@ -2,7 +2,7 @@
 
 namespace MefBuild
 {
-    [Export(typeof(Command))]
+    [Export]
     [Summary("Executes a specified command.")]
     [DependsOn(typeof(LoadAssemblies), typeof(ResolveCommandTypes), typeof(ExecuteCommands))]
     internal class Execute : Command

@@ -41,7 +41,7 @@ namespace MefBuild
                     .WithParts(typeof(ResolveCommandTypes), typeof(RequiredExports))
                     .CreateContainer();
 
-                var command = (ResolveCommandTypes)context.GetExport<Command>();
+                var command = context.GetExport<ResolveCommandTypes>();
                 var commandTypes = context.GetExport<IEnumerable<Type>>(ContractNames.Command);
 
                 Assert.NotNull(commandTypes);

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Composition;
 using System.Composition.Hosting.Core;
-using System.Globalization;
 using System.Linq;
 
 namespace MefBuild.Execution
@@ -11,13 +10,11 @@ namespace MefBuild.Execution
     {
         private readonly List<ExecutionStep> steps;
         private readonly CompositionContext context;
-        private readonly IEnumerable<Lazy<Command, CommandMetadata>> allCommands;
 
         public ExecutionPlan(Type commandType, CompositionContext context)
         {
             this.steps = new List<ExecutionStep>();
             this.context = context;
-            this.allCommands = this.context.GetExports<Lazy<Command, CommandMetadata>>();
             this.CreateSteps(this.GetCommand(commandType), DependencyType.None, null);
         }
 
@@ -60,13 +57,9 @@ namespace MefBuild.Execution
 
         private Lazy<Command, CommandMetadata> GetCommand(Type commandType)
         {
-            Lazy<Command, CommandMetadata> command = this.allCommands.SingleOrDefault(c => c.Metadata.CommandType == commandType);
-            if (command == null)
-            {
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Command type {0} is not exported", commandType));
-            }
-
-            return command;
+            var importerType = typeof(CommandExporter<>).MakeGenericType(commandType);
+            var importer = (ICommandExporter)Activator.CreateInstance(importerType);
+            return importer.GetCommandExport(this.context);
         }
 
         private IEnumerable<Lazy<Command, CommandMetadata>> GetDependsOnCommands(Lazy<Command, CommandMetadata> command)
@@ -101,6 +94,21 @@ namespace MefBuild.Execution
             }
 
             return Enumerable.Empty<Lazy<Command, CommandMetadata>>();
+        }
+
+        private interface ICommandExporter
+        {
+            Lazy<Command, CommandMetadata> GetCommandExport(CompositionContext context);
+        }
+
+        private class CommandExporter<T> : ICommandExporter where T : Command
+        {
+            public Lazy<Command, CommandMetadata> GetCommandExport(CompositionContext context)
+            {
+                var export = context.GetExport<Lazy<T, CommandMetadata>>();
+                export.Metadata.CommandType = typeof(T);
+                return new Lazy<Command, CommandMetadata>(() => export.Value, export.Metadata);
+            }
         }
     }
 }
