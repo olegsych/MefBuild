@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Composition;
-using System.Composition.Hosting;
 using System.Diagnostics.CodeAnalysis;
 
 namespace MefBuild
@@ -17,15 +16,6 @@ namespace MefBuild
         public CommandAttribute() : base(typeof(Command))
         {
         }
-
-        /// <summary>
-        /// Gets or sets the type of <see cref="Command"/> class marked with this attribute.
-        /// </summary>
-        /// <remarks>
-        /// The command type is automatically provided by the <see cref="CommandExportConventions"/> added to 
-        /// <see cref="ContainerConfiguration"/> by the <see cref="Engine"/>.
-        /// </remarks>
-        public Type CommandType { get; set; }
 
         /// <summary>
         /// Gets or sets a collection of types derived from the <see cref="Command"/> class after which 

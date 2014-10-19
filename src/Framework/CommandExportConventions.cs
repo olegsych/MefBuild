@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Composition;
 using System.Composition.Convention;
 using System.Linq;
 using System.Reflection;
@@ -70,9 +71,9 @@ namespace MefBuild
         {
             var attributes = new List<Attribute>(type.GetCustomAttributes());
 
-            foreach (var commandAttirbute in attributes.OfType<CommandAttribute>())
+            if (attributes.OfType<ExportAttribute>().Any(a => a.ContractType == typeof(Command)))
             {
-                commandAttirbute.CommandType = reflectedType;
+                attributes.Add(new ExportMetadataAttribute("CommandType", reflectedType));
             }
 
             return attributes;

@@ -19,14 +19,6 @@ namespace MefBuild
         }
 
         [Fact]
-        public void CommandTypeProvidesCommandTypeMetadata()
-        {
-            var context = new ContainerConfiguration().WithPart<TestCommand>().CreateContainer();
-            var export = context.GetExport<ExportFactory<Command, CommandMetadata>>();
-            Assert.Equal(typeof(TestCommand).GetCustomAttribute<CommandAttribute>().CommandType, export.Metadata.CommandType);
-        }
-
-        [Fact]
         public void ExecuteBeforeProvidesExecuteBeforeCommandMetadata()
         {
             var context = new ContainerConfiguration().WithPart<TestCommand>().CreateContainer();
@@ -43,7 +35,6 @@ namespace MefBuild
         }
 
         [Command(
-            CommandType = typeof(TestCommand),
             ExecuteBefore = new[] { typeof(StubCommand) },
             ExecuteAfter = new[] { typeof(StubCommand) })]
         public class TestCommand : Command
