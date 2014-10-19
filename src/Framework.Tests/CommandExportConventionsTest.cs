@@ -117,16 +117,16 @@ namespace MefBuild
             }
 
             [Fact]
-            public static void SuppliesCommandTypeMetadataForTypesWithCommandAttribute()
+            public static void SuppliesCommandTypeMetadataForTypesWithExportOfCommandType()
             {
                 CompositionContext container = new ContainerConfiguration()
                     .WithDefaultConventions(new CommandExportConventions())
-                    .WithPart<ClassWithCommandAttribute>()
+                    .WithPart<ExportedCommand>()
                     .CreateContainer();
 
                 var export = container.GetExport<ExportFactory<Command, CommandMetadata>>();
 
-                Assert.Equal(typeof(ClassWithCommandAttribute), export.Metadata.CommandType);
+                Assert.Equal(typeof(ExportedCommand), export.Metadata.CommandType);
             }
 
             [Export]
@@ -140,8 +140,8 @@ namespace MefBuild
             {
             }
 
-            [Command]
-            public class ClassWithCommandAttribute : Command
+            [Export(typeof(Command))]
+            public class ExportedCommand : Command
             {
             }
         }

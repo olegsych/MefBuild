@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace MefBuild
 {
-    [Shared, Command]
+    [Shared, Export(typeof(Command))]
     internal class LoadAssemblies : Command
     {
         private readonly IEnumerable<string> assemblyFileNames;

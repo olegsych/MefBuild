@@ -124,17 +124,17 @@ namespace MefBuild
             return export.Metadata;
         }
 
-        [Command]
+        [Export(typeof(Command))]
         public class CommandWithoutSummary : Command
         {
         }
 
-        [Command, Summary("Test Summary")]
+        [Export(typeof(Command)), Summary("Test Summary")]
         public class CommandWithSummary : Command
         {
         }
 
-        [Command, Summary("Test Summary")]
+        [Export(typeof(Command)), Summary("Test Summary")]
         public class ShortWithSummary : Command
         {
         }

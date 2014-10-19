@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Composition;
 using System.Composition.Hosting;
 using System.Linq;
 using System.Reflection;
@@ -18,7 +19,7 @@ namespace MefBuild
         public static void Main(params string[] args)
         {
             IEnumerable<Type> commandTypes = typeof(Program).Assembly.DefinedTypes
-                .Where(t => t.GetCustomAttributes<CommandAttribute>().Any());
+                .Where(t => t.GetCustomAttributes<ExportAttribute>().Any(a => a.ContractType == typeof(Command)));
 
             var configuration = new ContainerConfiguration()
                 .WithParts(commandTypes)

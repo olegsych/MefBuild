@@ -139,7 +139,7 @@ namespace MefBuild
             return new Help(commandType, assemblies ?? Enumerable.Empty<Assembly>());
         }
 
-        [Command]
+        [Export(typeof(Command))]
         public class Parameterized : Command
         {
             [Import(AllowDefault = true), Parameter(Name = "Parameter"), Summary("Parameter Summary")]
@@ -149,36 +149,36 @@ namespace MefBuild
             public string LongProperty { get; set; }
         }
 
-        [Command, Summary("Test command with summary")]
+        [Export(typeof(Command)), Summary("Test command with summary")]
         public class Summarized : Command
         {
         }
 
-        [Command]
+        [Export(typeof(Command))]
         public class UnsummarizedParameterless : Command
         {
         }
 
-        [Command]
+        [Export(typeof(Command))]
         public class ParameterizedDependency : Command
         {
             [Import(AllowDefault = true), Parameter(Name = "DependencyParameter")]
             public string DependencyProperty { get; set; }
         }
 
-        [Command]
+        [Export(typeof(Command))]
         public class ParameterizedUnrelated : Command
         {
             [Import(AllowDefault = true), Parameter(Name = "UnrelatedParameter")]
             public string UnrelatedProperty { get; set; }
         }
 
-        [Command, DependsOn(typeof(ParameterizedDependency))]
+        [Export(typeof(Command)), DependsOn(typeof(ParameterizedDependency))]
         public class ParameterlessDependent : Command
         {
         }
 
-        [Command]
+        [Export(typeof(Command))]
         public class ValueTypeParameterized : Command
         {
             [Import(AllowDefault = true), Parameter(Name = "ValueTypeParameter")]

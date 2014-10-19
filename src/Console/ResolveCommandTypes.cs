@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace MefBuild
 {
-    [Shared, Command]
+    [Shared, Export(typeof(Command))]
     internal class ResolveCommandTypes : Command
     {
         private readonly IEnumerable<Assembly> assemblies;
