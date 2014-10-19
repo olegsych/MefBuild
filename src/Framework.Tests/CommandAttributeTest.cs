@@ -27,14 +27,6 @@ namespace MefBuild
         }
 
         [Fact]
-        public void DependsOnProvidesDependsOnCommandMetadata()
-        {
-            var context = new ContainerConfiguration().WithPart<TestCommand>().CreateContainer();
-            var export = context.GetExport<ExportFactory<Command, CommandMetadata>>();
-            Assert.Equal(typeof(TestCommand).GetCustomAttribute<CommandAttribute>().DependsOn, export.Metadata.DependsOn);
-        }
-
-        [Fact]
         public void ExecuteBeforeProvidesExecuteBeforeCommandMetadata()
         {
             var context = new ContainerConfiguration().WithPart<TestCommand>().CreateContainer();
@@ -52,7 +44,6 @@ namespace MefBuild
 
         [Command(
             CommandType = typeof(TestCommand),
-            DependsOn = new[] { typeof(StubCommand) },
             ExecuteBefore = new[] { typeof(StubCommand) },
             ExecuteAfter = new[] { typeof(StubCommand) })]
         public class TestCommand : Command

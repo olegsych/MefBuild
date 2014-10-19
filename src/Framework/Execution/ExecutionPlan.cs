@@ -67,7 +67,7 @@ namespace MefBuild.Execution
 
         private IEnumerable<Lazy<Command, CommandMetadata>> GetDependsOnCommands(Lazy<Command, CommandMetadata> command)
         {
-            return command.Metadata.DependsOn.Select(type => this.GetCommand(type));
+            return command.Metadata.Dependencies.Select(type => this.GetCommand(type));
         }
 
         private IEnumerable<Lazy<Command, CommandMetadata>> GetBeforeCommands(Lazy<Command, CommandMetadata> command)

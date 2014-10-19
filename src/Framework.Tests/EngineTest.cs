@@ -160,7 +160,7 @@ namespace MefBuild
                     startRecord.Text);
             }
 
-            [Command(DependsOn = new[] { typeof(Parent) })]
+            [Command, DependsOn(typeof(Parent))]
             public class Child : StubCommand
             {
             }
@@ -191,7 +191,7 @@ namespace MefBuild
             {
             }
 
-            [Command(DependsOn = new[] { typeof(SharedDependency), typeof(SharedDependency) })]
+            [Command, DependsOn(typeof(SharedDependency), typeof(SharedDependency))]
             public class Target : StubCommand
             {
             }
@@ -297,7 +297,7 @@ namespace MefBuild
             {
             }
 
-            [Command(DependsOn = new[] { typeof(Dependency) }, ExecuteBefore = new[] { typeof(Target) })]
+            [Command(ExecuteBefore = new[] { typeof(Target) }), DependsOn(typeof(Dependency))]
             public class Before : StubCommand
             {
             }
@@ -328,7 +328,7 @@ namespace MefBuild
             {
             }
 
-            [Command(DependsOn = new[] { typeof(Dependency) }, ExecuteAfter = new[] { typeof(Target) })]
+            [Command(ExecuteAfter = new[] { typeof(Target) }), DependsOn(typeof(Dependency))]
             public class After : StubCommand
             {
             }
@@ -367,7 +367,7 @@ namespace MefBuild
                 }
             }
 
-            [Command(DependsOn = new[] { typeof(Producer) })]
+            [Command, DependsOn(typeof(Producer))]
             public class Consumer : StubCommand
             {
                 [Import("DependsOnExport")]

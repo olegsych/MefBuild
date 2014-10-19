@@ -18,6 +18,7 @@
     <Compile Include="Command.cs" />
     <Compile Include="CommandExportConventions.cs" />
     <Compile Include="CommandMetadata.cs" />
+    <Compile Include="DependsOnAttribute.cs" />
     <Compile Include="EngineLogExtensions.cs" />
     <Compile Include="Execution\DependencyType.cs" />
     <Compile Include="Execution\ExecutionPlan.cs" />

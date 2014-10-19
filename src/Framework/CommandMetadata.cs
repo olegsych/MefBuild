@@ -10,7 +10,7 @@ namespace MefBuild
     /// </summary>
     internal class CommandMetadata
     {
-        private IEnumerable<Type> dependsOn;
+        private IEnumerable<Type> dependencies;
         private IEnumerable<Type> executeAfter;
         private IEnumerable<Type> executeBefore;
 
@@ -18,10 +18,10 @@ namespace MefBuild
         public Type CommandType { get; set; }
 
         [DefaultValue(null)]
-        public IEnumerable<Type> DependsOn 
+        public IEnumerable<Type> Dependencies 
         {
-            get { return this.dependsOn ?? Enumerable.Empty<Type>(); }
-            set { this.dependsOn = value; }
+            get { return this.dependencies ?? Enumerable.Empty<Type>(); }
+            set { this.dependencies = value; }
         }
 
         [DefaultValue(null)]

@@ -173,7 +173,7 @@ namespace MefBuild
             public string UnrelatedProperty { get; set; }
         }
 
-        [Command(DependsOn = new[] { typeof(ParameterizedDependency) })]
+        [Command, DependsOn(typeof(ParameterizedDependency))]
         public class ParameterlessDependent : Command
         {
         }

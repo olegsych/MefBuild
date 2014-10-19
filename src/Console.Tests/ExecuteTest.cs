@@ -20,8 +20,8 @@ namespace MefBuild
         [Fact]
         public static void ClassDefinesExecutionOrderOfCommandsItDependsOn()
         {
-            var metadata = typeof(Execute).GetCustomAttribute<CommandAttribute>();
-            Assert.Equal(new[] { typeof(LoadAssemblies), typeof(ResolveCommandTypes), typeof(ExecuteCommands) }, metadata.DependsOn);
+            var metadata = typeof(Execute).GetCustomAttribute<DependsOnAttribute>();
+            Assert.Equal(new[] { typeof(LoadAssemblies), typeof(ResolveCommandTypes), typeof(ExecuteCommands) }, metadata.Dependencies);
         }
     }
 }
