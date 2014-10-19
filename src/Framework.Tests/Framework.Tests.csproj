@@ -48,6 +48,8 @@
     <Compile Include="CommandExportConventionsTest.cs" />
     <Compile Include="DependsOnAttributeTest.cs" />
     <Compile Include="Diagnostics\OutputTest.cs" />
+    <Compile Include="ExecuteAfterAttributeTest.cs" />
+    <Compile Include="ExecuteBeforeAttributeTest.cs" />
     <Compile Include="Execution\ExecutionStepTest.cs" />
     <Compile Include="Hosting\CommandLineArgumentTest.cs" />
     <Compile Include="Hosting\CommandLineExportDescriptorProviderTest.cs" />

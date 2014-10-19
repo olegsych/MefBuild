@@ -65,7 +65,7 @@ namespace MefBuild
                 throw new ArgumentException("The type must derive from the Command class.", ParameterName);
             }
 
-            var plan = new ExecutionPlan(commandType, this.context.GetExports<Lazy<Command, CommandMetadata>>());
+            var plan = new ExecutionPlan(commandType, this.context);
             this.Execute(plan.Steps);
         }
 

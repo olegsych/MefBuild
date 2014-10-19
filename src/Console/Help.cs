@@ -38,7 +38,7 @@ namespace MefBuild
             PrintCommandSummary(command.Metadata);
             PrintCommandUsage(command.Metadata);
 
-            var plan = new ExecutionPlan(this.commandType, allCommands);
+            var plan = new ExecutionPlan(this.commandType, container);
             foreach (ExecutionStep step in plan.Steps)
             {
                 Command forceParameterImport = step.Command.Value;

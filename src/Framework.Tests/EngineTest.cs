@@ -226,7 +226,7 @@ namespace MefBuild
                     startRecord.Text);
             }
 
-            [Command(ExecuteBefore = new[] { typeof(Target) })]
+            [Command, ExecuteBefore(typeof(Target))]
             public class Before : StubCommand
             {
             }
@@ -271,7 +271,7 @@ namespace MefBuild
             {
             }
 
-            [Command(ExecuteAfter = new[] { typeof(Target) })]
+            [Command, ExecuteAfter(typeof(Target))]
             public class After : StubCommand
             {
             }
@@ -297,7 +297,7 @@ namespace MefBuild
             {
             }
 
-            [Command(ExecuteBefore = new[] { typeof(Target) }), DependsOn(typeof(Dependency))]
+            [Command, DependsOn(typeof(Dependency)), ExecuteBefore(typeof(Target))]
             public class Before : StubCommand
             {
             }
@@ -328,7 +328,7 @@ namespace MefBuild
             {
             }
 
-            [Command(ExecuteAfter = new[] { typeof(Target) }), DependsOn(typeof(Dependency))]
+            [Command, DependsOn(typeof(Dependency)), ExecuteAfter(typeof(Target))]
             public class After : StubCommand
             {
             }
@@ -390,7 +390,7 @@ namespace MefBuild
                 Assert.Same(producer.Export, consumer.Import);
             }
 
-            [Shared, Command(ExecuteBefore = new[] { typeof(Consumer) })]
+            [Shared, Command, ExecuteBefore(typeof(Consumer))]
             public class Producer : StubCommand
             {
                 [Export("BeforeExport")]

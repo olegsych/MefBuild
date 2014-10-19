@@ -74,7 +74,7 @@ namespace MefBuild
                 using System.Composition;
                 using MefBuild;
 
-                [Command(ExecuteBefore = new[] { typeof(TestCommand) })]
+                [Command, ExecuteBefore(typeof(TestCommand))]
                 public class BeforeCommand : TestCommand
                 {
                 }";
