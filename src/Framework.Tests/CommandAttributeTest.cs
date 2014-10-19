@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Composition;
 using System.Composition.Hosting;
-using System.Linq;
 using System.Reflection;
 using Xunit;
 
@@ -51,20 +50,11 @@ namespace MefBuild
             Assert.Equal(typeof(TestCommand).GetCustomAttribute<CommandAttribute>().ExecuteAfter, export.Metadata.ExecuteAfter);
         }
 
-        [Fact]
-        public void SummaryProvidesSummaryCommandMetadata()
-        {
-            var context = new ContainerConfiguration().WithPart<TestCommand>().CreateContainer();
-            var export = context.GetExport<ExportFactory<Command, CommandMetadata>>();
-            Assert.Equal(typeof(TestCommand).GetCustomAttribute<CommandAttribute>().Summary, export.Metadata.Summary);
-        }
-
         [Command(
             CommandType = typeof(TestCommand),
             DependsOn = new[] { typeof(StubCommand) },
             ExecuteBefore = new[] { typeof(StubCommand) },
-            ExecuteAfter = new[] { typeof(StubCommand) },
-            Summary = "Test Summary")]
+            ExecuteAfter = new[] { typeof(StubCommand) })]
         public class TestCommand : Command
         {
         }

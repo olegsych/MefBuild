@@ -30,8 +30,8 @@ namespace MefBuild
 
             help.Execute();
 
-            var commandAttribute = typeof(Summarized).GetCustomAttribute<CommandAttribute>();
-            Assert.Contains(commandAttribute.Summary, this.console.Output);
+            var summaryAttribute = typeof(Summarized).GetCustomAttribute<SummaryAttribute>();
+            Assert.Contains(summaryAttribute.Summary, this.console.Output);
         }
 
         [Fact]
@@ -83,7 +83,8 @@ namespace MefBuild
             help.Execute();
 
             var parameter = typeof(Parameterized).GetProperty("Property").GetCustomAttribute<ParameterAttribute>();
-            Assert.Matches(new Regex(parameter.Name + @"\s+" + parameter.Summary), this.console.Output);
+            var summary = typeof(Parameterized).GetProperty("Property").GetCustomAttribute<SummaryAttribute>();
+            Assert.Matches(new Regex(parameter.Name + @"\s+" + summary.Summary), this.console.Output);
         }
         
         [Fact]
@@ -105,9 +106,11 @@ namespace MefBuild
             help.Execute();
 
             var parameter = typeof(Parameterized).GetProperty("Property").GetCustomAttribute<ParameterAttribute>();
+            var parameterSummary = typeof(Parameterized).GetProperty("Property").GetCustomAttribute<SummaryAttribute>().Summary;
             var longParameter = typeof(Parameterized).GetProperty("LongProperty").GetCustomAttribute<ParameterAttribute>();
-            Assert.Contains(parameter.Name + "     " + parameter.Summary, this.console.Output);
-            Assert.Contains(longParameter.Name + " " + longParameter.Summary, this.console.Output);
+            var longParameterSummary = typeof(Parameterized).GetProperty("LongProperty").GetCustomAttribute<SummaryAttribute>().Summary;
+            Assert.Contains(parameter.Name + "     " + parameterSummary, this.console.Output);
+            Assert.Contains(longParameter.Name + " " + longParameterSummary, this.console.Output);
         }
 
         [Fact]
@@ -139,14 +142,14 @@ namespace MefBuild
         [Command]
         public class Parameterized : Command
         {
-            [Import(AllowDefault = true), Parameter(Name = "Parameter", Summary = "Parameter Summary")]
+            [Import(AllowDefault = true), Parameter(Name = "Parameter"), Summary("Parameter Summary")]
             public string Property { get; set; }
 
-            [Import(AllowDefault = true), Parameter(Name = "LongParameter", Summary = "Long Parameter Summary")]
+            [Import(AllowDefault = true), Parameter(Name = "LongParameter"), Summary("Long Parameter Summary")]
             public string LongProperty { get; set; }
         }
 
-        [Command(Summary = "Test command with summary")]
+        [Command, Summary("Test command with summary")]
         public class Summarized : Command
         {
         }
@@ -159,14 +162,14 @@ namespace MefBuild
         [Command]
         public class ParameterizedDependency : Command
         {
-            [Import(AllowDefault = true), Parameter(Name = "DependencyParameter", Summary = "Dependency Parameter Summary")]
+            [Import(AllowDefault = true), Parameter(Name = "DependencyParameter")]
             public string DependencyProperty { get; set; }
         }
 
         [Command]
         public class ParameterizedUnrelated : Command
         {
-            [Import(AllowDefault = true), Parameter(Name = "UnrelatedParameter", Summary = "Unrelated Parameter Summary")]
+            [Import(AllowDefault = true), Parameter(Name = "UnrelatedParameter")]
             public string UnrelatedProperty { get; set; }
         }
 
@@ -178,7 +181,7 @@ namespace MefBuild
         [Command]
         public class ValueTypeParameterized : Command
         {
-            [Import(AllowDefault = true), Parameter(Name = "ValueTypeParameter", Summary = "Value Type Parameter")]
+            [Import(AllowDefault = true), Parameter(Name = "ValueTypeParameter")]
             public int ValueTypeProperty { get; set; }
         }
     }

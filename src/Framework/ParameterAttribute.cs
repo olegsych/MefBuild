@@ -13,10 +13,5 @@ namespace MefBuild
         /// Gets or sets the name of the parameter.
         /// </summary>
         public string Name { get; set; }
-
-        /// <summary>
-        /// Gets or sets the summary description of the parameter.
-        /// </summary>
-        public string Summary { get; set; }
     }
 }

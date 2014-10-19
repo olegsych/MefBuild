@@ -29,13 +29,6 @@ namespace MefBuild
             Assert.Contains(new KeyValuePair<string, object>("Name", "Test Parameter"), metadata);
         }
 
-        [Fact]
-        public void SummaryProvidesSummaryMetadata()
-        {
-            IEnumerable<KeyValuePair<string, object>> metadata = GetImportContractMetadata<TestCommand>();
-            Assert.Contains(new KeyValuePair<string, object>("Summary", "Test Summary"), metadata);            
-        }
-
         private static IEnumerable<KeyValuePair<string, object>> GetImportContractMetadata<T>() where T : new()
         {
             CompositionContract importContract = null;
@@ -58,7 +51,7 @@ namespace MefBuild
         public class TestCommand : Command
         {
             [Import(AllowDefault = true), 
-            Parameter(Name = "Test Parameter", Summary = "Test Summary")]
+            Parameter(Name = "Test Parameter")]
             public int Property { get; set; }
         }
 

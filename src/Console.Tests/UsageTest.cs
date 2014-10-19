@@ -129,12 +129,12 @@ namespace MefBuild
         {
         }
 
-        [Command(Summary = "Test Summary")]
+        [Command, Summary("Test Summary")]
         public class CommandWithSummary : Command
         {
         }
 
-        [Command(Summary = "Test Summary")]
+        [Command, Summary("Test Summary")]
         public class ShortWithSummary : Command
         {
         }

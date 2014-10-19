@@ -99,9 +99,11 @@ namespace MefBuild
                     var parameter = new ParameterMetadata();
                     parameter.Name = name;
                     string summary;
-                    if (contract.TryUnwrapMetadataConstraint("Summary", out summary, out contract))
+                    CompositionContract contractWithoutSummary;
+                    if (contract.TryUnwrapMetadataConstraint("Summary", out summary, out contractWithoutSummary))
                     {
                         parameter.Summary = summary;
+                        contract = contractWithoutSummary;
                     }
 
                     Func<IEnumerable<CompositionDependency>, ExportDescriptor> exportFactory = dependencies =>

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Composition;
 using System.Composition.Hosting;
 using System.Diagnostics.CodeAnalysis;
@@ -48,10 +47,5 @@ namespace MefBuild
         /// </summary>
         [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Collections are not valid attribute parameter types")]
         public Type[] ExecuteBefore { get; set; }
-
-        /// <summary>
-        /// Gets or sets the summary description of the concrete <see cref="Command"/> class.
-        /// </summary>
-        public string Summary { get; set; }
     }
 }

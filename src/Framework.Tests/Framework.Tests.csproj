@@ -60,6 +60,7 @@
     <Compile Include="ParameterAttributeTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StubCommand.cs" />
+    <Compile Include="SummaryAttributeTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Framework\Framework.csproj">
