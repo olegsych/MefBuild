@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Composition;
-using System.Composition.Hosting;
 using System.Linq;
 using Xunit;
 
@@ -33,19 +31,6 @@ namespace MefBuild.Diagnostics
         {
             var e = Assert.Throws<ArgumentNullException>(() => new Log(new[] { new StubOutput(), null }));
             Assert.Equal("outputs[1]", e.ParamName);
-        }
-
-        [Fact]
-        public void EmptyReturnsLogInstanceUsedByEngineAndCommandsWhenCompositionContextHasNoExport()
-        {
-            Log instance = Log.Empty;
-            Assert.NotNull(instance);
-        }
-
-        [Fact]
-        public void EmptyPropertyIsReadOnlyBecauseItIsSingleton()
-        {
-            Assert.Null(typeof(Log).GetProperty("Empty").SetMethod);
         }
 
         [Fact]

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Composition;
+﻿using System.Linq;
 using MefBuild.Diagnostics;
 
 namespace MefBuild
@@ -9,16 +8,20 @@ namespace MefBuild
     /// </summary>
     public abstract class Command
     {
-        private Log log;
+        private static readonly Log emptyLog = new Log(Enumerable.Empty<Output>());
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Command"/> class.
+        /// </summary>
+        protected Command()
+        {
+            this.Log = emptyLog;
+        }
 
         /// <summary>
         /// Gets the <see cref="Log"/> object this instance can use to log diagnostics information.
         /// </summary>
-        protected internal Log Log 
-        {
-            get { return this.log ?? Log.Empty; }
-            internal set { this.log = value; }
-        }
+        protected internal Log Log { get; internal set; }
 
         /// <summary>
         /// When overridden in a derived class, executes the command logic.

@@ -9,7 +9,6 @@ namespace MefBuild.Diagnostics
     /// </summary>
     public sealed class Log
     {
-        private static readonly Log empty = new Log(Enumerable.Empty<Output>());
         private readonly IEnumerable<Output> outputs;
 
         /// <summary>
@@ -38,14 +37,6 @@ namespace MefBuild.Diagnostics
             }
 
             this.outputs = outputs;
-        }
-
-        /// <summary>
-        /// Gets an empty log without outputs.
-        /// </summary>
-        public static Log Empty 
-        {
-            get { return empty; }
         }
 
         /// <summary>

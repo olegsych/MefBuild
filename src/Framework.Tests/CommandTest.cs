@@ -1,8 +1,4 @@
-﻿using System;
-using System.Composition;
-using System.Composition.Hosting;
-using System.Reflection;
-using MefBuild.Diagnostics;
+﻿using System.Reflection;
 using Xunit;
 
 namespace MefBuild
@@ -37,7 +33,7 @@ namespace MefBuild
         public void LogHasDefaultValueToEnableTestingCommandsWithoutComposition()
         {
             var command = new StubCommand();
-            Assert.Same(Log.Empty, command.Log);
+            Assert.NotNull(command.Log);
         }
 
         [Fact]
