@@ -69,42 +69,71 @@ namespace MefBuild
             [Fact]
             public void ExecutesCommandSpecifiedAsType()
             {
-                var configuration = new ContainerConfiguration().WithPart<Target>();
+                var configuration = new ContainerConfiguration().WithPart<TypedCommand>();
 
-                new Engine(configuration).Execute(typeof(Target));
+                new Engine(configuration).Execute(typeof(TypedCommand));
 
-                Assert.Equal(new[] { typeof(Target) }, StubCommand.ExecutedCommands.Select(c => c.GetType()));
+                Assert.Equal(new[] { typeof(TypedCommand) }, StubCommand.ExecutedCommands.Select(c => c.GetType()));
             }
 
             [Fact]
             public void ExecutesCommandSpecifiedAsGeneric()
             {
-                var configuration = new ContainerConfiguration().WithPart<Target>();
+                var configuration = new ContainerConfiguration().WithPart<TypedCommand>();
 
-                new Engine(configuration).Execute<Target>();
+                new Engine(configuration).Execute<TypedCommand>();
 
-                Assert.Equal(new[] { typeof(Target) }, StubCommand.ExecutedCommands.Select(c => c.GetType()));
+                Assert.Equal(new[] { typeof(TypedCommand) }, StubCommand.ExecutedCommands.Select(c => c.GetType()));
             }
 
             [Fact]
             public void ThrowsCompositionFailedExceptionIfCommandTypeIsNotExported()
             {
                 var configuration = new ContainerConfiguration();
-
                 var engine = new Engine(configuration);
-                Assert.Throws<CompositionFailedException>(() => engine.Execute(typeof(Target)));
+
+                Assert.Throws<CompositionFailedException>(() => engine.Execute(typeof(TypedCommand)));
+            }
+
+            [Fact]
+            public void ExecutesCommandExportedWithGivenContractName()
+            {
+                var configuration = new ContainerConfiguration().WithPart<NamedCommand>();
+
+                new Engine(configuration).Execute(NamedCommandName);
+
+                Assert.Equal(new[] { typeof(NamedCommand) }, StubCommand.ExecutedCommands.Select(c => c.GetType()));
+            }
+
+            [Fact]
+            public void ExecuteThrowsArgumentNullExceptionWhenCommandNameIsNull()
+            {
+                var configuration = new ContainerConfiguration();
+                var engine = new Engine(configuration);
+
+                var e = Assert.Throws<ArgumentNullException>(() => engine.Execute((string)null));
+                Assert.Equal("commandName", e.ParamName);
+            }
+
+            [Fact]
+            public void ExecuteThrowsCompositionFailedExceptionIfCommandNameIsNotExported()
+            {
+                var configuration = new ContainerConfiguration();
+                var engine = new Engine(configuration);
+
+                Assert.Throws<CompositionFailedException>(() => engine.Execute(NamedCommandName));
             }
 
             [Fact]
             public void LogsStartRecordBeforeExecutingCommand()
             {
-                var configuration = new ContainerConfiguration().WithParts(typeof(Target), typeof(StubOutput));
+                var configuration = new ContainerConfiguration().WithParts(typeof(TypedCommand), typeof(StubOutput));
                 var engine = new Engine(configuration);
 
-                engine.Execute<Target>();
+                engine.Execute<TypedCommand>();
 
                 var expected = new Record(
-                    string.Format("Command \"{0}\" in \"{1}\":", typeof(Target).FullName, typeof(Target).Assembly.Location), 
+                    string.Format("Command \"{0}\" in \"{1}\":", typeof(TypedCommand).FullName, typeof(TypedCommand).Assembly.Location), 
                     RecordType.Start, 
                     Importance.High);
                 Assert.Contains(expected, StubOutput.WrittenRecords);
@@ -113,20 +142,27 @@ namespace MefBuild
             [Fact]
             public void LogsStopRecordAfterExecutingCommand()
             {
-                var configuration = new ContainerConfiguration().WithParts(typeof(Target), typeof(StubOutput));
+                var configuration = new ContainerConfiguration().WithParts(typeof(TypedCommand), typeof(StubOutput));
                 var engine = new Engine(configuration);
 
-                engine.Execute<Target>();
+                engine.Execute<TypedCommand>();
 
                 var expected = new Record(
-                    string.Format("Done executing command \"{0}\".", typeof(Target).FullName), 
+                    string.Format("Done executing command \"{0}\".", typeof(TypedCommand).FullName), 
                     RecordType.Stop, 
                     Importance.Normal);
                 Assert.Contains(expected, StubOutput.WrittenRecords);                
             }
 
+            private const string NamedCommandName = "NamedCommand";
+
             [Export]
-            public class Target : StubCommand
+            public class TypedCommand : StubCommand
+            {
+            }
+
+            [Export(NamedCommandName, typeof(Command))]
+            public class NamedCommand : StubCommand
             {
             }
         }
@@ -177,21 +213,21 @@ namespace MefBuild
             public void ExecutesDependencyCommandOnlyOnce()
             {
                 var configuration = new ContainerConfiguration()
-                    .WithParts(typeof(SharedDependency), typeof(Target));
+                    .WithParts(typeof(Dependency), typeof(Target));
 
                 new Engine(configuration).Execute(typeof(Target));
 
                 Assert.Equal(
-                    new[] { typeof(SharedDependency), typeof(Target) },
+                    new[] { typeof(Dependency), typeof(Target) },
                     StubCommand.ExecutedCommands.Select(c => c.GetType()));
             }
             
             [Export]
-            public class SharedDependency : StubCommand
+            public class Dependency : StubCommand
             {
             }
 
-            [Export, DependsOn(typeof(SharedDependency), typeof(SharedDependency))]
+            [Export, DependsOn(typeof(Dependency), typeof(Dependency))]
             public class Target : StubCommand
             {
             }

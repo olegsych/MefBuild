@@ -53,8 +53,15 @@ namespace MefBuild
         /// <param name="commandType">
         /// A <see cref="Type"/> derived from the <see cref="Command"/> class and marked with the <see cref="ExportAttribute"/>.
         /// </param>
-        /// <exception cref="ArgumentNullException">The <paramref name="commandType"/> is null.</exception>
-        /// <exception cref="ArgumentException">The <paramref name="commandType"/> does not derive from the <see cref="Command"/> class.</exception>
+        /// <exception cref="ArgumentNullException">
+        /// The <paramref name="commandType"/> is null.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// The <paramref name="commandType"/> does not derive from the <see cref="Command"/> class.
+        /// </exception>
+        /// <exception cref="CompositionFailedException">
+        /// The <paramref name="commandType"/> is not exported in the composition context of the engine. 
+        /// </exception>
         public void Execute(Type commandType)
         {
             const string ParameterName = "commandType";
@@ -69,7 +76,30 @@ namespace MefBuild
                 throw new ArgumentException("The type must derive from the Command class.", ParameterName);
             }
 
-            var plan = new ExecutionPlan(commandType, this.context);
+            var plan = new ExecutionPlan(this.context, commandType);
+            this.Execute(plan.Steps);
+        }
+
+        /// <summary>
+        /// Executes a <see cref="Command"/> exported with the specified contract name.
+        /// </summary>
+        /// <param name="commandName">
+        /// A <see cref="String"/> matching the contract name specified in the <see cref="ExportAttribute"/> applied to the command class.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// The <paramref name="commandName"/> is null.
+        /// </exception>
+        /// <exception cref="CompositionFailedException">
+        /// The composition context of the engine does not have a command exported with the specified contract name.
+        /// </exception>
+        public void Execute(string commandName)
+        {
+            if (commandName == null)
+            {
+                throw new ArgumentNullException("commandName");
+            }
+
+            var plan = new ExecutionPlan(this.context, commandName);
             this.Execute(plan.Steps);
         }
 

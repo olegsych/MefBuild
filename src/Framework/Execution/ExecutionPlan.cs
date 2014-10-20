@@ -11,11 +11,21 @@ namespace MefBuild.Execution
         private readonly List<ExecutionStep> steps;
         private readonly CompositionContext context;
 
-        public ExecutionPlan(Type commandType, CompositionContext context)
+        public ExecutionPlan(CompositionContext context, Type commandType) 
+            : this(GetCommand(context, commandType), context)
+        {
+        }
+
+        public ExecutionPlan(CompositionContext context, string commandName) 
+            : this(GetCommand(context, commandName), context)
+        {
+        }
+
+        private ExecutionPlan(Lazy<Command, CommandMetadata> command, CompositionContext context)
         {
             this.steps = new List<ExecutionStep>();
             this.context = context;
-            this.CreateSteps(this.GetCommand(commandType), DependencyType.None, null);
+            this.CreateSteps(command, DependencyType.None, null);
         }
 
         public IEnumerable<ExecutionStep> Steps
@@ -55,16 +65,21 @@ namespace MefBuild.Execution
             }
         }
 
-        private Lazy<Command, CommandMetadata> GetCommand(Type commandType)
+        private static Lazy<Command, CommandMetadata> GetCommand(CompositionContext context, Type commandType)
         {
-            var importerType = typeof(CommandExporter<>).MakeGenericType(commandType);
-            var importer = (ICommandExporter)Activator.CreateInstance(importerType);
-            return importer.GetCommandExport(this.context);
+            var exporterType = typeof(CommandExporter<>).MakeGenericType(commandType);
+            var exporter = (ICommandExporter)Activator.CreateInstance(exporterType);
+            return exporter.GetCommandExport(context);
+        }
+
+        private static Lazy<Command, CommandMetadata> GetCommand(CompositionContext context, string commandName)
+        {
+            return context.GetExport<Lazy<Command, CommandMetadata>>(commandName);
         }
 
         private IEnumerable<Lazy<Command, CommandMetadata>> GetDependsOnCommands(Lazy<Command, CommandMetadata> command)
         {
-            return command.Metadata.Dependencies.Select(type => this.GetCommand(type));
+            return command.Metadata.Dependencies.Select(type => GetCommand(this.context, type));
         }
 
         private IEnumerable<Lazy<Command, CommandMetadata>> GetBeforeCommands(Lazy<Command, CommandMetadata> command)

@@ -11,8 +11,6 @@ namespace MefBuild
     internal class CommandMetadata
     {
         private IEnumerable<Type> dependencies;
-        private IEnumerable<Type> executeAfter;
-        private IEnumerable<Type> executeBefore;
 
         [DefaultValue(null)]
         public Type CommandType { get; set; }
@@ -22,20 +20,6 @@ namespace MefBuild
         {
             get { return this.dependencies ?? Enumerable.Empty<Type>(); }
             set { this.dependencies = value; }
-        }
-
-        [DefaultValue(null)]
-        public IEnumerable<Type> ExecuteAfter 
-        {
-            get { return this.executeAfter ?? Enumerable.Empty<Type>(); }
-            set { this.executeAfter = value; }
-        }
-
-        [DefaultValue(null)]
-        public IEnumerable<Type> ExecuteBefore 
-        {
-            get { return this.executeBefore ?? Enumerable.Empty<Type>(); }
-            set { this.executeBefore = value; }
         }
 
         [DefaultValue(null)]
