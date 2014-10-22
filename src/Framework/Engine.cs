@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Composition;
 using System.Composition.Hosting;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Reflection;
 using MefBuild.Diagnostics;
 using MefBuild.Execution;
@@ -73,7 +74,9 @@ namespace MefBuild
 
             if (!typeof(Command).GetTypeInfo().IsAssignableFrom(commandType.GetTypeInfo()))
             {
-                throw new ArgumentException("The type must derive from the Command class.", ParameterName);
+                throw new ArgumentException(
+                    string.Format(CultureInfo.CurrentCulture, "Type {0} does not derive from the {1}.", commandType.FullName, typeof(Command).FullName), 
+                    ParameterName);
             }
 
             var plan = new ExecutionPlan(this.context, commandType);

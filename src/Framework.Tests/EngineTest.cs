@@ -51,10 +51,11 @@ namespace MefBuild
         public static void ExecuteThrowsArgumentExceptionWhenGivenTypeIsNotCommandToPreventUsageErrors()
         {
             var engine = new Engine(new ContainerConfiguration());
-            Type commandType = typeof(object);
-            var e = Assert.Throws<ArgumentException>(() => engine.Execute(commandType));
+            Type invalidType = typeof(object);
+            var e = Assert.Throws<ArgumentException>(() => engine.Execute(invalidType));
             Assert.Equal("commandType", e.ParamName);
-            Assert.Contains("Command", e.Message);
+            Assert.Contains(typeof(Command).FullName, e.Message);
+            Assert.Contains(invalidType.FullName, e.Message);
         }
 
         [Fact]
