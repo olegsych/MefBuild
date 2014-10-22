@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Composition;
 using System.Composition.Hosting;
+using System.Linq;
+using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
-using MefBuild.Properties;
 using Xunit;
 
 namespace MefBuild
@@ -11,132 +12,44 @@ namespace MefBuild
     public class UsageTest
     {
         [Fact]
-        public void ClassInheritsFromCommandToBeExecutedByEngine()
+        public void UsagePrintsProgramUsage()
         {
-            Assert.True(typeof(Command).IsAssignableFrom(typeof(Usage)));
+            string programUsage = ExecuteCommands(typeof(PrintProgramUsage));
+            string allUsage = ExecuteCommands(typeof(Usage));
+
+            Assert.Contains(programUsage, allUsage);
         }
 
         [Fact]
-        public void ExecuteOverridesMethodInheritedFromCommandToBeInvokedPolymorphically()
+        public void UsagePrintsNamedProgramCommands()
         {
-            Assert.Same(typeof(Command).GetMethod("Execute"), typeof(Usage).GetMethod("Execute").GetBaseDefinition());
+            string namedProgramCommands = ExecuteCommands(typeof(GetProgramCommandTypes), typeof(PrintNamedCommands));
+            string allUsage = ExecuteCommands(typeof(Usage));
+
+            Assert.NotEmpty(namedProgramCommands);
+            Assert.Contains(namedProgramCommands, allUsage);
         }
 
-        [Fact]
-        public void ExecuteWritesUsageSectionToConsoleOutput()
-        {
-            var configuration = new ContainerConfiguration();
-
-            string output = ExecuteHelpCommand(configuration);
-
-            Assert.Contains("Usage:", output);
-            Assert.Matches(new Regex(@"^\s+MefBuild <command> \[parameters]", RegexOptions.Multiline), output);
-            Assert.Contains("For help about specific command, type:", output);
-            Assert.Matches(new Regex(@"^\s+MefBuild help <command>", RegexOptions.Multiline), output);
-        }
-
-        [Fact]
-        public void ExecuteWritesCommandsWithSummaryToConsoleOutput()
-        {
-            var configuration = new ContainerConfiguration().WithPart<CommandWithSummary>();
-
-            string output = ExecuteHelpCommand(configuration);
-
-            Assert.Contains(Resources.CommonCommandsHeader, output, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains(typeof(CommandWithSummary).Name, output, StringComparison.OrdinalIgnoreCase);
-        }
-
-        [Fact]
-        public void ExecuteAssumesCommandsWithoutSummaryAreInternalAndDowsNotWriteThemToConsoleOutput()
-        {
-            var configuration = new ContainerConfiguration().WithPart<CommandWithoutSummary>();
-
-            string output = ExecuteHelpCommand(configuration);
-
-            Assert.DoesNotContain(Resources.CommonCommandsHeader, output);
-        }
-
-        [Fact]
-        public void ExecuteDoesNotWriteCommonCommandsSectionIfThereAreNoCommands()
-        {
-            var configuration = new ContainerConfiguration();
-
-            string output = ExecuteHelpCommand(configuration);
-
-            Assert.DoesNotContain(Resources.CommonCommandsHeader, output, StringComparison.OrdinalIgnoreCase);
-        }
-
-        [Fact]
-        public void ExecuteIndentsCommandNamesInCommonCommandsSectionForReadability()
-        {
-            var configuration = new ContainerConfiguration().WithPart<CommandWithSummary>();
-
-            string output = ExecuteHelpCommand(configuration);
-
-            Assert.Matches(new Regex(@"^\s+" + typeof(CommandWithSummary).Name, RegexOptions.Multiline), output);
-        }
-
-        [Fact]
-        public void ExecuteAlignsSummariesInCommonCommandsSectionForReadability()
-        {
-            var configuration = new ContainerConfiguration().WithParts(typeof(CommandWithSummary), typeof(ShortWithSummary));
-
-            string output = ExecuteHelpCommand(configuration);
-
-            Assert.Contains(GetMetadata<CommandWithSummary>().CommandType.Name + " " + GetMetadata<CommandWithSummary>().Summary, output);
-            Assert.Contains(GetMetadata<ShortWithSummary>().CommandType.Name + "   " + GetMetadata<ShortWithSummary>().Summary, output);
-        }
-
-        [Fact]
-        public void ExecuteWritesSummaryDescriptionsOfCommandsAfterTheirNames()
-        {
-            var configuration = new ContainerConfiguration().WithPart<CommandWithSummary>();
-
-            string output = ExecuteHelpCommand(configuration);
-
-            CommandMetadata metadata = GetMetadata<CommandWithSummary>();
-            string name = metadata.CommandType.Name;
-            string summary = metadata.Summary;
-            Assert.Matches(name + "\\s*" + summary, output);
-        }
-
-        private static string ExecuteHelpCommand(ContainerConfiguration configuration)
+        private static string ExecuteCommands(params Type[] commandTypes)
         {
             var output = new StringBuilder();
             using (new ConsoleOutputInterceptor(output))
             {
-                CompositionContext context = configuration
-                    .WithDefaultConventions(new CommandExportConventions())
-                    .CreateContainer();
-                var help = new Usage(context.GetExports<ExportFactory<Command, CommandMetadata>>());
-                help.Execute();
+                var configuration = new ContainerConfiguration().WithParts(GetProgramCommands());
+                var engine = new Engine(configuration);
+                foreach (Type commandType in commandTypes)
+                {
+                    engine.Execute(commandType);
+                }
+
                 return output.ToString();
             }
         }
 
-        private static CommandMetadata GetMetadata<T>() where T : Command
+        private static IEnumerable<Type> GetProgramCommands()
         {
-            var configuration = new ContainerConfiguration()
-                .WithDefaultConventions(new CommandExportConventions())
-                .WithPart<T>()
-                .CreateContainer();
-            var export = configuration.GetExport<ExportFactory<Command, CommandMetadata>>();
-            return export.Metadata;
-        }
-
-        [Export(typeof(Command))]
-        public class CommandWithoutSummary : Command
-        {
-        }
-
-        [Export(typeof(Command)), Summary("Test Summary")]
-        public class CommandWithSummary : Command
-        {
-        }
-
-        [Export(typeof(Command)), Summary("Test Summary")]
-        public class ShortWithSummary : Command
-        {
+            return typeof(Program).Assembly.DefinedTypes
+                .Where(t => t.GetCustomAttributes<ExportAttribute>().Any() && typeof(Command).IsAssignableFrom(t));
         }
     }
 }

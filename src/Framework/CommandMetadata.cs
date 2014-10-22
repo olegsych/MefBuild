@@ -16,6 +16,9 @@ namespace MefBuild
         public Type CommandType { get; set; }
 
         [DefaultValue(null)]
+        public string Name { get; set; }
+
+        [DefaultValue(null)]
         public IEnumerable<Type> Dependencies 
         {
             get { return this.dependencies ?? Enumerable.Empty<Type>(); }
