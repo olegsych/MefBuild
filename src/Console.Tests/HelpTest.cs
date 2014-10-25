@@ -82,9 +82,9 @@ namespace MefBuild
 
             help.Execute();
 
-            var parameter = typeof(Parameterized).GetProperty("Property").GetCustomAttribute<ParameterAttribute>();
+            var import = typeof(Parameterized).GetProperty("Property").GetCustomAttribute<ImportAttribute>();
             var summary = typeof(Parameterized).GetProperty("Property").GetCustomAttribute<SummaryAttribute>();
-            Assert.Matches(new Regex(parameter.Name + @"\s+" + summary.Summary), this.console.Output);
+            Assert.Matches(new Regex(import.ContractName + @"\s+" + summary.Summary), this.console.Output);
         }
         
         [Fact]
@@ -94,8 +94,8 @@ namespace MefBuild
 
             help.Execute();
 
-            var parameter = typeof(Parameterized).GetProperty("Property").GetCustomAttribute<ParameterAttribute>();
-            Assert.Matches(new Regex(@"^\s+" + parameter.Name, RegexOptions.Multiline), this.console.Output);
+            var import = typeof(Parameterized).GetProperty("Property").GetCustomAttribute<ImportAttribute>();
+            Assert.Matches(new Regex(@"^\s+" + import.ContractName, RegexOptions.Multiline), this.console.Output);
         }
 
         [Fact]
@@ -105,12 +105,12 @@ namespace MefBuild
 
             help.Execute();
 
-            var parameter = typeof(Parameterized).GetProperty("Property").GetCustomAttribute<ParameterAttribute>();
+            var parameterName = typeof(Parameterized).GetProperty("Property").GetCustomAttribute<ImportAttribute>().ContractName;
             var parameterSummary = typeof(Parameterized).GetProperty("Property").GetCustomAttribute<SummaryAttribute>().Summary;
-            var longParameter = typeof(Parameterized).GetProperty("LongProperty").GetCustomAttribute<ParameterAttribute>();
+            var longParameterName = typeof(Parameterized).GetProperty("LongProperty").GetCustomAttribute<ImportAttribute>().ContractName;
             var longParameterSummary = typeof(Parameterized).GetProperty("LongProperty").GetCustomAttribute<SummaryAttribute>().Summary;
-            Assert.Contains(parameter.Name + "     " + parameterSummary, this.console.Output);
-            Assert.Contains(longParameter.Name + " " + longParameterSummary, this.console.Output);
+            Assert.Contains(parameterName + "     " + parameterSummary, this.console.Output);
+            Assert.Contains(longParameterName + " " + longParameterSummary, this.console.Output);
         }
 
         [Fact]
@@ -142,10 +142,10 @@ namespace MefBuild
         [Export, Export(typeof(Command))]
         public class Parameterized : Command
         {
-            [Import(AllowDefault = true), Parameter(Name = "Parameter"), Summary("Parameter Summary")]
+            [Import("Parameter", AllowDefault = true), CommandLineArgument, Summary("Parameter Summary")]
             public string Property { get; set; }
 
-            [Import(AllowDefault = true), Parameter(Name = "LongParameter"), Summary("Long Parameter Summary")]
+            [Import("LongParameter", AllowDefault = true), CommandLineArgument, Summary("Long Parameter Summary")]
             public string LongProperty { get; set; }
         }
 
@@ -162,14 +162,14 @@ namespace MefBuild
         [Export, Export(typeof(Command))]
         public class ParameterizedDependency : Command
         {
-            [Import(AllowDefault = true), Parameter(Name = "DependencyParameter")]
+            [Import("DependencyParameter", AllowDefault = true), CommandLineArgument]
             public string DependencyProperty { get; set; }
         }
 
         [Export(typeof(Command))]
         public class ParameterizedUnrelated : Command
         {
-            [Import(AllowDefault = true), Parameter(Name = "UnrelatedParameter")]
+            [Import("UnrelatedParameter", AllowDefault = true), CommandLineArgument]
             public string UnrelatedProperty { get; set; }
         }
 
@@ -181,7 +181,7 @@ namespace MefBuild
         [Export, Export(typeof(Command))]
         public class ValueTypeParameterized : Command
         {
-            [Import(AllowDefault = true), Parameter(Name = "ValueTypeParameter")]
+            [Import("ValueTypeParameter", AllowDefault = true), CommandLineArgument]
             public int ValueTypeProperty { get; set; }
         }
     }

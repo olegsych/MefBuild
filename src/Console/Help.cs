@@ -24,7 +24,7 @@ namespace MefBuild
 
         public override void Execute()
         {
-            var parameterExtractor = new ParameterMetadataExtractor();
+            var parameterExtractor = new ParameterDescriptorExtractor();
 
             CompositionContext container = new ContainerConfiguration()
                 .WithDefaultConventions(new CommandExportConventions())
@@ -61,50 +61,43 @@ namespace MefBuild
             Console.WriteLine(Resources.CommandUsageHeaderFormat, command.CommandType.Name);
         }
 
-        private static void PrintCommandParameters(IReadOnlyCollection<ParameterMetadata> parameters)
+        private static void PrintCommandParameters(IReadOnlyCollection<ParameterDescriptor> parameters)
         {
             if (parameters.Count > 0)
             {
                 Console.WriteLine(Resources.ParametersHeader);
 
                 int maxNameLength = parameters.Max(p => p.Name.Length);
-                foreach (ParameterMetadata parameter in parameters)               
+                foreach (ParameterDescriptor parameter in parameters)               
                 {
                     Console.WriteLine(Resources.NameAndSummaryFormat, parameter.Name.PadRight(maxNameLength), parameter.Summary);
                 }
             }
         }
 
-        private class ParameterMetadata
+        private class ParameterDescriptor
         {
             public string Name { get; set; }
 
             public string Summary { get; set; }
         }
 
-        private class ParameterMetadataExtractor : ExportDescriptorProvider
+        private class ParameterDescriptorExtractor : ExportDescriptorProvider
         {
-            private List<ParameterMetadata> parameters = new List<ParameterMetadata>();
+            private List<ParameterDescriptor> parameters = new List<ParameterDescriptor>();
 
-            public IReadOnlyCollection<ParameterMetadata> Parameters
+            public IReadOnlyCollection<ParameterDescriptor> Parameters
             {
                 get { return this.parameters; }
             }
 
             public override IEnumerable<ExportDescriptorPromise> GetExportDescriptors(CompositionContract contract, DependencyAccessor descriptorAccessor)
             {
-                string name;
-                if (contract != null && contract.TryUnwrapMetadataConstraint("Name", out name, out contract))
+                if (IsCommandLineArgument(contract))
                 {
-                    var parameter = new ParameterMetadata();
-                    parameter.Name = name;
-                    string summary;
-                    CompositionContract contractWithoutSummary;
-                    if (contract.TryUnwrapMetadataConstraint("Summary", out summary, out contractWithoutSummary))
-                    {
-                        parameter.Summary = summary;
-                        contract = contractWithoutSummary;
-                    }
+                    var parameter = new ParameterDescriptor();
+                    parameter.Name = contract.ContractName;
+                    parameter.Summary = GetSummary(contract);
 
                     Func<IEnumerable<CompositionDependency>, ExportDescriptor> exportFactory = dependencies =>
                     {
@@ -126,7 +119,7 @@ namespace MefBuild
 
                     var promise = new ExportDescriptorPromise(
                         contract,
-                        string.Format(CultureInfo.CurrentCulture, "Parameter: '{0}'", name),
+                        string.Format(CultureInfo.CurrentCulture, "Parameter: '{0}'", contract.ContractName),
                         true,
                         NoDependencies,
                         exportFactory);
@@ -135,6 +128,25 @@ namespace MefBuild
                 }
 
                 return Enumerable.Empty<ExportDescriptorPromise>();
+            }
+
+            private static bool IsCommandLineArgument(CompositionContract contract)
+            {
+                bool isCommandLineArgument;
+                return !string.IsNullOrEmpty(contract.ContractName) &&
+                    contract.TryUnwrapMetadataConstraint("IsCommandLineArgument", out isCommandLineArgument, out contract) &&
+                    isCommandLineArgument;
+            }
+
+            private static string GetSummary(CompositionContract contract)
+            {
+                string summary;
+                if (contract.TryUnwrapMetadataConstraint("Summary", out summary, out contract))
+                {
+                    return summary;
+                }
+
+                return string.Empty;
             }
         }
     }
