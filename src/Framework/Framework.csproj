@@ -36,7 +36,7 @@
     <Compile Include="Diagnostics\Log.cs" />
     <Compile Include="Diagnostics\RecordType.cs" />
     <Compile Include="Diagnostics\Verbosity.cs" />
-    <Compile Include="CommandLineArgumentAttribute.cs" />
+    <Compile Include="ArgumentAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Messages.Designer.cs">
       <AutoGen>True</AutoGen>

@@ -24,12 +24,12 @@ namespace MefBuild
 
         public override void Execute()
         {
-            var parameterExtractor = new ParameterDescriptorExtractor();
+            var argumentExtractor = new ArgumentDescriptorExtractor();
 
             CompositionContext container = new ContainerConfiguration()
                 .WithDefaultConventions(new CommandExportConventions())
                 .WithAssemblies(this.assemblies)
-                .WithProvider(parameterExtractor)
+                .WithProvider(argumentExtractor)
                 .CreateContainer();
 
             IEnumerable<Lazy<Command, CommandMetadata>> allCommands = container.GetExports<Lazy<Command, CommandMetadata>>();
@@ -41,10 +41,10 @@ namespace MefBuild
             var plan = new ExecutionPlan(container, this.commandType);
             foreach (ExecutionStep step in plan.Steps)
             {
-                Command forceParameterImport = step.Command.Value;
+                Command forceArgumentImport = step.Command.Value;
             }
 
-            PrintCommandParameters(parameterExtractor.Parameters);
+            PrintCommandArguments(argumentExtractor.Arguments);
         }
 
         private static void PrintCommandSummary(CommandMetadata command)
@@ -61,49 +61,49 @@ namespace MefBuild
             Console.WriteLine(Resources.CommandUsageHeaderFormat, command.CommandType.Name);
         }
 
-        private static void PrintCommandParameters(IReadOnlyCollection<ParameterDescriptor> parameters)
+        private static void PrintCommandArguments(IReadOnlyCollection<ArgumentDescriptor> arguments)
         {
-            if (parameters.Count > 0)
+            if (arguments.Count > 0)
             {
-                Console.WriteLine(Resources.ParametersHeader);
+                Console.WriteLine(Resources.ArgumentsHeader);
 
-                int maxNameLength = parameters.Max(p => p.Name.Length);
-                foreach (ParameterDescriptor parameter in parameters)               
+                int maxNameLength = arguments.Max(p => p.Name.Length);
+                foreach (ArgumentDescriptor argument in arguments)               
                 {
-                    Console.WriteLine(Resources.NameAndSummaryFormat, parameter.Name.PadRight(maxNameLength), parameter.Summary);
+                    Console.WriteLine(Resources.NameAndSummaryFormat, argument.Name.PadRight(maxNameLength), argument.Summary);
                 }
             }
         }
 
-        private class ParameterDescriptor
+        private class ArgumentDescriptor
         {
             public string Name { get; set; }
 
             public string Summary { get; set; }
         }
 
-        private class ParameterDescriptorExtractor : ExportDescriptorProvider
+        private class ArgumentDescriptorExtractor : ExportDescriptorProvider
         {
-            private List<ParameterDescriptor> parameters = new List<ParameterDescriptor>();
+            private List<ArgumentDescriptor> arguments = new List<ArgumentDescriptor>();
 
-            public IReadOnlyCollection<ParameterDescriptor> Parameters
+            public IReadOnlyCollection<ArgumentDescriptor> Arguments
             {
-                get { return this.parameters; }
+                get { return this.arguments; }
             }
 
             public override IEnumerable<ExportDescriptorPromise> GetExportDescriptors(CompositionContract contract, DependencyAccessor descriptorAccessor)
             {
-                if (IsCommandLineArgument(contract))
+                if (IsArgument(contract))
                 {
-                    var parameter = new ParameterDescriptor();
-                    parameter.Name = contract.ContractName;
-                    parameter.Summary = GetSummary(contract);
+                    var argument = new ArgumentDescriptor();
+                    argument.Name = contract.ContractName;
+                    argument.Summary = GetSummary(contract);
 
                     Func<IEnumerable<CompositionDependency>, ExportDescriptor> exportFactory = dependencies =>
                     {
                         CompositeActivator instanceFactory = (c, o) =>
                         {
-                            this.parameters.Add(parameter);
+                            this.arguments.Add(argument);
                             if (contract.ContractType.IsValueType)
                             {
                                 return Activator.CreateInstance(contract.ContractType);
@@ -119,7 +119,7 @@ namespace MefBuild
 
                     var promise = new ExportDescriptorPromise(
                         contract,
-                        string.Format(CultureInfo.CurrentCulture, "Parameter: '{0}'", contract.ContractName),
+                        string.Format(CultureInfo.CurrentCulture, "Argument: '{0}'", contract.ContractName),
                         true,
                         NoDependencies,
                         exportFactory);
@@ -130,11 +130,11 @@ namespace MefBuild
                 return Enumerable.Empty<ExportDescriptorPromise>();
             }
 
-            private static bool IsCommandLineArgument(CompositionContract contract)
+            private static bool IsArgument(CompositionContract contract)
             {
                 bool isCommandLineArgument;
                 return !string.IsNullOrEmpty(contract.ContractName) &&
-                    contract.TryUnwrapMetadataConstraint("IsCommandLineArgument", out isCommandLineArgument, out contract) &&
+                    contract.TryUnwrapMetadataConstraint("IsArgument", out isCommandLineArgument, out contract) &&
                     isCommandLineArgument;
             }
 

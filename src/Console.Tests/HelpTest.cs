@@ -26,18 +26,18 @@ namespace MefBuild
         [Fact]
         public void ExecuteWritesCommandSummaryToConsoleOutput()
         {
-            Help help = NewHelp(typeof(Summarized));
+            Help help = NewHelp(typeof(CommandWithSummary));
 
             help.Execute();
 
-            var summaryAttribute = typeof(Summarized).GetCustomAttribute<SummaryAttribute>();
+            var summaryAttribute = typeof(CommandWithSummary).GetCustomAttribute<SummaryAttribute>();
             Assert.Contains(summaryAttribute.Summary, this.console.Output);
         }
 
         [Fact]
         public void ExecuteDoesNotWriteBlankLineWhenCommandDoesNotHaveSummary()
         {
-            Help help = NewHelp(typeof(UnsummarizedParameterless));
+            Help help = NewHelp(typeof(CommandWithoutSummaryAndArguments));
 
             help.Execute();
 
@@ -47,91 +47,91 @@ namespace MefBuild
         [Fact]
         public void ExecuteWritesCommandUsageToConsoleOutput()
         {
-            Help help = NewHelp(typeof(UnsummarizedParameterless));
+            Help help = NewHelp(typeof(CommandWithoutSummaryAndArguments));
 
             help.Execute();
 
             Assert.Contains("Usage:", this.console.Output);
-            Assert.Matches(new Regex(@"^\s+MefBuild " + typeof(UnsummarizedParameterless).Name, RegexOptions.Multiline), this.console.Output);
+            Assert.Matches(new Regex(@"^\s+MefBuild " + typeof(CommandWithoutSummaryAndArguments).Name, RegexOptions.Multiline), this.console.Output);
         }
 
         [Fact]
-        public void ExecuteWritesParameterSectionHeader()
+        public void ExecuteWritesArgumentsSectionHeader()
         {
-            Help help = NewHelp(typeof(Parameterized));
+            Help help = NewHelp(typeof(CommandWithArguments));
 
             help.Execute();
 
-            Assert.Contains("Parameters:", this.console.Output);
+            Assert.Contains("Arguments:", this.console.Output);
         }
 
         [Fact]
-        public void ExecuteDoesNotWriteParameterSectionHeaderIfCommandHasNoParameters()
+        public void ExecuteDoesNotWriteArgumentsSectionHeaderIfCommandHasNoArguments()
         {
-            Help help = NewHelp(typeof(Summarized));
+            Help help = NewHelp(typeof(CommandWithSummary));
 
             help.Execute();
 
-            Assert.DoesNotContain("Parameters:", this.console.Output);
+            Assert.DoesNotContain("Arguments:", this.console.Output);
         }
 
         [Fact]
-        public void ExecuteWritesParameterNamesAndSummariesToConsoleOutput()
+        public void ExecuteWritesArgumentNamesAndSummariesToConsoleOutput()
         {
-            Help help = NewHelp(typeof(Parameterized));
+            Help help = NewHelp(typeof(CommandWithArguments));
 
             help.Execute();
 
-            var import = typeof(Parameterized).GetProperty("Property").GetCustomAttribute<ImportAttribute>();
-            var summary = typeof(Parameterized).GetProperty("Property").GetCustomAttribute<SummaryAttribute>();
+            var import = typeof(CommandWithArguments).GetProperty("Property").GetCustomAttribute<ImportAttribute>();
+            var summary = typeof(CommandWithArguments).GetProperty("Property").GetCustomAttribute<SummaryAttribute>();
             Assert.Matches(new Regex(import.ContractName + @"\s+" + summary.Summary), this.console.Output);
         }
         
         [Fact]
-        public void ExecuteIndentsParameterNamesToImproveReadability()
+        public void ExecuteIndentsArgumentNamesToImproveReadability()
         {
-            Help help = NewHelp(typeof(Parameterized));
+            Help help = NewHelp(typeof(CommandWithArguments));
 
             help.Execute();
 
-            var import = typeof(Parameterized).GetProperty("Property").GetCustomAttribute<ImportAttribute>();
+            var import = typeof(CommandWithArguments).GetProperty("Property").GetCustomAttribute<ImportAttribute>();
             Assert.Matches(new Regex(@"^\s+" + import.ContractName, RegexOptions.Multiline), this.console.Output);
         }
 
         [Fact]
-        public void ExecuteAlignsParameterSummariesToImproveReadability()
+        public void ExecuteAlignsArgumentSummariesToImproveReadability()
         {
-            Help help = NewHelp(typeof(Parameterized));
+            Help help = NewHelp(typeof(CommandWithArguments));
 
             help.Execute();
 
-            var parameterName = typeof(Parameterized).GetProperty("Property").GetCustomAttribute<ImportAttribute>().ContractName;
-            var parameterSummary = typeof(Parameterized).GetProperty("Property").GetCustomAttribute<SummaryAttribute>().Summary;
-            var longParameterName = typeof(Parameterized).GetProperty("LongProperty").GetCustomAttribute<ImportAttribute>().ContractName;
-            var longParameterSummary = typeof(Parameterized).GetProperty("LongProperty").GetCustomAttribute<SummaryAttribute>().Summary;
-            Assert.Contains(parameterName + "     " + parameterSummary, this.console.Output);
-            Assert.Contains(longParameterName + " " + longParameterSummary, this.console.Output);
+            var argumentName = typeof(CommandWithArguments).GetProperty("Property").GetCustomAttribute<ImportAttribute>().ContractName;
+            var argumentSummary = typeof(CommandWithArguments).GetProperty("Property").GetCustomAttribute<SummaryAttribute>().Summary;
+            var longArgumentName = typeof(CommandWithArguments).GetProperty("LongProperty").GetCustomAttribute<ImportAttribute>().ContractName;
+            var longArgumentSummary = typeof(CommandWithArguments).GetProperty("LongProperty").GetCustomAttribute<SummaryAttribute>().Summary;
+            Assert.Contains(argumentName + "     " + argumentSummary, this.console.Output);
+            Assert.Contains(longArgumentName + " " + longArgumentSummary, this.console.Output);
         }
 
         [Fact]
-        public void ExecuteListsParametersOfCommandsTargetCommandsDependsOn()
+        public void ExecuteListsArgumentsOfCommandsTargetCommandsDependsOn()
         {
-            Help help = NewHelp(typeof(ParameterlessDependent), new[] { typeof(ParameterizedDependency).Assembly });
+            Help help = NewHelp(typeof(DependentWithoutArguments), new[] { typeof(DependencyWithArgument).Assembly });
 
             help.Execute();
 
-            Assert.Contains("DependencyParameter", this.console.Output);
-            Assert.DoesNotContain("UnrelatedParameter", this.console.Output);
+            Assert.Contains("DependencyArgument", this.console.Output);
+            Assert.DoesNotContain("UnrelatedArgument", this.console.Output);
         }
 
         [Fact]
-        public void ExecuteSupportsValueTypedParameters()
+        public void ExecuteSupportsValueTypedArguments()
         {
-            Help help = NewHelp(typeof(ValueTypeParameterized));
+            Help help = NewHelp(typeof(CommandWithValueTypeArgument));
 
             help.Execute();
 
-            Assert.Contains("ValueTypeParameter", this.console.Output);
+            Assert.Contains("ValueTypeArgument", this.console.Output);
         }
 
         private static Help NewHelp(Type commandType, IEnumerable<Assembly> assemblies = null)
@@ -140,48 +140,48 @@ namespace MefBuild
         }
 
         [Export, Export(typeof(Command))]
-        public class Parameterized : Command
+        public class CommandWithArguments : Command
         {
-            [Import("Parameter", AllowDefault = true), CommandLineArgument, Summary("Parameter Summary")]
+            [Import("Argument", AllowDefault = true), Argument, Summary("Argument Summary")]
             public string Property { get; set; }
 
-            [Import("LongParameter", AllowDefault = true), CommandLineArgument, Summary("Long Parameter Summary")]
+            [Import("LongArgument", AllowDefault = true), Argument, Summary("Long Argument Summary")]
             public string LongProperty { get; set; }
         }
 
         [Export, Export(typeof(Command)), Summary("Test command with summary")]
-        public class Summarized : Command
+        public class CommandWithSummary : Command
         {
         }
 
         [Export, Export(typeof(Command))]
-        public class UnsummarizedParameterless : Command
+        public class CommandWithoutSummaryAndArguments : Command
         {
         }
 
         [Export, Export(typeof(Command))]
-        public class ParameterizedDependency : Command
+        public class DependencyWithArgument : Command
         {
-            [Import("DependencyParameter", AllowDefault = true), CommandLineArgument]
+            [Import("DependencyArgument", AllowDefault = true), Argument]
             public string DependencyProperty { get; set; }
         }
 
         [Export(typeof(Command))]
-        public class ParameterizedUnrelated : Command
+        public class UnrelatedWithArgument : Command
         {
-            [Import("UnrelatedParameter", AllowDefault = true), CommandLineArgument]
+            [Import("UnrelatedArgument", AllowDefault = true), Argument]
             public string UnrelatedProperty { get; set; }
         }
 
-        [Export, Export(typeof(Command)), DependsOn(typeof(ParameterizedDependency))]
-        public class ParameterlessDependent : Command
+        [Export, Export(typeof(Command)), DependsOn(typeof(DependencyWithArgument))]
+        public class DependentWithoutArguments : Command
         {
         }
 
         [Export, Export(typeof(Command))]
-        public class ValueTypeParameterized : Command
+        public class CommandWithValueTypeArgument : Command
         {
-            [Import("ValueTypeParameter", AllowDefault = true), CommandLineArgument]
+            [Import("ValueTypeArgument", AllowDefault = true), Argument]
             public int ValueTypeProperty { get; set; }
         }
     }
