@@ -7,6 +7,7 @@
     <ProjectGuid>{A9DAE103-0C63-4CCE-B6B8-8F96FFF4D172}</ProjectGuid>
     <OutputType>Library</OutputType>
     <NuGetPackageImportStamp>9aa1cbbf</NuGetPackageImportStamp>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
